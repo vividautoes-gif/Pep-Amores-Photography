@@ -77,9 +77,11 @@ export const usePhotos = () => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    console.log("usePhotos: initializing onSnapshot");
     const q = query(collection(db, 'photos'), orderBy('createdAt', 'desc'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log("usePhotos: onSnapshot received data, docs length:", snapshot.docs.length);
       const photoData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -93,7 +95,10 @@ export const usePhotos = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log("usePhotos: unsubscribing");
+      unsubscribe();
+    };
   }, []);
 
   return { photos, loading, error };
@@ -107,6 +112,9 @@ export const useJourneys = () => {
     const q = query(collection(db, 'journeys'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setJourneys(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Journey[]);
+      setLoading(false);
+    }, (err) => {
+      console.error("Error fetching journeys:", err);
       setLoading(false);
     });
     return () => unsubscribe();
@@ -123,6 +131,9 @@ export const useStories = () => {
     const q = query(collection(db, 'stories'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setStories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Story[]);
+      setLoading(false);
+    }, (err) => {
+      console.error("Error fetching stories:", err);
       setLoading(false);
     });
     return () => unsubscribe();
