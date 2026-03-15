@@ -1,0 +1,100 @@
+{
+  "entities": {
+    "Photo": {
+      "title": "Photo",
+      "description": "A photograph in the gallery with its metadata.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the photo in Spanish" },
+        "title_en": { "type": "string", "description": "Title of the photo in English" },
+        "title_ca": { "type": "string", "description": "Title of the photo in Catalan" },
+        "url": { "type": "string", "description": "Direct URL to the image in Storage" },
+        "orientation": { "type": "string", "enum": ["landscape", "portrait", "square"], "description": "Visual orientation of the photo" },
+        "country": { "type": "string", "description": "Country where the photo was taken" },
+        "city": { "type": "string", "description": "City where the photo was taken" },
+        "neighborhood": { "type": "string", "description": "Neighborhood or specific area (optional)" },
+        "year": { "type": "number", "description": "Year the photo was taken" },
+        "journeyId": { "type": "string", "description": "ID of the journey this photo belongs to" },
+        "subtheme": { "type": "string", "description": "Subtheme within the journey (e.g., Chinatown, Markets)" },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Hashtags like #street, #portrait" },
+        "isLFI": { "type": "boolean", "description": "Whether it has LFI recognition" },
+        "lfiType": { "type": "string", "enum": ["lfimastershot", "lfiexhibition", "lfi-picture-of-the-week", "none"], "description": "Type of LFI recognition (slug format)" },
+        "isFavorite": { "type": "boolean", "description": "Whether it appears in favorites" },
+        "favoriteScore": { "type": "number", "description": "Ranking for favorites (1-100)" },
+        "caption": { "type": "string", "description": "Short story or context in Spanish" },
+        "caption_en": { "type": "string", "description": "Short story or context in English" },
+        "caption_ca": { "type": "string", "description": "Short story or context in Catalan" },
+        "storyId": { "type": "string", "description": "ID of the narrative series (Story) this photo belongs to" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Upload timestamp" },
+        "authorUid": { "type": "string", "description": "UID of the user who uploaded it" }
+      },
+      "required": ["title", "url", "orientation", "country", "year", "authorUid"]
+    },
+    "Journey": {
+      "title": "Journey",
+      "description": "A travel journal grouping photos by location.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "country": { "type": "string" },
+        "city": { "type": "string" },
+        "intro": { "type": "string", "description": "Brief introductory text in Spanish" },
+        "intro_en": { "type": "string" },
+        "intro_ca": { "type": "string" },
+        "coverUrl": { "type": "string" },
+        "subthemes": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "country", "intro"]
+    },
+    "Story": {
+      "title": "Story",
+      "description": "A narrative series of photos.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "title_en": { "type": "string" },
+        "title_ca": { "type": "string" },
+        "description": { "type": "string" },
+        "description_en": { "type": "string" },
+        "description_ca": { "type": "string" },
+        "coverUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "User comments on photos, journeys or guestbook.",
+      "type": "object",
+      "properties": {
+        "targetId": { "type": "string", "description": "ID of photo, journey, or 'guestbook'" },
+        "targetType": { "type": "string", "enum": ["photo", "journey", "guestbook"] },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "text": { "type": "string" },
+        "isApproved": { "type": "boolean", "default": false },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["targetId", "targetType", "userName", "text"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Application user with roles.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "editor"] },
+        "displayName": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "photos": { "schema": "Photo", "description": "Collection of all gallery photographs" },
+    "journeys": { "schema": "Journey", "description": "Travel journals" },
+    "stories": { "schema": "Story", "description": "Narrative series" },
+    "comments": { "schema": "Comment", "description": "User comments" },
+    "users": { "schema": "User", "description": "Registered users and their roles" }
+  }
+}
