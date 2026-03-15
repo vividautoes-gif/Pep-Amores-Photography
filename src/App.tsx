@@ -362,7 +362,7 @@ function Gallery() {
                 {/* CAPA 1: Canvas 3D de fondo (z-index más bajo) */}
                 <div className="absolute inset-0 z-0">
                   <InfiniteGallery 
-                    images={DB.length > 0 ? (DB.filter(p => p.isHero).length > 0 ? DB.filter(p => p.isHero) : DB.slice(0, 15)).map((p, i) => {
+                    images={DB.length > 0 ? DB.slice(0, 15).map((p, i) => {
                       return {
                         src: p.url,
                         alt: p.title
