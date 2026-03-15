@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, X, Send, MapPin, ChevronRight, Camera, AlertTriangle, Star, Award, Clock, User, MessageSquare, BarChart3, Lock, Image as ImageIcon } from 'lucide-react';
+import { Search, X, Send, MapPin, ChevronRight, Camera, AlertTriangle, Star, Award, Clock, User, MessageSquare, BarChart3, Lock, Image as ImageIcon, Aperture } from 'lucide-react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
@@ -15,7 +15,6 @@ import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot 
 import { CircularGallery, GalleryItem } from './components/ui/circular-gallery';
 import InfiniteGallery from './components/ui/3d-gallery-photography';
 import { CardStack3D } from './components/ui/3d-flip-card';
-import { IrisSpinner } from './components/ui/iris-spinner';
 import { Footer } from './components/ui/footer-section';
 
 // --- Components ---
@@ -382,7 +381,13 @@ function Gallery() {
   if (photosLoading && realDB.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <ShutterSpinner size="md" className="text-brand-primary mb-6" />
+        <motion.div
+          animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="text-[#B45309] mb-6"
+        >
+          <Aperture size={48} strokeWidth={1.5} />
+        </motion.div>
         <p className="text-brand-secondary font-serif italic animate-pulse">Cargando tu mundo visual...</p>
       </div>
     );
@@ -765,7 +770,13 @@ function Gallery() {
               </div>
               {photosLoading && filteredPhotos.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
-                  <IrisSpinner size="md" blades={8} cycleDuration={1200} />
+                  <motion.div
+                    animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="text-[#B45309]"
+                  >
+                    <Aperture size={32} strokeWidth={1.5} />
+                  </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
                     {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
                   </p>
@@ -843,7 +854,13 @@ function Gallery() {
               </div>
               {loading && DB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
-                  <IrisSpinner size="md" blades={8} cycleDuration={1200} />
+                  <motion.div
+                    animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="text-[#B45309]"
+                  >
+                    <Aperture size={32} strokeWidth={1.5} />
+                  </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
                     {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
                   </p>
@@ -868,7 +885,13 @@ function Gallery() {
               </div>
               {loading && DB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
-                  <IrisSpinner size="md" blades={8} cycleDuration={1200} />
+                  <motion.div
+                    animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="text-[#B45309]"
+                  >
+                    <Aperture size={32} strokeWidth={1.5} />
+                  </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
                     {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
                   </p>
@@ -898,7 +921,13 @@ function Gallery() {
               </div>
               {loading && DB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
-                  <IrisSpinner size="md" blades={8} cycleDuration={1200} />
+                  <motion.div
+                    animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="text-[#B45309]"
+                  >
+                    <Aperture size={32} strokeWidth={1.5} />
+                  </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
                     {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
                   </p>
@@ -1177,10 +1206,6 @@ const PepPanel = () => {
     </div>
   );
 };
-
-import { AuroraBackground } from './components/ui/aurora-background';
-
-import { ShutterSpinner } from './components/ui/shutter-spinner';
 
 export default function App() {
   return (
