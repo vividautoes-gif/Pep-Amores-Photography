@@ -5,18 +5,26 @@ import { doc, getDoc } from 'firebase/firestore';
 import { Login } from '../components/Admin/Login';
 import { UploadForm } from '../components/Admin/UploadForm';
 import { motion } from 'motion/react';
-import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert, Layers } from 'lucide-react';
+import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert, Layers, Hash, Star, Award, Mail } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { JourneyForm } from '../components/Admin/JourneyForm';
 import { HeroSelector } from '../components/Admin/HeroSelector';
 import { AlbumForm } from '../components/Admin/AlbumForm';
 import { PhotoManager } from '../components/Admin/PhotoManager';
+import { JourneyManager } from '../components/Admin/JourneyManager';
+import { AlbumManager } from '../components/Admin/AlbumManager';
+import { TagManager } from '../components/Admin/TagManager';
+import { FavoritesManager } from '../components/Admin/FavoritesManager';
+import { RecentPhotosManager } from '../components/Admin/RecentPhotosManager';
+import { LFIManager } from '../components/Admin/LFIManager';
+import { AboutMeEditor } from '../components/Admin/AboutMeEditor';
+import { ContactMessages } from '../components/Admin/ContactMessages';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos' | 'manage-journeys' | 'manage-albums' | 'manage-tags' | 'manage-favorites' | 'manage-recent' | 'manage-lfi' | 'manage-about' | 'manage-messages'>('photos');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -154,6 +162,62 @@ export const AdminPage: React.FC = () => {
                 <ImageIcon size={18} />
                 Gestionar Fotos
               </button>
+              <button 
+                onClick={() => setActiveTab('manage-journeys')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-journeys' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <MapPin size={18} />
+                Gestionar Viajes
+              </button>
+              <button 
+                onClick={() => setActiveTab('manage-albums')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-albums' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Layers size={18} />
+                Gestionar Álbumes
+              </button>
+              <button 
+                onClick={() => setActiveTab('manage-tags')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-tags' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Hash size={18} />
+                Gestionar Hashtags
+              </button>
+              <button 
+                onClick={() => setActiveTab('manage-favorites')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-favorites' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Star size={18} />
+                Gestionar Favoritas
+              </button>
+              <button 
+                onClick={() => setActiveTab('manage-recent')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-recent' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Clock size={18} />
+                Últimas 50
+              </button>
+              <button 
+                onClick={() => setActiveTab('manage-lfi')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-lfi' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Award size={18} />
+                Gestionar LFI
+              </button>
+              <button 
+                onClick={() => setActiveTab('manage-about')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-about' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <User size={18} />
+                Sobre Mí
+              </button>
+              <button 
+                onClick={() => setActiveTab('manage-messages')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-messages' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Mail size={18} />
+                Mensajes
+              </button>
             </nav>
           </aside>
 
@@ -167,10 +231,34 @@ export const AdminPage: React.FC = () => {
             >
               <div className="mb-12">
                 <h2 className="text-3xl font-serif italic mb-2">
-                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : activeTab === 'hero' ? 'Fotos del Hero' : activeTab === 'albums' ? 'Colecciones' : 'Gestionar Fotos'}
+                  {activeTab === 'photos' && 'Nueva Publicación'}
+                  {activeTab === 'journeys' && 'Nuevo Viaje'}
+                  {activeTab === 'hero' && 'Fotos del Hero'}
+                  {activeTab === 'albums' && 'Nueva Colección'}
+                  {activeTab === 'manage-photos' && 'Gestionar Fotos'}
+                  {activeTab === 'manage-journeys' && 'Gestionar Viajes'}
+                  {activeTab === 'manage-albums' && 'Gestionar Álbumes'}
+                  {activeTab === 'manage-tags' && 'Gestionar Hashtags'}
+                  {activeTab === 'manage-favorites' && 'Gestionar Favoritas'}
+                  {activeTab === 'manage-recent' && 'Últimas 50'}
+                  {activeTab === 'manage-lfi' && 'Gestionar LFI'}
+                  {activeTab === 'manage-about' && 'Sobre Mí'}
+                  {activeTab === 'manage-messages' && 'Mensajes'}
                 </h2>
                 <p className="text-gray-500">
-                  {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : activeTab === 'hero' ? 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.' : activeTab === 'albums' ? 'Gestiona tus colecciones de álbumes.' : 'Edita o elimina tus fotografías.'}
+                  {activeTab === 'photos' && 'Sube una imagen y completa los metadatos.'}
+                  {activeTab === 'journeys' && 'Crea un nuevo viaje para agrupar tus fotografías.'}
+                  {activeTab === 'hero' && 'Selecciona qué fotos quieres que aparezcan en la galería 3D.'}
+                  {activeTab === 'albums' && 'Crea una nueva colección de álbumes.'}
+                  {activeTab === 'manage-photos' && 'Edita o elimina tus fotografías.'}
+                  {activeTab === 'manage-journeys' && 'Edita o elimina tus viajes.'}
+                  {activeTab === 'manage-albums' && 'Edita o elimina tus colecciones.'}
+                  {activeTab === 'manage-tags' && 'Renombra hashtags en toda la galería.'}
+                  {activeTab === 'manage-favorites' && 'Reordena tus fotos favoritas.'}
+                  {activeTab === 'manage-recent' && 'Revisa las últimas 50 fotos subidas.'}
+                  {activeTab === 'manage-lfi' && 'Gestionar reconocimientos LFI.'}
+                  {activeTab === 'manage-about' && 'Edita tu biografía y perfil.'}
+                  {activeTab === 'manage-messages' && 'Lee los mensajes recibidos.'}
                 </p>
               </div>
               
@@ -179,6 +267,14 @@ export const AdminPage: React.FC = () => {
               {activeTab === 'hero' && <HeroSelector />}
               {activeTab === 'albums' && <AlbumForm />}
               {activeTab === 'manage-photos' && <PhotoManager />}
+              {activeTab === 'manage-journeys' && <JourneyManager />}
+              {activeTab === 'manage-albums' && <AlbumManager />}
+              {activeTab === 'manage-tags' && <TagManager />}
+              {activeTab === 'manage-favorites' && <FavoritesManager />}
+              {activeTab === 'manage-recent' && <RecentPhotosManager />}
+              {activeTab === 'manage-lfi' && <LFIManager />}
+              {activeTab === 'manage-about' && <AboutMeEditor />}
+              {activeTab === 'manage-messages' && <ContactMessages />}
             </motion.div>
           </section>
         </div>
