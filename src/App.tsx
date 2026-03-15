@@ -931,17 +931,45 @@ const PepPanel = () => {
   const [comments, setComments] = useState<any[]>([]);
   const [editors, setEditors] = useState<any[]>([]);
   const [newEditorEmail, setNewEditorEmail] = useState('');
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const checkAuth = async () => {
+      if (!auth.currentUser || !auth.currentUser.email) {
+        setIsAuthorized(false);
+        return;
+      }
+      
+      const hardcodedAdmins = ['eduard.kun115@gmail.com', 'pep.amores@gmail.com'];
+      if (hardcodedAdmins.includes(auth.currentUser.email)) {
+        setIsAuthorized(true);
+        return;
+      }
+
+      try {
+        const { doc, getDoc } = await import('firebase/firestore');
+        const editorDoc = await getDoc(doc(db, 'editors', auth.currentUser.email));
+        setIsAuthorized(editorDoc.exists());
+      } catch (error) {
+        console.error("Error checking editor status:", error);
+        setIsAuthorized(false);
+      }
+    };
+
+    checkAuth();
+  }, [auth.currentUser]);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
     const q = query(collection(db, 'comments'), orderBy('createdAt', 'desc'));
     return onSnapshot(q, (snap) => setComments(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
-  }, []);
+  }, [isAuthorized]);
 
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!isAuthorized) return;
     const q = query(collection(db, 'editors'));
     return onSnapshot(q, (snap) => setEditors(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
-  }, []);
+  }, [isAuthorized]);
 
   const handleAddEditor = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -971,7 +999,21 @@ const PepPanel = () => {
     }
   };
 
-  if (!auth.currentUser) return <div className="p-20 text-center">Acceso restringido.</div>;
+  if (isAuthorized === null) {
+    return <div className="p-20 text-center">Verificando permisos...</div>;
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-4 text-center">
+        <h1 className="text-3xl font-serif italic mb-2">Acceso Denegado</h1>
+        <p className="text-gray-500 mb-8 max-w-md">Tu cuenta no tiene permisos para acceder a este panel.</p>
+        <Link to="/" className="px-8 py-4 bg-black text-white rounded-2xl font-medium hover:bg-zinc-800 transition-all">
+          Volver al Inicio
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 p-8 md:p-12">
@@ -1052,6 +1094,10 @@ const PepPanel = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl">
                   <span className="text-sm font-medium">eduard.kun115@gmail.com</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">Propietario</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl">
+                  <span className="text-sm font-medium">pep.amores@gmail.com</span>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">Propietario</span>
                 </div>
                 {editors.map(editor => (

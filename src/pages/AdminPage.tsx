@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { Login } from '../components/Admin/Login';
 import { UploadForm } from '../components/Admin/UploadForm';
 import { motion } from 'motion/react';
-import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock } from 'lucide-react';
+import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { JourneyForm } from '../components/Admin/JourneyForm';
 import { StoryForm } from '../components/Admin/StoryForm';
@@ -14,8 +15,36 @@ import { cn } from '../lib/utils';
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
   const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'stories'>('photos');
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
-  if (loading) {
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!user || !user.email) {
+        setIsAuthorized(false);
+        return;
+      }
+      
+      const hardcodedAdmins = ['eduard.kun115@gmail.com', 'pep.amores@gmail.com'];
+      if (hardcodedAdmins.includes(user.email)) {
+        setIsAuthorized(true);
+        return;
+      }
+
+      try {
+        const editorDoc = await getDoc(doc(db, 'editors', user.email));
+        setIsAuthorized(editorDoc.exists());
+      } catch (error) {
+        console.error("Error checking editor status:", error);
+        setIsAuthorized(false);
+      }
+    };
+
+    if (user) {
+      checkAuth();
+    }
+  }, [user]);
+
+  if (loading || (user && isAuthorized === null)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#E4E3E0]">
         <motion.div 
@@ -29,6 +58,21 @@ export const AdminPage: React.FC = () => {
 
   if (!user) {
     return <Login />;
+  }
+
+  if (isAuthorized === false) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#E4E3E0] p-4 text-center">
+        <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-red-600/20">
+          <ShieldAlert className="text-white w-8 h-8" />
+        </div>
+        <h1 className="text-3xl font-serif italic mb-2">Acceso Denegado</h1>
+        <p className="text-gray-500 mb-8 max-w-md">Tu cuenta ({user.email}) no tiene permisos de administrador para acceder a este panel.</p>
+        <button onClick={() => signOut(auth)} className="px-8 py-4 bg-black text-white rounded-2xl font-medium hover:bg-zinc-800 transition-all">
+          Cerrar Sesión y volver
+        </button>
+      </div>
+    );
   }
 
   return (
