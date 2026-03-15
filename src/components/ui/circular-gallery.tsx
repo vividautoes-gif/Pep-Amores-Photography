@@ -45,7 +45,9 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
       };
     }, [isDragging, autoRotateSpeed]);
 
-    const anglePerItem = 360 / items.length;
+    const anglePerItem = items.length > 0 ? 360 / items.length : 0;
+    
+    if (items.length === 0) return null;
     
     return (
       <div className="flex flex-col items-center justify-center w-full h-full overflow-x-hidden overflow-y-visible py-12 md:py-20">

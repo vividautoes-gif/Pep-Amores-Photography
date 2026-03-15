@@ -1,7 +1,7 @@
 import type React from "react";
-import { useRef, useMemo, useState, useEffect } from "react";
+import { useRef, useMemo, useState, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useTexture, Html } from "@react-three/drei";
 import * as THREE from "three";
 
 type ImageItem = string | { src: string; alt?: string };
@@ -124,7 +124,9 @@ function GalleryScene({
   isMobile = false,
 }: Omit<InfiniteGalleryProps, "className" | "style"> & { isMobile?: boolean }) {
   const normalizedImages = useMemo(
-    () => images.map((img) => (typeof img === "string" ? { src: img, alt: "" } : img)),
+    () => images
+      .map((img) => (typeof img === "string" ? { src: img, alt: "" } : img))
+      .filter(img => img && img.src),
     [images]
   );
 
@@ -289,7 +291,9 @@ function GalleryScene({
 
 function FallbackGallery({ images }: { images: ImageItem[] }) {
   const normalizedImages = useMemo(
-    () => images.map((img) => (typeof img === "string" ? { src: img, alt: "" } : img)),
+    () => images
+      .map((img) => (typeof img === "string" ? { src: img, alt: "" } : img))
+      .filter(img => img && img.src),
     [images]
   );
   return (
@@ -356,14 +360,16 @@ export default function InfiniteGallery({
         camera={{ position: [0, 0, 0], fov: 55 }}
         gl={{ antialias: true, alpha: true }}
       >
-        <GalleryScene
-          images={images}
-          speed={speed}
-          visibleCount={visibleCount}
-          fadeSettings={fadeSettings}
-          blurSettings={blurSettings}
-          isMobile={isMobile}
-        />
+        <Suspense fallback={<Html center><div className="text-brand-secondary font-serif italic">Cargando galería...</div></Html>}>
+          <GalleryScene
+            images={images}
+            speed={speed}
+            visibleCount={visibleCount}
+            fadeSettings={fadeSettings}
+            blurSettings={blurSettings}
+            isMobile={isMobile}
+          />
+        </Suspense>
       </Canvas>
     </div>
   );

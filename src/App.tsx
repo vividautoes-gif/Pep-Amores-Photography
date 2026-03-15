@@ -274,12 +274,56 @@ const MOCK_SDB: Story[] = [
   }
 ];
 
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean, error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
+          <AlertTriangle size={48} className="text-red-500 mb-4" />
+          <h1 className="text-2xl font-serif italic mb-2">Algo ha salido mal</h1>
+          <p className="text-brand-secondary mb-6 max-w-md">
+            {this.state.error?.message || "Ha ocurrido un error inesperado al renderizar la página."}
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-8 py-3 bg-brand-primary text-white text-xs font-bold uppercase tracking-widest rounded-full"
+          >
+            Recargar página
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function Gallery() {
   console.log("Rendering Gallery...");
-  const { photos: realDB, loading, error } = usePhotos();
-  const { journeys: realJDB } = useJourneys();
-  const { stories: realSDB } = useStories();
+  const { photos: rawPhotos, loading: photosLoading, error: photosError } = usePhotos();
+  const { journeys: rawJourneys, loading: journeysLoading } = useJourneys();
+  const { stories: rawStories, loading: storiesLoading } = useStories();
   
+  const loading = photosLoading || journeysLoading || storiesLoading;
+  
+  // Sanitización de datos: Asegurarse de que las fotos tengan URL y los campos necesarios
+  const realDB = useMemo(() => rawPhotos.filter(p => p && p.url && p.id), [rawPhotos]);
+  const realJDB = useMemo(() => rawJourneys.filter(j => j && j.id && j.title), [rawJourneys]);
+  const realSDB = useMemo(() => rawStories.filter(s => s && s.id && s.title), [rawStories]);
+
   const DB = realDB.length > 0 ? realDB : MOCK_DB;
   const JDB = realJDB.length > 0 ? realJDB : MOCK_JDB;
   const SDB = realSDB.length > 0 ? realSDB : MOCK_SDB;
@@ -309,7 +353,7 @@ function Gallery() {
       const title = lang === 'es' ? p.title : lang === 'en' ? p.title_en : p.title_ca;
       const tags = Array.isArray(p.tags) ? p.tags.filter(t => typeof t === 'string') : [];
       const matchText = (title || '').toLowerCase().includes(query) || 
-                        (p.country || '').toLowerCase().includes(query) ||
+                        (p.country || '').toLowerCase().includes(query) || 
                         (p.city || '').toLowerCase().includes(query) ||
                         tags.some(t => t.toLowerCase().includes(query));
       
@@ -335,14 +379,23 @@ function Gallery() {
     setSearchQuery('');
   };
 
-  if (error) {
+  if (photosLoading && realDB.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <ShutterSpinner size="md" className="text-brand-primary mb-6" />
+        <p className="text-brand-secondary font-serif italic animate-pulse">Cargando tu mundo visual...</p>
+      </div>
+    );
+  }
+
+  if (photosError) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
         <AlertTriangle size={48} className="text-brand-accent mb-4" />
         <h1 className="text-2xl font-serif italic mb-2">
           {lang === 'es' ? 'Error de conexión' : lang === 'ca' ? 'Error de connexió' : 'Connection Error'}
         </h1>
-        <p className="text-brand-secondary mb-6 max-w-md">{error.message}</p>
+        <p className="text-brand-secondary mb-6 max-w-md">{photosError.message}</p>
         <button onClick={() => window.location.reload()} className="px-8 py-3 bg-brand-primary text-white text-xs font-bold uppercase tracking-widest rounded-full">
           {lang === 'es' ? 'Reintentar' : lang === 'ca' ? 'Reintentar' : 'Retry'}
         </button>
@@ -706,7 +759,7 @@ function Gallery() {
                   </div>
                 </div>
               </div>
-              {loading && filteredPhotos.length === 0 ? (
+              {photosLoading && filteredPhotos.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <IrisSpinner size="md" blades={8} cycleDuration={1200} />
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
@@ -1127,13 +1180,15 @@ import { ShutterSpinner } from './components/ui/shutter-spinner';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/pep-panel" element={<PepPanel />} />
-        <Route path="/" element={<Gallery />} />
-        <Route path="*" element={<Gallery />} />
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/pep-panel" element={<PepPanel />} />
+          <Route path="/" element={<Gallery />} />
+          <Route path="*" element={<Gallery />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
