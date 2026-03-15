@@ -74,15 +74,55 @@ export const UploadForm: React.FC = () => {
       let extractedDate = formData.photoDate;
       const dateTimeOriginal = tags['DateTimeOriginal']?.description || tags['DateTime']?.description || '';
       if (dateTimeOriginal) {
-        // EXIF date format is usually "YYYY:MM:DD HH:MM:SS"
         const yearMatch = dateTimeOriginal.match(/^(\d{4})/);
         if (yearMatch) {
           extractedYear = parseInt(yearMatch[1], 10);
         }
-        // Convert "YYYY:MM:DD HH:MM:SS" to "YYYY-MM-DD"
         const dateParts = dateTimeOriginal.split(' ')[0].split(':');
         if (dateParts.length === 3) {
           extractedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
+        }
+      }
+
+      // Extraer Ubicación (GPS)
+      let extractedCity = '';
+      let extractedCountry = '';
+
+      if (tags['GPSLatitude'] && tags['GPSLongitude']) {
+        const lat = tags['GPSLatitude'].description;
+        const lon = tags['GPSLongitude'].description;
+        
+        // El formato de description puede variar, ExifReader suele darlo en decimal si se usa correctamente
+        // Pero a veces es un array de grados, minutos, segundos.
+        // Usamos las propiedades numéricas si están disponibles
+        const latitude = tags['GPSLatitude'].value as any;
+        const longitude = tags['GPSLongitude'].value as any;
+        const latRef = tags['GPSLatitudeRef']?.value?.[0] || 'N';
+        const lonRef = tags['GPSLongitudeRef']?.value?.[0] || 'E';
+
+        const convertToDecimal = (gpsArray: any[], ref: string) => {
+          if (!gpsArray || gpsArray.length < 3) return null;
+          let decimal = gpsArray[0] + gpsArray[1] / 60 + gpsArray[2] / 3600;
+          if (ref === 'S' || ref === 'W') decimal = -decimal;
+          return decimal;
+        };
+
+        const latDec = convertToDecimal(latitude, latRef);
+        const lonDec = convertToDecimal(longitude, lonRef);
+
+        if (latDec !== null && lonDec !== null) {
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=10&addressdetails=1`, {
+              headers: { 'Accept-Language': 'es' }
+            });
+            const data = await response.json();
+            if (data.address) {
+              extractedCity = data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.county || '';
+              extractedCountry = data.address.country || '';
+            }
+          } catch (geoError) {
+            console.error('Error en geocodificación inversa:', geoError);
+          }
         }
       }
 
@@ -96,7 +136,9 @@ export const UploadForm: React.FC = () => {
         iso: iso ? iso.toString() : prev.iso,
         year: extractedYear !== undefined ? extractedYear : prev.year,
         photoDate: extractedDate !== undefined ? extractedDate : prev.photoDate,
-        caption: imageDescription || prev.caption
+        caption: imageDescription || prev.caption,
+        city: extractedCity || prev.city,
+        country: extractedCountry || prev.country
       }));
     } catch (error) {
       console.error('Error leyendo EXIF:', error);
