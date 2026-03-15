@@ -49,14 +49,17 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, showRank, 
         </div>
       </div>
 
-      <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+      <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
         {photo.isLFI && (
-          <span className="bg-brand-accent text-white text-[10px] font-black uppercase px-2 py-1 rounded-sm shadow-lg">
-            LFI Mastershot
+          <span className="bg-leica-red text-white text-[8px] md:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg tracking-tighter">
+            {photo.lfiType === 'lfimastershot' ? 'LFI Mastershot' : 
+             photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
+             photo.lfiType === 'lfi-picture-of-the-week' ? 'LFI Picture of the Week' : 
+             'LFI Selection'}
           </span>
         )}
         {showRank && (
-          <span className="bg-white text-brand-primary text-[10px] font-black uppercase px-2 py-1 rounded-sm shadow-lg">
+          <span className="bg-white text-brand-primary text-[8px] md:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg">
             {photo.favoriteScore} PTS
           </span>
         )}

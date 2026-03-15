@@ -140,7 +140,12 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose }) => {
                       </motion.div>
                       {photo.isLFI && (
                         <motion.div variants={itemVariants} className="flex flex-col col-span-1 md:col-span-2 mt-2">
-                          <span className="text-xs text-brand-accent uppercase tracking-widest font-bold">LFI Selection</span>
+                          <span className="text-xs text-leica-red uppercase tracking-widest font-bold">
+                            {photo.lfiType === 'lfimastershot' ? 'LFI Mastershot' : 
+                             photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
+                             photo.lfiType === 'lfi-picture-of-the-week' ? 'LFI Picture of the Week' : 
+                             'LFI Selection'}
+                          </span>
                         </motion.div>
                       )}
                     </motion.div>

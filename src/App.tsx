@@ -813,8 +813,11 @@ function Gallery() {
                 <p className="text-brand-secondary font-light mb-12">{s.subtitles.lfi}</p>
                 <div className="flex justify-center gap-4 mb-12">
                   {['all', 'lfimastershot', 'lfiexhibition', 'lfi-picture-of-the-week'].map(type => (
-                    <button key={type} onClick={() => setLfiFilter(type as any)} className={cn("px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", lfiFilter === type ? "bg-red-600 text-white border-red-600" : "bg-white text-brand-secondary border-neutral-200 hover:border-red-600 hover:text-red-600")}>
-                      {type === 'all' ? (lang === 'es' ? 'Todo LFI' : lang === 'ca' ? 'Tot LFI' : 'All LFI') : `#${type}`}
+                    <button key={type} onClick={() => setLfiFilter(type as any)} className={cn("px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", lfiFilter === type ? "bg-leica-red text-white border-leica-red" : "bg-white text-brand-secondary border-neutral-200 hover:border-leica-red hover:text-leica-red")}>
+                      {type === 'all' ? (lang === 'es' ? 'Todo LFI' : lang === 'ca' ? 'Tot LFI' : 'All LFI') : 
+                       type === 'lfimastershot' ? 'Mastershot' : 
+                       type === 'lfiexhibition' ? 'Exhibition' : 
+                       'Picture of the Week'}
                     </button>
                   ))}
                 </div>

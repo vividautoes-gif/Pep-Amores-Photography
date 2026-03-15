@@ -35,7 +35,7 @@ export const LFIManager: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="bg-red-50 p-6 rounded-2xl border border-red-100 mb-8">
-        <h3 className="text-red-900 font-medium mb-2 flex items-center gap-2">
+        <h3 className="text-leica-red font-medium mb-2 flex items-center gap-2">
           <Award size={18} />
           Sobre esta sección: Gestión de Reconocimientos LFI
         </h3>
