@@ -5,16 +5,17 @@ import { doc, getDoc } from 'firebase/firestore';
 import { Login } from '../components/Admin/Login';
 import { UploadForm } from '../components/Admin/UploadForm';
 import { motion } from 'motion/react';
-import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert } from 'lucide-react';
+import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert, Layers } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { JourneyForm } from '../components/Admin/JourneyForm';
 import { HeroSelector } from '../components/Admin/HeroSelector';
+import { AlbumForm } from '../components/Admin/AlbumForm';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums'>('photos');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -138,6 +139,13 @@ export const AdminPage: React.FC = () => {
                 <ImageIcon size={18} />
                 Fotos del Hero
               </button>
+              <button 
+                onClick={() => setActiveTab('albums')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'albums' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Layers size={18} />
+                Colecciones
+              </button>
             </nav>
           </aside>
 
@@ -151,16 +159,17 @@ export const AdminPage: React.FC = () => {
             >
               <div className="mb-12">
                 <h2 className="text-3xl font-serif italic mb-2">
-                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : 'Fotos del Hero'}
+                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : activeTab === 'hero' ? 'Fotos del Hero' : 'Colecciones'}
                 </h2>
                 <p className="text-gray-500">
-                  {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.'}
+                  {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : activeTab === 'hero' ? 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.' : 'Gestiona tus colecciones de álbumes.'}
                 </p>
               </div>
               
               {activeTab === 'photos' && <UploadForm />}
               {activeTab === 'journeys' && <JourneyForm />}
               {activeTab === 'hero' && <HeroSelector />}
+              {activeTab === 'albums' && <AlbumForm />}
             </motion.div>
           </section>
         </div>
