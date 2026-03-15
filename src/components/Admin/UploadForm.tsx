@@ -11,6 +11,7 @@ export const UploadForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadStep, setUploadStep] = useState('');
   const [progress, setProgress] = useState(0);
   const [translating, setTranslating] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -94,9 +95,13 @@ export const UploadForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !auth.currentUser) return;
+    if (!file || !auth.currentUser) {
+      alert("Falta el archivo o no has iniciado sesión.");
+      return;
+    }
 
     setUploading(true);
+    setUploadStep('Traduciendo textos (1/3)...');
     
     try {
       setTranslating(true);
@@ -104,6 +109,7 @@ export const UploadForm: React.FC = () => {
       const captionTranslations = formData.caption ? await translateMetadata(formData.caption, ['en', 'ca']) : {};
       setTranslating(false);
 
+      setUploadStep('Subiendo imagen a Firebase Storage (2/3)...');
       const storageRef = ref(storage, `photos/${Date.now()}_${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -115,10 +121,12 @@ export const UploadForm: React.FC = () => {
         (error) => {
           console.error("Upload error:", error);
           setUploading(false);
-          alert("Error al subir la imagen: " + error.message);
+          setUploadStep('');
+          alert("Error al subir la imagen: " + error.message + "\n\n¿Has activado Firebase Storage en la consola de Firebase?");
         },
         async () => {
           try {
+            setUploadStep('Guardando datos en la base de datos (3/3)...');
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             
             await addDoc(collection(db, 'photos'), {
@@ -142,6 +150,7 @@ export const UploadForm: React.FC = () => {
             setFile(null);
             setPreview(null);
             setUploading(false);
+            setUploadStep('');
             setProgress(0);
             setFormData({
               title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(),
@@ -153,6 +162,7 @@ export const UploadForm: React.FC = () => {
           } catch (err: any) {
             console.error("Error saving to Firestore:", err);
             setUploading(false);
+            setUploadStep('');
             alert("Error al guardar los datos en la base de datos: " + err.message);
           }
         }
@@ -160,6 +170,7 @@ export const UploadForm: React.FC = () => {
     } catch (error: any) {
       console.error("Error submitting form:", error);
       setUploading(false);
+      setUploadStep('');
       alert("Error general: " + error.message);
     }
   };
@@ -203,7 +214,7 @@ export const UploadForm: React.FC = () => {
           {uploading && (
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-mono">
-                <span>Subiendo...</span>
+                <span>{uploadStep || 'Subiendo...'}</span>
                 <span>{Math.round(progress)}%</span>
               </div>
               <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
