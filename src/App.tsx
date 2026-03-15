@@ -94,6 +94,17 @@ const CommentSection = ({ targetId, targetType }: { targetId: string, targetType
 
 // --- Main Gallery ---
 
+interface GalleryItem {
+  common: string;
+  binomial: string;
+  photo: {
+    url: string;
+    text: string;
+    by: string;
+    orientation: 'landscape' | 'portrait' | 'square';
+  };
+}
+
 const PREVIEW_ITEMS: GalleryItem[] = [
   {
     common: 'Street Life',

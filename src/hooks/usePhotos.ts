@@ -13,6 +13,7 @@ export interface Photo {
   city: string;
   neighborhood?: string;
   year: number;
+  photoDate?: string;
   journeyId?: string;
   subtheme?: string;
   tags: string[];

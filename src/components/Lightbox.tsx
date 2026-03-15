@@ -136,7 +136,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose }) => {
                       </motion.div>
                       <motion.div variants={itemVariants} className="flex flex-col">
                         <span className="text-xs text-white/50 uppercase tracking-widest mb-1">Date</span>
-                        <span className="text-sm font-medium">{formatDate(photo.createdAt) || photo.year}</span>
+                        <span className="text-sm font-medium">{photo.photoDate ? formatDate(photo.photoDate) : (formatDate(photo.createdAt) || photo.year)}</span>
                       </motion.div>
                       {photo.isLFI && (
                         <motion.div variants={itemVariants} className="flex flex-col col-span-1 md:col-span-2 mt-2">

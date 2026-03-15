@@ -25,6 +25,7 @@ export const UploadForm: React.FC = () => {
     city: '',
     neighborhood: '',
     year: new Date().getFullYear(),
+    photoDate: '',
     tags: '',
     orientation: 'landscape' as 'landscape' | 'portrait' | 'square',
     isFavorite: false,
@@ -67,6 +68,22 @@ export const UploadForm: React.FC = () => {
       const exposureTime = tags['ExposureTime']?.description || '';
       const aperture = tags['FNumber']?.description || '';
       const iso = tags['ISOSpeedRatings']?.description || '';
+      
+      let extractedYear = formData.year;
+      let extractedDate = formData.photoDate;
+      const dateTimeOriginal = tags['DateTimeOriginal']?.description || tags['DateTime']?.description || '';
+      if (dateTimeOriginal) {
+        // EXIF date format is usually "YYYY:MM:DD HH:MM:SS"
+        const yearMatch = dateTimeOriginal.match(/^(\d{4})/);
+        if (yearMatch) {
+          extractedYear = parseInt(yearMatch[1], 10);
+        }
+        // Convert "YYYY:MM:DD HH:MM:SS" to "YYYY-MM-DD"
+        const dateParts = dateTimeOriginal.split(' ')[0].split(':');
+        if (dateParts.length === 3) {
+          extractedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
+        }
+      }
 
       setFormData(prev => ({
         ...prev,
@@ -75,7 +92,9 @@ export const UploadForm: React.FC = () => {
         focalLength: focalLength ? focalLength.replace(/\s*mm/gi, '') : prev.focalLength,
         exposureTime: exposureTime || prev.exposureTime,
         aperture: aperture ? aperture.replace(/f\//gi, '') : prev.aperture,
-        iso: iso ? iso.toString() : prev.iso
+        iso: iso ? iso.toString() : prev.iso,
+        year: extractedYear !== undefined ? extractedYear : prev.year,
+        photoDate: extractedDate !== undefined ? extractedDate : prev.photoDate
       }));
     } catch (error) {
       console.error('Error leyendo EXIF:', error);
@@ -175,7 +194,7 @@ export const UploadForm: React.FC = () => {
             setUploadStep('');
             setProgress(0);
             setFormData({
-              title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(),
+              title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(), photoDate: '',
               tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
               isLFI: false, lfiType: 'none', isHero: false, isJourneyCover: false, caption: '', journeyId: '', subtheme: '',
               cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
@@ -255,7 +274,7 @@ export const UploadForm: React.FC = () => {
             <div className="col-span-2">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (ES)</label>
               <input 
-                type="text" required value={formData.title}
+                type="text" value={formData.title}
                 onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                 placeholder="Ej: El Monje Solitario"
@@ -265,7 +284,7 @@ export const UploadForm: React.FC = () => {
             <div>
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País</label>
               <input 
-                type="text" required value={formData.country}
+                type="text" value={formData.country}
                 onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
                 className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                 placeholder="Marruecos"
@@ -293,9 +312,18 @@ export const UploadForm: React.FC = () => {
             </div>
 
             <div>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Fecha de la Foto</label>
+              <input 
+                type="date" value={formData.photoDate}
+                onChange={e => setFormData(prev => ({ ...prev, photoDate: e.target.value }))}
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+              />
+            </div>
+
+            <div>
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Año</label>
               <input 
-                type="number" required value={formData.year}
+                type="number" value={formData.year}
                 onChange={e => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
                 className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
               />
@@ -349,7 +377,7 @@ export const UploadForm: React.FC = () => {
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Cámara</label>
                   <input 
-                    type="text" value={formData.cameraModel} required
+                    type="text" value={formData.cameraModel}
                     onChange={e => setFormData(prev => ({ ...prev, cameraModel: e.target.value }))}
                     className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                     placeholder="Ej: SL3"
@@ -358,7 +386,7 @@ export const UploadForm: React.FC = () => {
                 <div className="md:col-span-2">
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Lente</label>
                   <input 
-                    type="text" value={formData.lens} required
+                    type="text" value={formData.lens}
                     onChange={e => setFormData(prev => ({ ...prev, lens: e.target.value }))}
                     className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                     placeholder="Ej: Vario-Elmarit-SL 24-90 f/2.8-4 Asph"
@@ -367,7 +395,7 @@ export const UploadForm: React.FC = () => {
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Distancia Focal</label>
                   <input 
-                    type="text" value={formData.focalLength} required
+                    type="text" value={formData.focalLength}
                     onChange={e => setFormData(prev => ({ ...prev, focalLength: e.target.value }))}
                     className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                     placeholder="Ej: 89"
@@ -376,7 +404,7 @@ export const UploadForm: React.FC = () => {
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Tiempo de Exposición</label>
                   <input 
-                    type="text" value={formData.exposureTime} required
+                    type="text" value={formData.exposureTime}
                     onChange={e => setFormData(prev => ({ ...prev, exposureTime: e.target.value }))}
                     className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                     placeholder="Ej: 1/50"
@@ -385,7 +413,7 @@ export const UploadForm: React.FC = () => {
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Apertura</label>
                   <input 
-                    type="text" value={formData.aperture} required
+                    type="text" value={formData.aperture}
                     onChange={e => setFormData(prev => ({ ...prev, aperture: e.target.value }))}
                     className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                     placeholder="Ej: 4.5"
@@ -394,7 +422,7 @@ export const UploadForm: React.FC = () => {
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">ISO</label>
                   <input 
-                    type="text" value={formData.iso} required
+                    type="text" value={formData.iso}
                     onChange={e => setFormData(prev => ({ ...prev, iso: e.target.value }))}
                     className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
                     placeholder="Ej: 125"
