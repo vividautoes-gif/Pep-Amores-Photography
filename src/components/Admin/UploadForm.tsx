@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, storage, auth } from '../../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { motion } from 'motion/react';
 import { Upload, X, Check, Loader2, Globe, Image as ImageIcon, Send, Award, Star, MapPin } from 'lucide-react';
 import { translateMetadata } from '../../services/geminiService';
@@ -13,6 +13,7 @@ export const UploadForm: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [translating, setTranslating] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
@@ -29,6 +30,8 @@ export const UploadForm: React.FC = () => {
     favoriteScore: 50,
     isLFI: false,
     lfiType: 'none' as 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week' | 'none',
+    isHero: false,
+    isJourneyCover: false,
     caption: '',
     journeyId: '',
     subtheme: '',
@@ -51,20 +54,41 @@ export const UploadForm: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleFileSelection = (selectedFile: File) => {
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
+    
+    const img = new Image();
+    img.onload = () => {
+      const ratio = img.width / img.height;
+      if (ratio > 1.2) setFormData(prev => ({ ...prev, orientation: 'landscape' }));
+      else if (ratio < 0.8) setFormData(prev => ({ ...prev, orientation: 'portrait' }));
+      else setFormData(prev => ({ ...prev, orientation: 'square' }));
+    };
+    img.src = URL.createObjectURL(selectedFile);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-      
-      const img = new Image();
-      img.onload = () => {
-        const ratio = img.width / img.height;
-        if (ratio > 1.2) setFormData(prev => ({ ...prev, orientation: 'landscape' }));
-        else if (ratio < 0.8) setFormData(prev => ({ ...prev, orientation: 'portrait' }));
-        else setFormData(prev => ({ ...prev, orientation: 'square' }));
-      };
-      img.src = URL.createObjectURL(selectedFile);
+      handleFileSelection(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelection(e.dataTransfer.files[0]);
     }
   };
 
@@ -91,38 +115,52 @@ export const UploadForm: React.FC = () => {
         (error) => {
           console.error("Upload error:", error);
           setUploading(false);
+          alert("Error al subir la imagen: " + error.message);
         },
         async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          
-          await addDoc(collection(db, 'photos'), {
-            ...formData,
-            title_en: translations.en || formData.title,
-            title_ca: translations.ca || formData.title,
-            caption_en: captionTranslations.en || formData.caption,
-            caption_ca: captionTranslations.ca || formData.caption,
-            url: downloadURL,
-            tags: formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t),
-            authorUid: auth.currentUser?.uid,
-            createdAt: serverTimestamp()
-          });
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            
+            await addDoc(collection(db, 'photos'), {
+              ...formData,
+              title_en: translations.en || formData.title,
+              title_ca: translations.ca || formData.title,
+              caption_en: captionTranslations.en || formData.caption,
+              caption_ca: captionTranslations.ca || formData.caption,
+              url: downloadURL,
+              tags: formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t),
+              authorUid: auth.currentUser?.uid,
+              createdAt: serverTimestamp()
+            });
 
-          setFile(null);
-          setPreview(null);
-          setUploading(false);
-          setProgress(0);
-          setFormData({
-            title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(),
-            tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
-            isLFI: false, lfiType: 'none', caption: '', journeyId: '', subtheme: '', storyId: '',
-            cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
-          });
-          alert("¡Fotografía publicada con éxito!");
+            if (formData.isJourneyCover && formData.journeyId) {
+              await updateDoc(doc(db, 'journeys', formData.journeyId), {
+                coverUrl: downloadURL
+              });
+            }
+
+            setFile(null);
+            setPreview(null);
+            setUploading(false);
+            setProgress(0);
+            setFormData({
+              title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(),
+              tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
+              isLFI: false, lfiType: 'none', isHero: false, isJourneyCover: false, caption: '', journeyId: '', subtheme: '', storyId: '',
+              cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
+            });
+            alert("¡Fotografía publicada con éxito!");
+          } catch (err: any) {
+            console.error("Error saving to Firestore:", err);
+            setUploading(false);
+            alert("Error al guardar los datos en la base de datos: " + err.message);
+          }
         }
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error);
       setUploading(false);
+      alert("Error general: " + error.message);
     }
   };
 
@@ -131,7 +169,12 @@ export const UploadForm: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="space-y-4">
           <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Imagen</label>
-          <div className={`relative aspect-[4/3] rounded-3xl border-2 border-dashed transition-all overflow-hidden flex items-center justify-center ${preview ? 'border-transparent' : 'border-gray-300 hover:border-black bg-white/50'}`}>
+          <div 
+            className={`relative aspect-[4/3] rounded-3xl border-2 border-dashed transition-all overflow-hidden flex items-center justify-center ${preview ? 'border-transparent' : isDragging ? 'border-black bg-black/5' : 'border-gray-300 hover:border-black bg-white/50'}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             {preview ? (
               <>
                 <img src={preview} alt="Preview" className="w-full h-full object-contain" />
@@ -382,6 +425,26 @@ export const UploadForm: React.FC = () => {
                   <option value="lfiexhibition">#LFIexhibition</option>
                   <option value="lfi-picture-of-the-week">#LFIpictureoftheweek</option>
                 </select>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-6 pt-2">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.isHero ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 group-hover:border-blue-600'}`}>
+                  <input type="checkbox" className="hidden" checked={formData.isHero} onChange={e => setFormData(prev => ({ ...prev, isHero: e.target.checked }))} />
+                  {formData.isHero && <Check size={14} />}
+                </div>
+                <span className="text-sm font-medium">Mostrar en Hero (Inicio)</span>
+              </label>
+
+              {formData.journeyId && (
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.isJourneyCover ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-gray-300 group-hover:border-emerald-600'}`}>
+                    <input type="checkbox" className="hidden" checked={formData.isJourneyCover} onChange={e => setFormData(prev => ({ ...prev, isJourneyCover: e.target.checked }))} />
+                    {formData.isJourneyCover && <Check size={14} />}
+                  </div>
+                  <span className="text-sm font-medium">Usar como Portada del Viaje</span>
+                </label>
               )}
             </div>
           </div>
