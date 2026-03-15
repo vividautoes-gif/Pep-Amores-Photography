@@ -389,8 +389,8 @@ function Gallery() {
                   
                   <div className="pointer-events-auto">
                     <button onClick={() => setCurrentSection('explore')} className="group relative px-12 py-4 bg-brand-primary text-white text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95">
-                      <span className="relative z-10">{s.nav[2]}</span>
-                      <div className="absolute inset-0 bg-brand-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                      <span className="relative z-10 group-hover:text-brand-primary transition-colors duration-300">{s.nav[2]}</span>
+                      <div className="absolute inset-0 bg-brand-tertiary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
                   </div>
                 </div>
