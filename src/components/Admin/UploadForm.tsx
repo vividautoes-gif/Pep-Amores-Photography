@@ -87,14 +87,9 @@ export const UploadForm: React.FC = () => {
       // Extraer Ubicación (GPS)
       let extractedCity = '';
       let extractedCountry = '';
+      let extractedNeighborhood = '';
 
       if (tags['GPSLatitude'] && tags['GPSLongitude']) {
-        const lat = tags['GPSLatitude'].description;
-        const lon = tags['GPSLongitude'].description;
-        
-        // El formato de description puede variar, ExifReader suele darlo en decimal si se usa correctamente
-        // Pero a veces es un array de grados, minutos, segundos.
-        // Usamos las propiedades numéricas si están disponibles
         const latitude = tags['GPSLatitude'].value as any;
         const longitude = tags['GPSLongitude'].value as any;
         const latRef = tags['GPSLatitudeRef']?.value?.[0] || 'N';
@@ -112,12 +107,13 @@ export const UploadForm: React.FC = () => {
 
         if (latDec !== null && lonDec !== null) {
           try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=10&addressdetails=1`, {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1`, {
               headers: { 'Accept-Language': 'es' }
             });
             const data = await response.json();
             if (data.address) {
-              extractedCity = data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.county || '';
+              extractedCity = data.address.city || data.address.town || data.address.village || '';
+              extractedNeighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential || '';
               extractedCountry = data.address.country || '';
             }
           } catch (geoError) {
@@ -138,7 +134,8 @@ export const UploadForm: React.FC = () => {
         photoDate: extractedDate !== undefined ? extractedDate : prev.photoDate,
         caption: imageDescription || prev.caption,
         city: extractedCity || prev.city,
-        country: extractedCountry || prev.country
+        country: extractedCountry || prev.country,
+        neighborhood: extractedNeighborhood || prev.neighborhood
       }));
     } catch (error) {
       console.error('Error leyendo EXIF:', error);
