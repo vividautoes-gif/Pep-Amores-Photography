@@ -129,7 +129,18 @@ function GalleryScene({
     [images]
   );
 
-  const textures = useTexture(normalizedImages.map((img) => img.src));
+  const proxiedUrls = useMemo(() => {
+    return normalizedImages.map(img => {
+      // Use CORS proxy for Firebase Storage to avoid WebGL tainting issues
+      if (img.src.includes('firebasestorage.googleapis.com')) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(img.src)}&w=800&q=80`;
+      }
+      return img.src;
+    });
+  }, [normalizedImages]);
+
+  const textureResult = useTexture(proxiedUrls);
+  const textures = Array.isArray(textureResult) ? textureResult : [textureResult];
 
   const materials = useMemo(
     () => Array.from({ length: visibleCount }, () => createMaterial()),

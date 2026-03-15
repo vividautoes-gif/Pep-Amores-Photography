@@ -20,6 +20,7 @@ export interface Photo {
   lfiType: 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week' | 'none';
   isFavorite: boolean;
   favoriteScore: number;
+  isHero?: boolean;
   caption: string;
   caption_en: string;
   caption_ca: string;

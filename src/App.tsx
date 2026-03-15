@@ -415,17 +415,21 @@ function Gallery() {
                 {/* CAPA 1: Canvas 3D de fondo (z-index más bajo) */}
                 <div className="absolute inset-0 z-0">
                   <InfiniteGallery 
-                    images={DB.length > 0 ? DB.slice(0, 15).map((p, i) => {
-                      return {
-                        src: p.url,
-                        alt: p.title
-                      };
-                    }) : PREVIEW_ITEMS.map((p, i) => {
-                      return { 
-                        src: p.photo.url, 
-                        alt: p.photo.text
-                      };
-                    })} 
+                    images={(() => {
+                      let dbImages = DB.filter(p => p.isHero).length > 0 
+                        ? DB.filter(p => p.isHero).map(p => ({ src: p.url, alt: p.title }))
+                        : DB.map(p => ({ src: p.url, alt: p.title }));
+                      
+                      if (dbImages.length === 0) {
+                        dbImages = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
+                      }
+
+                      let combined = [...dbImages];
+                      while (combined.length < 15) {
+                        combined = [...combined, ...dbImages];
+                      }
+                      return combined.slice(0, 15);
+                    })()} 
                     visibleCount={10}
                     speed={1.2}
                     className="h-full w-full"
