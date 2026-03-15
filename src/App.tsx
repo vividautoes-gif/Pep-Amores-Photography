@@ -929,11 +929,47 @@ const PepPanel = () => {
   const { journeys } = useJourneys();
   const { stories } = useStories();
   const [comments, setComments] = useState<any[]>([]);
+  const [editors, setEditors] = useState<any[]>([]);
+  const [newEditorEmail, setNewEditorEmail] = useState('');
 
   useEffect(() => {
     const q = query(collection(db, 'comments'), orderBy('createdAt', 'desc'));
     return onSnapshot(q, (snap) => setComments(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
   }, []);
+
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    const q = query(collection(db, 'editors'));
+    return onSnapshot(q, (snap) => setEditors(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+  }, []);
+
+  const handleAddEditor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEditorEmail) return;
+    try {
+      // We use the email as the document ID for the editors collection
+      const { doc, setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'editors', newEditorEmail.toLowerCase()), {
+        addedAt: serverTimestamp(),
+        addedBy: auth.currentUser?.email
+      });
+      setNewEditorEmail('');
+      alert('Editor añadido correctamente.');
+    } catch (error: any) {
+      alert('Error al añadir editor: ' + error.message);
+    }
+  };
+
+  const handleRemoveEditor = async (email: string) => {
+    if (confirm(`¿Seguro que quieres eliminar a ${email} como editor?`)) {
+      try {
+        const { doc, deleteDoc } = await import('firebase/firestore');
+        await deleteDoc(doc(db, 'editors', email));
+      } catch (error: any) {
+        alert('Error al eliminar editor: ' + error.message);
+      }
+    }
+  };
 
   if (!auth.currentUser) return <div className="p-20 text-center">Acceso restringido.</div>;
 
@@ -960,8 +996,8 @@ const PepPanel = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white p-8 rounded-3xl shadow-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-3xl shadow-sm lg:col-span-2">
             <h3 className="text-xl font-serif italic mb-6">Moderación de Comentarios</h3>
             <div className="space-y-4">
               {comments.filter(c => !c.isApproved).map(c => (
@@ -977,18 +1013,59 @@ const PepPanel = () => {
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-sm">
-            <h3 className="text-xl font-serif italic mb-6">Top Fotos (Favoritas)</h3>
-            <div className="space-y-4">
-              {photos.filter(p => p.isFavorite).sort((a,b) => (a.favoriteScore || 100) - (b.favoriteScore || 100)).slice(0, 5).map(p => (
-                <div key={p.id} className="flex items-center gap-4">
-                  <img src={p.url} className="w-12 h-12 rounded-lg object-cover" />
-                  <div className="flex-1">
-                    <p className="text-sm font-bold">{p.title}</p>
-                    <p className="text-[10px] text-brand-secondary uppercase tracking-widest">Score: {p.favoriteScore}</p>
+          <div className="space-y-8">
+            <div className="bg-white p-8 rounded-3xl shadow-sm">
+              <h3 className="text-xl font-serif italic mb-6">Top Fotos (Favoritas)</h3>
+              <div className="space-y-4">
+                {photos.filter(p => p.isFavorite).sort((a,b) => (a.favoriteScore || 100) - (b.favoriteScore || 100)).slice(0, 5).map(p => (
+                  <div key={p.id} className="flex items-center gap-4">
+                    <img src={p.url} className="w-12 h-12 rounded-lg object-cover" />
+                    <div className="flex-1">
+                      <p className="text-sm font-bold truncate">{p.title}</p>
+                      <p className="text-[10px] text-brand-secondary uppercase tracking-widest">Score: {p.favoriteScore}</p>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-3xl shadow-sm">
+              <h3 className="text-xl font-serif italic mb-6 flex items-center gap-2">
+                <User size={20} />
+                Editores
+              </h3>
+              <p className="text-xs text-brand-secondary mb-4">Añade el email de Google de las personas que quieras que puedan subir fotos.</p>
+              
+              <form onSubmit={handleAddEditor} className="flex gap-2 mb-6">
+                <input 
+                  type="email" 
+                  value={newEditorEmail}
+                  onChange={(e) => setNewEditorEmail(e.target.value)}
+                  placeholder="email@gmail.com"
+                  className="flex-1 bg-neutral-50 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-brand-primary/10 outline-none"
+                />
+                <button type="submit" className="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-800">
+                  Añadir
+                </button>
+              </form>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl">
+                  <span className="text-sm font-medium">eduard.kun115@gmail.com</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">Propietario</span>
                 </div>
-              ))}
+                {editors.map(editor => (
+                  <div key={editor.id} className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl">
+                    <span className="text-sm">{editor.id}</span>
+                    <button 
+                      onClick={() => handleRemoveEditor(editor.id)}
+                      className="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

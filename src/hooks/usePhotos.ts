@@ -24,6 +24,12 @@ export interface Photo {
   caption_en: string;
   caption_ca: string;
   storyId?: string;
+  cameraModel?: string;
+  lens?: string;
+  focalLength?: string;
+  exposureTime?: string;
+  aperture?: string;
+  iso?: string;
   createdAt: any;
   authorUid: string;
 }

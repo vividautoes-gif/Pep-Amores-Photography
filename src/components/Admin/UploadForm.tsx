@@ -32,7 +32,13 @@ export const UploadForm: React.FC = () => {
     caption: '',
     journeyId: '',
     subtheme: '',
-    storyId: ''
+    storyId: '',
+    cameraModel: '',
+    lens: '',
+    focalLength: '',
+    exposureTime: '',
+    aperture: '',
+    iso: ''
   });
 
   useEffect(() => {
@@ -108,7 +114,8 @@ export const UploadForm: React.FC = () => {
           setFormData({
             title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(),
             tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
-            isLFI: false, lfiType: 'none', caption: '', journeyId: '', subtheme: '', storyId: ''
+            isLFI: false, lfiType: 'none', caption: '', journeyId: '', subtheme: '', storyId: '',
+            cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
           });
           alert("¡Fotografía publicada con éxito!");
         }
@@ -269,6 +276,67 @@ export const UploadForm: React.FC = () => {
                 className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 resize-none"
                 placeholder="Cuenta la historia detrás de la foto..."
               />
+            </div>
+
+            {/* EXIF Data Section */}
+            <div className="col-span-2 mt-8">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-black mb-4 border-b border-gray-200 pb-2">Datos EXIF (Cámara)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Cámara</label>
+                  <input 
+                    type="text" value={formData.cameraModel} required
+                    onChange={e => setFormData(prev => ({ ...prev, cameraModel: e.target.value }))}
+                    className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="Ej: SL3"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Lente</label>
+                  <input 
+                    type="text" value={formData.lens} required
+                    onChange={e => setFormData(prev => ({ ...prev, lens: e.target.value }))}
+                    className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="Ej: Vario-Elmarit-SL 24-90 f/2.8-4 Asph"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Distancia Focal</label>
+                  <input 
+                    type="text" value={formData.focalLength} required
+                    onChange={e => setFormData(prev => ({ ...prev, focalLength: e.target.value }))}
+                    className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="Ej: 89"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Tiempo de Exposición</label>
+                  <input 
+                    type="text" value={formData.exposureTime} required
+                    onChange={e => setFormData(prev => ({ ...prev, exposureTime: e.target.value }))}
+                    className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="Ej: 1/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Apertura</label>
+                  <input 
+                    type="text" value={formData.aperture} required
+                    onChange={e => setFormData(prev => ({ ...prev, aperture: e.target.value }))}
+                    className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="Ej: 4.5"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">ISO</label>
+                  <input 
+                    type="text" value={formData.iso} required
+                    onChange={e => setFormData(prev => ({ ...prev, iso: e.target.value }))}
+                    className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="Ej: 125"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

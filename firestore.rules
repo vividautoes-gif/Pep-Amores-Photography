@@ -38,7 +38,7 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        exists(/databases/$(database)/documents/editors/$(request.auth.token.email)) ||
         (request.auth.token.email == "eduard.kun115@gmail.com" && request.auth.token.email_verified == true)
       );
     }
@@ -54,12 +54,23 @@ service cloud.firestore {
              data.country is string &&
              data.year is number &&
              data.tags is list &&
+             (!('cameraModel' in data) || data.cameraModel is string) &&
+             (!('lens' in data) || data.lens is string) &&
+             (!('focalLength' in data) || data.focalLength is string) &&
+             (!('exposureTime' in data) || data.exposureTime is string) &&
+             (!('aperture' in data) || data.aperture is string) &&
+             (!('iso' in data) || data.iso is string) &&
              data.authorUid == request.auth.uid;
     }
 
     // ===============================================================
     // Rules
     // ===============================================================
+
+    match /editors/{email} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
 
     match /users/{userId} {
       allow read: if isAuthenticated();
@@ -68,9 +79,26 @@ service cloud.firestore {
 
     match /photos/{photoId} {
       allow read: if true; // Public gallery
-      allow create: if isAuthenticated() && isValidPhoto(request.resource.data);
-      allow update: if isAuthenticated() && isValidPhoto(request.resource.data) && (isAdmin() || resource.data.authorUid == request.auth.uid);
-      allow delete: if isAuthenticated() && (isAdmin() || resource.data.authorUid == request.auth.uid);
+      allow create: if isAdmin() && isValidPhoto(request.resource.data);
+      allow update: if isAdmin() && isValidPhoto(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /journeys/{journeyId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /stories/{storyId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if true; // Anyone can comment (moderated by default)
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }
