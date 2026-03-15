@@ -276,15 +276,11 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
                 <div className="my-6 h-px bg-neutral-100 w-full" />
 
                 <div className="flex flex-col gap-1">
-                  <a href="#" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
+                  <a href="https://www.instagram.com/pepamores?igsh=dGp3ODZxaWdqcnd0" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
                     <Instagram size={18} className="group-hover:text-[#E1306C] transition-colors" />
                     <span className="group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-tr group-hover:from-[#f09433] group-hover:via-[#dc2743] group-hover:to-[#bc1888] transition-all">Instagram</span>
                   </a>
-                  <a href="#" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
-                    <Facebook size={18} className="group-hover:text-[#1877F2] transition-colors" />
-                    <span className="group-hover:text-[#1877F2] transition-colors">Facebook</span>
-                  </a>
-                  <a href="#" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
+                  <a href="https://www.linkedin.com/in/josepamores?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
                     <Linkedin size={18} className="group-hover:text-[#0A66C2] transition-colors" />
                     <span className="group-hover:text-[#0A66C2] transition-colors">LinkedIn</span>
                   </a>

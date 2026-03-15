@@ -69,21 +69,14 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
             links: [
                 { 
                     title: 'Instagram', 
-                    href: '#', 
+                    href: 'https://www.instagram.com/pepamores?igsh=dGp3ODZxaWdqcnd0', 
                     icon: Instagram,
                     iconHoverClass: 'group-hover:text-[#E1306C]',
                     textHoverClass: 'group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-tr group-hover:from-[#f09433] group-hover:via-[#dc2743] group-hover:to-[#bc1888]'
                 },
                 { 
-                    title: 'Facebook', 
-                    href: '#', 
-                    icon: Facebook,
-                    iconHoverClass: 'group-hover:text-[#1877F2]',
-                    textHoverClass: 'group-hover:text-[#1877F2]'
-                },
-                { 
                     title: 'LinkedIn', 
-                    href: '#', 
+                    href: 'https://www.linkedin.com/in/josepamores?utm_source=share_via&utm_content=profile&utm_medium=member_ios', 
                     icon: Linkedin,
                     iconHoverClass: 'group-hover:text-[#0A66C2]',
                     textHoverClass: 'group-hover:text-[#0A66C2]'
