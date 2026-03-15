@@ -10,12 +10,13 @@ import { signOut } from 'firebase/auth';
 import { JourneyForm } from '../components/Admin/JourneyForm';
 import { HeroSelector } from '../components/Admin/HeroSelector';
 import { AlbumForm } from '../components/Admin/AlbumForm';
+import { PhotoManager } from '../components/Admin/PhotoManager';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos'>('photos');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -146,6 +147,13 @@ export const AdminPage: React.FC = () => {
                 <Layers size={18} />
                 Colecciones
               </button>
+              <button 
+                onClick={() => setActiveTab('manage-photos')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-photos' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <ImageIcon size={18} />
+                Gestionar Fotos
+              </button>
             </nav>
           </aside>
 
@@ -159,10 +167,10 @@ export const AdminPage: React.FC = () => {
             >
               <div className="mb-12">
                 <h2 className="text-3xl font-serif italic mb-2">
-                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : activeTab === 'hero' ? 'Fotos del Hero' : 'Colecciones'}
+                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : activeTab === 'hero' ? 'Fotos del Hero' : activeTab === 'albums' ? 'Colecciones' : 'Gestionar Fotos'}
                 </h2>
                 <p className="text-gray-500">
-                  {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : activeTab === 'hero' ? 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.' : 'Gestiona tus colecciones de álbumes.'}
+                  {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : activeTab === 'hero' ? 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.' : activeTab === 'albums' ? 'Gestiona tus colecciones de álbumes.' : 'Edita o elimina tus fotografías.'}
                 </p>
               </div>
               
@@ -170,6 +178,7 @@ export const AdminPage: React.FC = () => {
               {activeTab === 'journeys' && <JourneyForm />}
               {activeTab === 'hero' && <HeroSelector />}
               {activeTab === 'albums' && <AlbumForm />}
+              {activeTab === 'manage-photos' && <PhotoManager />}
             </motion.div>
           </section>
         </div>

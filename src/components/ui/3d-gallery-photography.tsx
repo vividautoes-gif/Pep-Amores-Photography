@@ -133,7 +133,7 @@ function GalleryScene({
     return normalizedImages.map(img => {
       // Use CORS proxy for Firebase Storage to avoid WebGL tainting issues
       if (img.src.includes('firebasestorage.googleapis.com')) {
-        return `https://images.weserv.nl/?url=${encodeURIComponent(img.src)}&w=800&q=80`;
+        return `https://images.weserv.nl/?url=${encodeURIComponent(img.src)}`;
       }
       return img.src;
     });
