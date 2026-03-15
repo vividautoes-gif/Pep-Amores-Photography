@@ -30,12 +30,17 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose }) => {
   // Helper to format date
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return new Intl.DateTimeFormat('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric'
-    }).format(date);
+    try {
+      const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
+      if (isNaN(date.getTime())) return '';
+      return new Intl.DateTimeFormat('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    } catch (e) {
+      return '';
+    }
   };
 
   return (

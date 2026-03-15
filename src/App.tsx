@@ -83,7 +83,7 @@ const CommentSection = ({ targetId, targetType }: { targetId: string, targetType
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold text-xs uppercase tracking-widest">{c.userName}</span>
               <span className="text-[10px] text-brand-secondary font-mono">
-                {c.createdAt?.toDate().toLocaleDateString()}
+                {c.createdAt?.toDate?.()?.toLocaleDateString() || ''}
               </span>
             </div>
             <p className="text-sm text-brand-secondary leading-relaxed">{c.text}</p>
@@ -299,7 +299,7 @@ function Gallery() {
 
   const allTags = useMemo(() => {
     if (!DB) return [];
-    return [...new Set(DB.flatMap(p => p.tags || []))].sort();
+    return [...new Set(DB.flatMap(p => Array.isArray(p.tags) ? p.tags.filter(t => typeof t === 'string') : []))].sort();
   }, [DB]);
 
   const filteredPhotos = useMemo(() => {
@@ -307,16 +307,17 @@ function Gallery() {
     return DB.filter(p => {
       const query = searchQuery.toLowerCase();
       const title = lang === 'es' ? p.title : lang === 'en' ? p.title_en : p.title_ca;
+      const tags = Array.isArray(p.tags) ? p.tags.filter(t => typeof t === 'string') : [];
       const matchText = (title || '').toLowerCase().includes(query) || 
                         (p.country || '').toLowerCase().includes(query) ||
                         (p.city || '').toLowerCase().includes(query) ||
-                        (p.tags || []).some(t => t.toLowerCase().includes(query));
+                        tags.some(t => t.toLowerCase().includes(query));
       
       const activeFiltersArray = Array.from(activeFilters);
       const matchTags = activeFiltersArray.length === 0 ? true :
         filterLogic === 'and'
-          ? activeFiltersArray.every((t: string) => (p.tags || []).includes(t))
-          : activeFiltersArray.some((t: string) => (p.tags || []).includes(t));
+          ? activeFiltersArray.every((t: string) => tags.includes(t))
+          : activeFiltersArray.some((t: string) => tags.includes(t));
           
       return matchText && matchTags;
     });
@@ -562,7 +563,7 @@ function Gallery() {
                         </div>
                         <div className="p-8">
                           <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-brand-secondary mb-4">
-                            <span className="flex items-center gap-1"><Clock size={12} /> {story.createdAt?.toDate().toLocaleDateString() || new Date().toLocaleDateString()}</span>
+                            <span className="flex items-center gap-1"><Clock size={12} /> {story.createdAt?.toDate?.()?.toLocaleDateString() || new Date().toLocaleDateString()}</span>
                           </div>
                           <h3 className="text-2xl font-serif italic mb-3 group-hover:text-brand-accent transition-colors">{story.title}</h3>
                           <p className="text-brand-secondary font-light line-clamp-2">{story.description}</p>
@@ -627,7 +628,7 @@ function Gallery() {
                 <h1 className="text-6xl font-serif italic mb-6">{selectedJourney.title}</h1>
                 <p className="text-lg text-brand-secondary font-light leading-relaxed mb-8">{selectedJourney.intro}</p>
                 <div className="flex justify-center gap-4">
-                  {selectedJourney.subthemes.map(st => (
+                  {(selectedJourney.subthemes || []).map(st => (
                     <span key={st} className="px-4 py-2 bg-neutral-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
                       {st}
                     </span>
@@ -757,7 +758,7 @@ function Gallery() {
                 <p className="text-lg text-brand-secondary font-light leading-relaxed">{selectedStory.description}</p>
               </div>
               <div className="space-y-24 max-w-5xl mx-auto">
-                {DB.filter(p => p.storyId === selectedStory.id).sort((a,b) => a.createdAt?.toMillis() - b.createdAt?.toMillis()).map((photo, idx) => (
+                {DB.filter(p => p.storyId === selectedStory.id).sort((a,b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0)).map((photo, idx) => (
                   <div key={photo.id} className={cn("flex flex-col gap-8", idx % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse")}>
                     <div className="flex-1 aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl">
                       <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
