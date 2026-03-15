@@ -68,6 +68,7 @@ export const UploadForm: React.FC = () => {
       const exposureTime = tags['ExposureTime']?.description || '';
       const aperture = tags['FNumber']?.description || '';
       const iso = tags['ISOSpeedRatings']?.description || '';
+      const imageDescription = tags['ImageDescription']?.description || '';
       
       let extractedYear = formData.year;
       let extractedDate = formData.photoDate;
@@ -87,14 +88,15 @@ export const UploadForm: React.FC = () => {
 
       setFormData(prev => ({
         ...prev,
-        cameraModel: cameraMake && !cameraModel.includes(cameraMake) ? `${cameraMake} ${cameraModel}` : cameraModel,
+        cameraModel: cameraMake && !cameraModel.includes(cameraMake) ? `${cameraMake} ${cameraModel}` : cameraModel || prev.cameraModel,
         lens: lens || prev.lens,
         focalLength: focalLength ? focalLength.replace(/\s*mm/gi, '') : prev.focalLength,
         exposureTime: exposureTime || prev.exposureTime,
         aperture: aperture ? aperture.replace(/f\//gi, '') : prev.aperture,
         iso: iso ? iso.toString() : prev.iso,
         year: extractedYear !== undefined ? extractedYear : prev.year,
-        photoDate: extractedDate !== undefined ? extractedDate : prev.photoDate
+        photoDate: extractedDate !== undefined ? extractedDate : prev.photoDate,
+        caption: imageDescription || prev.caption
       }));
     } catch (error) {
       console.error('Error leyendo EXIF:', error);
