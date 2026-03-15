@@ -19,6 +19,7 @@ export interface Photo {
   tags: string[];
   isLFI: boolean;
   lfiType: 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week' | 'none';
+  lfiDate?: string;
   isFavorite: boolean;
   favoriteScore: number;
   isHero?: boolean;

@@ -21,9 +21,9 @@ export const LFIManager: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  const updateLFIType = async (id: string, type: string) => {
+  const updateLFIData = async (id: string, updates: Partial<Photo>) => {
     try {
-      await updateDoc(doc(db, 'photos', id), { lfiType: type });
+      await updateDoc(doc(db, 'photos', id), updates);
     } catch (error) {
       console.error(error);
       alert('Error al actualizar');
@@ -41,7 +41,7 @@ export const LFIManager: React.FC = () => {
         </h3>
         <p className="text-red-800/80 text-sm leading-relaxed">
           Aquí puedes gestionar las fotografías que han recibido algún reconocimiento en Leica Fotografie International (LFI). 
-          Puedes cambiar la categoría del reconocimiento (Mastershot, Exhibition, Picture of the Week) para cada foto.
+          Puedes cambiar la categoría del reconocimiento y la fecha en que fue publicada por Leica.
         </p>
       </div>
 
@@ -49,18 +49,29 @@ export const LFIManager: React.FC = () => {
         {photos.map(photo => (
           <div key={photo.id} className="bg-white p-4 rounded-2xl shadow-sm border border-neutral-100 space-y-4">
             <img src={photo.url} className="w-full aspect-video object-cover rounded-xl" />
-            <div className="space-y-2">
-              <label className="text-[10px] font-mono uppercase text-gray-400">Categoría LFI:</label>
-              <select 
-                value={photo.lfiType}
-                onChange={e => updateLFIType(photo.id, e.target.value)}
-                className="w-full p-2 border rounded-lg text-sm bg-gray-50"
-              >
-                <option value="lfimastershot">#LFImastershot</option>
-                <option value="lfiexhibition">#LFIexhibition</option>
-                <option value="lfi-picture-of-the-week">#LFIpictureoftheweek</option>
-                <option value="none">Ninguno (Quitar)</option>
-              </select>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] font-mono uppercase text-gray-400 block mb-1">Categoría LFI:</label>
+                <select 
+                  value={photo.lfiType}
+                  onChange={e => updateLFIData(photo.id, { lfiType: e.target.value as any })}
+                  className="w-full p-2 border rounded-lg text-sm bg-gray-50"
+                >
+                  <option value="lfimastershot">#LFImastershot</option>
+                  <option value="lfiexhibition">#LFIexhibition</option>
+                  <option value="lfi-picture-of-the-week">#LFIpictureoftheweek</option>
+                  <option value="none">Ninguno (Quitar)</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-mono uppercase text-gray-400 block mb-1">Fecha Publicación LFI:</label>
+                <input 
+                  type="date"
+                  value={photo.lfiDate || ''}
+                  onChange={e => updateLFIData(photo.id, { lfiDate: e.target.value })}
+                  className="w-full p-2 border rounded-lg text-sm bg-gray-50"
+                />
+              </div>
             </div>
             <p className="text-sm font-medium truncate">{photo.title}</p>
           </div>

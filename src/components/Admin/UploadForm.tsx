@@ -15,6 +15,7 @@ export const UploadForm: React.FC = () => {
   const [uploadStep, setUploadStep] = useState('');
   const [progress, setProgress] = useState(0);
   const [translating, setTranslating] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -32,6 +33,7 @@ export const UploadForm: React.FC = () => {
     favoriteScore: 50,
     isLFI: false,
     lfiType: 'none' as 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week' | 'none',
+    lfiDate: '',
     isHero: false,
     isJourneyCover: false,
     caption: '',
@@ -106,6 +108,7 @@ export const UploadForm: React.FC = () => {
         const lonDec = convertToDecimal(longitude, lonRef);
 
         if (latDec !== null && lonDec !== null) {
+          setGeocoding(true);
           try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1`, {
               headers: { 'Accept-Language': 'es' }
@@ -118,6 +121,8 @@ export const UploadForm: React.FC = () => {
             }
           } catch (geoError) {
             console.error('Error en geocodificación inversa:', geoError);
+          } finally {
+            setGeocoding(false);
           }
         }
       }
@@ -237,7 +242,7 @@ export const UploadForm: React.FC = () => {
             setFormData({
               title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(), photoDate: '',
               tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
-              isLFI: false, lfiType: 'none', isHero: false, isJourneyCover: false, caption: '', journeyId: '', subtheme: '',
+              isLFI: false, lfiType: 'none', lfiDate: '', isHero: false, isJourneyCover: false, caption: '', journeyId: '', subtheme: '',
               cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
             });
             alert("¡Fotografía publicada con éxito!");
@@ -323,7 +328,10 @@ export const UploadForm: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País</label>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
+                País
+                {geocoding && <Loader2 size={12} className="animate-spin text-red-600" />}
+              </label>
               <input 
                 type="text" value={formData.country}
                 onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
@@ -505,16 +513,27 @@ export const UploadForm: React.FC = () => {
               </label>
 
               {formData.isLFI && (
-                <select 
-                  value={formData.lfiType}
-                  onChange={e => setFormData(prev => ({ ...prev, lfiType: e.target.value as any }))}
-                  className="w-full bg-white border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-600"
-                >
-                  <option value="none">Seleccionar Tipo LFI</option>
-                  <option value="lfimastershot">#LFImastershot</option>
-                  <option value="lfiexhibition">#LFIexhibition</option>
-                  <option value="lfi-picture-of-the-week">#LFIpictureoftheweek</option>
-                </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <select 
+                    value={formData.lfiType}
+                    onChange={e => setFormData(prev => ({ ...prev, lfiType: e.target.value as any }))}
+                    className="w-full bg-white border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-600"
+                  >
+                    <option value="none">Seleccionar Tipo LFI</option>
+                    <option value="lfimastershot">#LFImastershot</option>
+                    <option value="lfiexhibition">#LFIexhibition</option>
+                    <option value="lfi-picture-of-the-week">#LFIpictureoftheweek</option>
+                  </select>
+                  <div className="flex flex-col">
+                    <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 ml-1">Fecha Publicación LFI</label>
+                    <input 
+                      type="date"
+                      value={formData.lfiDate}
+                      onChange={e => setFormData(prev => ({ ...prev, lfiDate: e.target.value }))}
+                      className="w-full bg-white border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-600"
+                    />
+                  </div>
+                </div>
               )}
             </div>
 
