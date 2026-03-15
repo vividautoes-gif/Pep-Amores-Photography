@@ -6,13 +6,12 @@ import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
 import { Lightbox } from './components/Lightbox';
 import { AdminPage } from './pages/AdminPage';
-import { usePhotos, useJourneys, useStories, Photo as PhotoType, Journey, Story } from './hooks/usePhotos';
+import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
 import { Strings } from './data';
 import { cn } from './lib/utils';
 import { db, auth } from './firebase';
 import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 
-import { CircularGallery, GalleryItem } from './components/ui/circular-gallery';
 import InfiniteGallery from './components/ui/3d-gallery-photography';
 import { CardStack3D } from './components/ui/3d-flip-card';
 import { Footer } from './components/ui/footer-section';
@@ -231,7 +230,6 @@ const MOCK_DB: PhotoType[] = EXTENDED_PREVIEW_ITEMS.map((item, i) => {
     createdAt: { toMillis: () => Date.now() - i * 10000, toDate: () => new Date() },
     authorUid: 'mock-author',
     journeyId: i % 2 === 0 ? 'mock-journey-1' : 'mock-journey-2',
-    storyId: i % 2 === 0 ? 'mock-story-1' : 'mock-story-2',
   };
 });
 
@@ -252,23 +250,6 @@ const MOCK_JDB: Journey[] = [
     intro: 'Explorando los altos picos y los profundos valles de los Alpes suizos. (Viaje de prueba)',
     coverUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=60',
     subthemes: ['Nature', 'Mountains', 'Snow'],
-    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
-  }
-];
-
-const MOCK_SDB: Story[] = [
-  {
-    id: 'mock-story-1',
-    title: 'The Art of Shadows',
-    description: 'Un ensayo sobre cómo la luz y la sombra moldean nuestra percepción. (Historia de prueba)',
-    coverUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=60',
-    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
-  },
-  {
-    id: 'mock-story-2',
-    title: 'Minimalist Living',
-    description: 'Documentando la belleza de los espacios vacíos y las líneas limpias. (Historia de prueba)',
-    coverUrl: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=600&q=60',
     createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
   }
 ];
@@ -314,24 +295,20 @@ function Gallery() {
   console.log("Rendering Gallery...");
   const { photos: rawPhotos, loading: photosLoading, error: photosError } = usePhotos();
   const { journeys: rawJourneys, loading: journeysLoading } = useJourneys();
-  const { stories: rawStories, loading: storiesLoading } = useStories();
   
-  const loading = photosLoading || journeysLoading || storiesLoading;
+  const loading = photosLoading || journeysLoading;
   
   // Sanitización de datos: Asegurarse de que las fotos tengan URL y los campos necesarios
   const realDB = useMemo(() => rawPhotos.filter(p => p && p.url && p.id), [rawPhotos]);
   const realJDB = useMemo(() => rawJourneys.filter(j => j && j.id && j.title), [rawJourneys]);
-  const realSDB = useMemo(() => rawStories.filter(s => s && s.id && s.title), [rawStories]);
 
   const DB = realDB.length > 0 ? realDB : MOCK_DB;
   const JDB = realJDB.length > 0 ? realJDB : MOCK_JDB;
-  const SDB = realSDB.length > 0 ? realSDB : MOCK_SDB;
   
   const [lang, setLang] = useState<'es' | 'en' | 'ca'>('es');
   const [currentSection, setCurrentSection] = useState('home');
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoType | null>(null);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
-  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
@@ -410,7 +387,7 @@ function Gallery() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar lang={lang} setLang={setLang} currentSection={currentSection} onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); setSelectedStory(null); }} />
+      <Navbar lang={lang} setLang={setLang} currentSection={currentSection} onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} />
 
       <main className="pt-20">
         <AnimatePresence mode="wait">
@@ -599,42 +576,6 @@ function Gallery() {
                   </div>
                 </div>
               </section>
-
-              {/* Featured Stories */}
-              <section className="w-full py-24 bg-slate-50">
-                <div className="container mx-auto px-6">
-                  <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-                    <div>
-                      <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
-                        {lang === 'es' ? 'Historias' : lang === 'ca' ? 'Històries' : 'Stories'}
-                      </h2>
-                      <p className="text-brand-secondary font-light max-w-xl">
-                        {lang === 'es' ? 'Relatos visuales y experiencias detrás de la cámara.' : lang === 'en' ? 'Visual tales and experiences behind the camera.' : 'Relats visuals i experiències darrere la càmera.'}
-                      </p>
-                    </div>
-                    <button onClick={() => setCurrentSection('stories')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-primary hover:text-brand-accent transition-colors">
-                      {lang === 'es' ? 'Leer historias' : lang === 'en' ? 'Read stories' : 'Llegir històries'} <ChevronRight size={16} />
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {SDB.slice(0, 2).map(story => (
-                      <motion.div key={story.id} whileHover={{ y: -5 }} onClick={() => { setSelectedStory(story); setCurrentSection('stories'); }} className="group bg-white rounded-2xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-all">
-                        <div className="aspect-video overflow-hidden">
-                          <img src={story.coverUrl || DB.find(p => p.storyId === story.id)?.url} alt={story.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                        </div>
-                        <div className="p-8">
-                          <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-brand-secondary mb-4">
-                            <span className="flex items-center gap-1"><Clock size={12} /> {story.createdAt?.toDate?.()?.toLocaleDateString() || new Date().toLocaleDateString()}</span>
-                          </div>
-                          <h3 className="text-2xl font-serif italic mb-3 group-hover:text-brand-accent transition-colors">{story.title}</h3>
-                          <p className="text-brand-secondary font-light line-clamp-2">{story.description}</p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </section>
             </motion.section>
           )}
 
@@ -788,57 +729,6 @@ function Gallery() {
                   ))}
                 </div>
               )}
-            </motion.section>
-          )}
-
-          {currentSection === 'stories' && !selectedStory && (
-            <motion.section key="stories" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
-              <div className="text-center mb-16">
-                <h1 className="text-5xl font-serif italic mb-4">
-                  {lang === 'es' ? 'Historias' : lang === 'ca' ? 'Històries' : 'Stories'}
-                </h1>
-                <p className="text-brand-secondary font-light">
-                  {lang === 'es' ? 'Series narrativas y ensayos fotográficos' : lang === 'ca' ? 'Sèries narratives i assajos fotogràfics' : 'Narrative series and photo essays'}
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {SDB.map(story => (
-                  <motion.div key={story.id} whileHover={{ y: -10 }} onClick={() => setSelectedStory(story)} className="group cursor-pointer">
-                    <div className="aspect-[16/9] rounded-3xl overflow-hidden mb-6 shadow-2xl">
-                      <img src={story.coverUrl || DB.find(p => p.storyId === story.id)?.url} alt={story.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    </div>
-                    <h3 className="text-3xl font-serif italic mb-2">{story.title}</h3>
-                    <p className="text-brand-secondary font-light line-clamp-2">{story.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.section>
-          )}
-
-          {currentSection === 'stories' && selectedStory && (
-            <motion.section key={`story-${selectedStory.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
-              <button onClick={() => setSelectedStory(null)} className="mb-12 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors">
-                <ChevronRight size={12} className="rotate-180" />
-                Volver a Stories
-              </button>
-              <div className="max-w-3xl mx-auto mb-20 text-center">
-                <h1 className="text-6xl font-serif italic mb-6">{selectedStory.title}</h1>
-                <p className="text-lg text-brand-secondary font-light leading-relaxed">{selectedStory.description}</p>
-              </div>
-              <div className="space-y-24 max-w-5xl mx-auto">
-                {DB.filter(p => p.storyId === selectedStory.id).sort((a,b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0)).map((photo, idx) => (
-                  <div key={photo.id} className={cn("flex flex-col gap-8", idx % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse")}>
-                    <div className="flex-1 aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl">
-                      <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-center p-8">
-                      <span className="text-[10px] font-mono text-brand-accent mb-4">0{idx + 1}</span>
-                      <h3 className="text-3xl font-serif italic mb-4">{photo.title}</h3>
-                      <p className="text-brand-secondary font-light leading-relaxed">{photo.caption}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </motion.section>
           )}
 
@@ -1004,7 +894,7 @@ function Gallery() {
 
       <Lightbox photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
 
-      <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); setSelectedStory(null); window.scrollTo(0,0); }} lang={lang} />
+      <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); window.scrollTo(0,0); }} lang={lang} />
     </div>
   );
 }
@@ -1014,7 +904,6 @@ function Gallery() {
 const PepPanel = () => {
   const { photos } = usePhotos();
   const { journeys } = useJourneys();
-  const { stories } = useStories();
   const [comments, setComments] = useState<any[]>([]);
   const [editors, setEditors] = useState<any[]>([]);
   const [newEditorEmail, setNewEditorEmail] = useState('');
@@ -1110,11 +999,10 @@ const PepPanel = () => {
           <Link to="/admin" className="px-6 py-2 bg-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Gestionar Fotos</Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {[
             { label: 'Total Fotos', value: photos.length, icon: ImageIcon },
             { label: 'Viajes', value: journeys.length, icon: MapPin },
-            { label: 'Historias', value: stories.length, icon: Clock },
             { label: 'Comentarios', value: comments.length, icon: MessageSquare },
           ].map(stat => (
             <div key={stat.label} className="bg-white p-8 rounded-3xl shadow-sm">

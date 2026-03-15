@@ -5,7 +5,8 @@ import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, upda
 import { motion } from 'motion/react';
 import { Upload, X, Check, Loader2, Globe, Image as ImageIcon, Send, Award, Star, MapPin } from 'lucide-react';
 import { translateMetadata } from '../../services/geminiService';
-import { Journey, Story } from '../../hooks/usePhotos';
+import { Journey } from '../../hooks/usePhotos';
+import ExifReader from 'exifreader';
 
 export const UploadForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -17,7 +18,6 @@ export const UploadForm: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   
   const [journeys, setJourneys] = useState<Journey[]>([]);
-  const [stories, setStories] = useState<Story[]>([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -36,7 +36,6 @@ export const UploadForm: React.FC = () => {
     caption: '',
     journeyId: '',
     subtheme: '',
-    storyId: '',
     cameraModel: '',
     lens: '',
     focalLength: '',
@@ -48,16 +47,39 @@ export const UploadForm: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const jSnap = await getDocs(query(collection(db, 'journeys'), orderBy('createdAt', 'desc')));
-      const sSnap = await getDocs(query(collection(db, 'stories'), orderBy('createdAt', 'desc')));
       setJourneys(jSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Journey[]);
-      setStories(sSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Story[]);
     };
     fetchData();
   }, []);
 
-  const handleFileSelection = (selectedFile: File) => {
+  const handleFileSelection = async (selectedFile: File) => {
     setFile(selectedFile);
     setPreview(URL.createObjectURL(selectedFile));
+
+    // Extraer EXIF automáticamente
+    try {
+      const tags = await ExifReader.load(selectedFile);
+      
+      const cameraModel = tags['Model']?.description || '';
+      const cameraMake = tags['Make']?.description || '';
+      const lens = tags['LensModel']?.description || tags['Lens']?.description || '';
+      const focalLength = tags['FocalLength']?.description || '';
+      const exposureTime = tags['ExposureTime']?.description || '';
+      const aperture = tags['FNumber']?.description || '';
+      const iso = tags['ISOSpeedRatings']?.description || '';
+
+      setFormData(prev => ({
+        ...prev,
+        cameraModel: cameraMake && !cameraModel.includes(cameraMake) ? `${cameraMake} ${cameraModel}` : cameraModel,
+        lens: lens || prev.lens,
+        focalLength: focalLength ? focalLength.replace(/\s*mm/gi, '') : prev.focalLength,
+        exposureTime: exposureTime || prev.exposureTime,
+        aperture: aperture ? aperture.replace(/f\//gi, '') : prev.aperture,
+        iso: iso ? iso.toString() : prev.iso
+      }));
+    } catch (error) {
+      console.error('Error leyendo EXIF:', error);
+    }
     
     const img = new Image();
     img.onload = () => {
@@ -69,9 +91,9 @@ export const UploadForm: React.FC = () => {
     img.src = URL.createObjectURL(selectedFile);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      handleFileSelection(e.target.files[0]);
+      await handleFileSelection(e.target.files[0]);
     }
   };
 
@@ -85,11 +107,11 @@ export const UploadForm: React.FC = () => {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelection(e.dataTransfer.files[0]);
+      await handleFileSelection(e.dataTransfer.files[0]);
     }
   };
 
@@ -155,7 +177,7 @@ export const UploadForm: React.FC = () => {
             setFormData({
               title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(),
               tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
-              isLFI: false, lfiType: 'none', isHero: false, isJourneyCover: false, caption: '', journeyId: '', subtheme: '', storyId: '',
+              isLFI: false, lfiType: 'none', isHero: false, isJourneyCover: false, caption: '', journeyId: '', subtheme: '',
               cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
             });
             alert("¡Fotografía publicada con éxito!");
@@ -291,25 +313,13 @@ export const UploadForm: React.FC = () => {
               </select>
             </div>
 
-            <div>
+            <div className="col-span-2 md:col-span-1">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (Ej: Chinatown)</label>
               <input 
                 type="text" value={formData.subtheme}
                 onChange={e => setFormData(prev => ({ ...prev, subtheme: e.target.value }))}
                 className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
               />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Historia (Story)</label>
-              <select 
-                value={formData.storyId}
-                onChange={e => setFormData(prev => ({ ...prev, storyId: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-              >
-                <option value="">Ninguna</option>
-                {stories.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-              </select>
             </div>
 
             <div className="col-span-2">

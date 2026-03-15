@@ -24,7 +24,6 @@ export interface Photo {
   caption: string;
   caption_en: string;
   caption_ca: string;
-  storyId?: string;
   cameraModel?: string;
   lens?: string;
   focalLength?: string;
@@ -45,18 +44,6 @@ export interface Journey {
   intro_ca?: string;
   coverUrl?: string;
   subthemes: string[];
-  createdAt: any;
-}
-
-export interface Story {
-  id: string;
-  title: string;
-  title_en?: string;
-  title_ca?: string;
-  description: string;
-  description_en?: string;
-  description_ca?: string;
-  coverUrl?: string;
   createdAt: any;
 }
 
@@ -121,23 +108,4 @@ export const useJourneys = () => {
   }, []);
 
   return { journeys, loading };
-};
-
-export const useStories = () => {
-  const [stories, setStories] = useState<Story[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const q = query(collection(db, 'stories'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setStories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Story[]);
-      setLoading(false);
-    }, (err) => {
-      console.error("Error fetching stories:", err);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  return { stories, loading };
 };

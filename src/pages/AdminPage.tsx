@@ -8,14 +8,13 @@ import { motion } from 'motion/react';
 import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { JourneyForm } from '../components/Admin/JourneyForm';
-import { StoryForm } from '../components/Admin/StoryForm';
 import { HeroSelector } from '../components/Admin/HeroSelector';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'stories' | 'hero'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero'>('photos');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -133,13 +132,6 @@ export const AdminPage: React.FC = () => {
                 Gestionar Viajes
               </button>
               <button 
-                onClick={() => setActiveTab('stories')}
-                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'stories' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
-              >
-                <Clock size={18} />
-                Gestionar Historias
-              </button>
-              <button 
                 onClick={() => setActiveTab('hero')}
                 className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'hero' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
               >
@@ -159,16 +151,15 @@ export const AdminPage: React.FC = () => {
             >
               <div className="mb-12">
                 <h2 className="text-3xl font-serif italic mb-2">
-                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : activeTab === 'stories' ? 'Nueva Historia' : 'Fotos del Giro'}
+                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : 'Fotos del Giro'}
                 </h2>
                 <p className="text-gray-500">
-                  {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : activeTab === 'stories' ? 'Crea una nueva historia narrativa.' : 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.'}
+                  {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.'}
                 </p>
               </div>
               
               {activeTab === 'photos' && <UploadForm />}
               {activeTab === 'journeys' && <JourneyForm />}
-              {activeTab === 'stories' && <StoryForm />}
               {activeTab === 'hero' && <HeroSelector />}
             </motion.div>
           </section>
