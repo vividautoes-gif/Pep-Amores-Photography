@@ -372,11 +372,10 @@ function Gallery() {
         <motion.div
           animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="text-[#B45309] mb-6"
+          className="text-[#B45309]"
         >
           <Aperture size={48} strokeWidth={1.5} />
         </motion.div>
-        <p className="text-brand-secondary font-serif italic animate-pulse">Cargando tu mundo visual...</p>
       </div>
     );
   }
