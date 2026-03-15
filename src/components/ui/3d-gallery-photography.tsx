@@ -1,5 +1,4 @@
-import type React from "react";
-import { useRef, useMemo, useState, useEffect, Suspense } from "react";
+import React, { useRef, useMemo, useState, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -308,6 +307,31 @@ function FallbackGallery({ images }: { images: ImageItem[] }) {
   );
 }
 
+class LocalErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Gallery Error caught by local boundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
 export default function InfiniteGallery({
   images,
   speed = 1,
@@ -356,21 +380,23 @@ export default function InfiniteGallery({
 
   return (
     <div className={className} style={style}>
-      <Canvas
-        camera={{ position: [0, 0, 0], fov: 55 }}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <Suspense fallback={<Html center><div className="text-brand-secondary font-serif italic">Cargando galería...</div></Html>}>
-          <GalleryScene
-            images={images}
-            speed={speed}
-            visibleCount={visibleCount}
-            fadeSettings={fadeSettings}
-            blurSettings={blurSettings}
-            isMobile={isMobile}
-          />
-        </Suspense>
-      </Canvas>
+      <LocalErrorBoundary fallback={<FallbackGallery images={images} />}>
+        <Canvas
+          camera={{ position: [0, 0, 0], fov: 55 }}
+          gl={{ antialias: true, alpha: true }}
+        >
+          <Suspense fallback={<Html center><div className="text-brand-secondary font-serif italic">Cargando galería...</div></Html>}>
+            <GalleryScene
+              images={images}
+              speed={speed}
+              visibleCount={visibleCount}
+              fadeSettings={fadeSettings}
+              blurSettings={blurSettings}
+              isMobile={isMobile}
+            />
+          </Suspense>
+        </Canvas>
+      </LocalErrorBoundary>
     </div>
   );
 }
