@@ -136,7 +136,7 @@ export const AdminPage: React.FC = () => {
                 className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'hero' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
               >
                 <ImageIcon size={18} />
-                Fotos del Giro
+                Fotos del Hero
               </button>
             </nav>
           </aside>
@@ -151,7 +151,7 @@ export const AdminPage: React.FC = () => {
             >
               <div className="mb-12">
                 <h2 className="text-3xl font-serif italic mb-2">
-                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : 'Fotos del Giro'}
+                  {activeTab === 'photos' ? 'Nueva Publicación' : activeTab === 'journeys' ? 'Nuevo Viaje' : 'Fotos del Hero'}
                 </h2>
                 <p className="text-gray-500">
                   {activeTab === 'photos' ? 'Sube una imagen y completa los metadatos.' : activeTab === 'journeys' ? 'Crea un nuevo viaje para agrupar tus fotografías.' : 'Selecciona qué fotos quieres que aparezcan en la galería 3D de la página de inicio.'}
