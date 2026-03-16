@@ -427,7 +427,7 @@ function Gallery() {
                       let combined = [...dbImages];
                       if (combined.length > 0) {
                         // On mobile, we only need a few images for the infinite loop to work
-                        const targetCount = isMobile ? 8 : 25;
+                        const targetCount = 25;
                         while (combined.length < targetCount && combined.length > 0) {
                           combined = [...combined, ...dbImages];
                         }
@@ -435,23 +435,39 @@ function Gallery() {
                       }
                       return combined;
                     })()} 
-                    visibleCount={isMobile ? 6 : 12}
+                    visibleCount={isMobile ? 10 : 12}
                     speed={1.2}
                     className="h-full w-full"
                   />
                 </div>
 
                 {/* CAPA 2: Texto Hero centrado (z-index intermedio, pointer-events-none para no bloquear hover de imágenes) */}
-                <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center text-center px-4 md:mix-blend-exclusion text-white">
-                  <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight mb-4 drop-shadow-lg md:drop-shadow-none">
-                    <span className="italic">{s.titles.home}</span>
+                <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center text-center px-6 md:mix-blend-exclusion text-white">
+                  <motion.h1 
+                    initial={{ y: 20, opacity: 0 }} 
+                    animate={{ y: 0, opacity: 1 }} 
+                    className="font-serif text-6xl md:text-7xl lg:text-8xl tracking-tighter mb-6 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] md:drop-shadow-none"
+                  >
+                    <span className="italic block leading-none">{s.titles.home}</span>
                   </motion.h1>
-                  <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-lg md:text-xl font-light tracking-wide mb-8 text-white drop-shadow-md md:drop-shadow-none">
+                  <motion.p 
+                    initial={{ y: 20, opacity: 0 }} 
+                    animate={{ y: 0, opacity: 1 }} 
+                    transition={{ delay: 0.1 }} 
+                    className="text-base md:text-xl font-light tracking-[0.2em] uppercase mb-10 text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.5)] md:drop-shadow-none max-w-[280px] md:max-w-none mx-auto leading-relaxed"
+                  >
                     {s.subtitles.home}
                   </motion.p>
                   
                   <div className="pointer-events-auto">
-                    <button onClick={() => setCurrentSection('explore')} className="group relative px-12 py-4 bg-brand-primary text-white text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95">
+                    <button 
+                      onClick={() => {
+                        const exploreSection = document.getElementById('navigation-folders');
+                        if (exploreSection) exploreSection.scrollIntoView({ behavior: 'smooth' });
+                        else setCurrentSection('explore');
+                      }} 
+                      className="group relative px-12 py-4 bg-brand-primary text-white text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 shadow-2xl"
+                    >
                       <span className="relative z-10 group-hover:text-brand-primary transition-colors duration-300">{s.nav[2]}</span>
                       <div className="absolute inset-0 bg-brand-tertiary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
@@ -460,7 +476,7 @@ function Gallery() {
               </div>
 
               {/* Navigation Folders (3D Flip Cards) */}
-              <section className="w-full py-24 bg-neutral-50 border-b border-neutral-200 overflow-hidden">
+              <section id="navigation-folders" className="w-full py-24 bg-neutral-50 border-b border-neutral-200 overflow-hidden">
                 <div className="container mx-auto px-6">
                   <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-serif italic mb-4">

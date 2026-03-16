@@ -127,9 +127,8 @@ function GalleryScene({
 }: Omit<InfiniteGalleryProps, "className" | "style"> & { isMobile?: boolean }) {
   // Cap visible count on mobile to prevent memory/GPU crashes
   const visibleCount = useMemo(() => {
-    if (isMobile) return Math.min(requestedVisibleCount, 6);
     return requestedVisibleCount;
-  }, [requestedVisibleCount, isMobile]);
+  }, [requestedVisibleCount]);
 
   const normalizedImages = useMemo(
     () => images
