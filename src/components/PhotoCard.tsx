@@ -7,11 +7,11 @@ import { cn } from '../lib/utils';
 interface PhotoCardProps {
   photo: Photo;
   onClick: (id: string) => void;
-  showRank?: boolean;
   priority?: boolean;
+  lang: string;
 }
 
-export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, showRank, priority }) => {
+export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, lang }) => {
   // Inicializamos el aspect ratio con un valor por defecto según la orientación
   const [aspectRatio, setAspectRatio] = useState(
     photo.orientation === 'landscape' ? 1.5 : photo.orientation === 'portrait' ? 0.66 : 1
@@ -29,7 +29,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, showRank, 
     >
       <motion.img
         src={photo.url}
-        alt={photo.title}
+        alt={lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
         referrerPolicy="no-referrer"
         onLoad={(e) => {
           const target = e.target as HTMLImageElement;
@@ -42,9 +42,11 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, showRank, 
       
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 pointer-events-none">
         <div className="text-white translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
-          <h3 className="text-lg font-bold leading-tight mb-1">{photo.title}</h3>
+          <h3 className="text-lg font-bold leading-tight mb-1">
+            {lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
+          </h3>
           <div className="flex items-center gap-2 text-xs opacity-80 font-medium">
-            <span>Pep Amores</span>
+            <span>Pep Amores Guevara</span>
           </div>
         </div>
       </div>
@@ -56,11 +58,6 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, showRank, 
              photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
              photo.lfiType === 'lfi-picture-of-the-week' ? 'LFI Picture of the Week' : 
              'LFI Selection'}
-          </span>
-        )}
-        {showRank && (
-          <span className="bg-white text-brand-primary text-[8px] md:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg">
-            {photo.favoriteScore} PTS
           </span>
         )}
       </div>

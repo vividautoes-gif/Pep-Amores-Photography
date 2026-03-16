@@ -6,9 +6,10 @@ import { Photo } from '../hooks/usePhotos';
 interface LightboxProps {
   photo: Photo | null;
   onClose: () => void;
+  lang: string;
 }
 
-export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose }) => {
+export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, lang }) => {
   const [activeTab, setActiveTab] = useState<'INFO' | 'CAMERA'>('INFO');
 
   // Animation variants for staggered slide-in
@@ -82,8 +83,10 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose }) => {
             <div className="w-full max-w-2xl flex-shrink-0 bg-black/40 backdrop-blur-md rounded-2xl p-6 md:p-8 text-white font-sans border border-white/10">
               {/* Header */}
               <div className="mb-6 text-center md:text-left">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight uppercase">{photo.title}</h2>
-                <p className="text-sm text-white/60 mt-1 uppercase tracking-widest">Pep Amores</p>
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight uppercase">
+                  {lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
+                </h2>
+                <p className="text-sm text-white/60 mt-1 uppercase tracking-widest">Pep Amores Guevara</p>
               </div>
 
               {/* Tabs */}
@@ -131,13 +134,41 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose }) => {
                       className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8"
                     >
                       <motion.div variants={itemVariants} className="flex flex-col">
-                        <span className="text-xs text-white/50 uppercase tracking-widest mb-1">Location</span>
-                        <span className="text-sm font-medium">{photo.city ? `${photo.city}, ` : ''}{photo.country}</span>
+                        <span className="text-xs text-white/50 uppercase tracking-widest mb-1">
+                          {lang === 'es' ? 'Localización' : lang === 'en' ? 'Location' : 'Localització'}
+                        </span>
+                        <span className="text-sm font-medium">
+                          {lang === 'es' ? (photo.city ? `${photo.city}, ` : '') + photo.country :
+                           lang === 'en' ? ((photo.city_en || photo.city) ? `${photo.city_en || photo.city}, ` : '') + (photo.country_en || photo.country) :
+                           ((photo.city_ca || photo.city) ? `${photo.city_ca || photo.city}, ` : '') + (photo.country_ca || photo.country)}
+                        </span>
                       </motion.div>
                       <motion.div variants={itemVariants} className="flex flex-col">
-                        <span className="text-xs text-white/50 uppercase tracking-widest mb-1">Date</span>
+                        <span className="text-xs text-white/50 uppercase tracking-widest mb-1">
+                          {lang === 'es' ? 'Fecha' : lang === 'en' ? 'Date' : 'Data'}
+                        </span>
                         <span className="text-sm font-medium">{photo.photoDate ? formatDate(photo.photoDate) : (formatDate(photo.createdAt) || photo.year)}</span>
                       </motion.div>
+                      {(photo.subtheme || photo.subtheme_en || photo.subtheme_ca) && (
+                        <motion.div variants={itemVariants} className="flex flex-col">
+                          <span className="text-xs text-white/50 uppercase tracking-widest mb-1">
+                            {lang === 'es' ? 'Subtema' : lang === 'en' ? 'Subtheme' : 'Subtema'}
+                          </span>
+                          <span className="text-sm font-medium">
+                            {lang === 'es' ? photo.subtheme : lang === 'en' ? (photo.subtheme_en || photo.subtheme) : (photo.subtheme_ca || photo.subtheme)}
+                          </span>
+                        </motion.div>
+                      )}
+                      {(photo.caption || photo.caption_en || photo.caption_ca) && (
+                        <motion.div variants={itemVariants} className="flex flex-col col-span-1 md:col-span-2">
+                          <span className="text-xs text-white/50 uppercase tracking-widest mb-1">
+                            {lang === 'es' ? 'Descripción' : lang === 'en' ? 'Description' : 'Descripció'}
+                          </span>
+                          <span className="text-sm font-medium text-white/80 leading-relaxed">
+                            {lang === 'es' ? photo.caption : lang === 'en' ? (photo.caption_en || photo.caption) : (photo.caption_ca || photo.caption)}
+                          </span>
+                        </motion.div>
+                      )}
                       {photo.isLFI && (
                         <motion.div variants={itemVariants} className="flex flex-col col-span-1 md:col-span-2 mt-2">
                           <span className="text-xs text-leica-red uppercase tracking-widest font-bold">

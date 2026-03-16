@@ -475,7 +475,7 @@ function Gallery() {
                         id: 'favorites', 
                         title: s.nav[3], 
                         desc: lang === 'es' ? 'Selección' : lang === 'ca' ? 'Selecció' : 'Selection',
-                        images: DB.filter(p => p.isFavorite).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))
+                        images: DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))
                       },
                       { 
                         id: 'latest', 
@@ -571,8 +571,12 @@ function Gallery() {
                             onCardClick={() => { setSelectedJourney(journey); setCurrentSection('journeys'); }}
                           />
                           <div className="mt-6 text-center z-10">
-                            <h3 className="font-serif italic text-2xl mb-2">{journey.title}</h3>
-                            <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{journey.country}</p>
+                            <h3 className="font-serif italic text-2xl mb-2">
+                              {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                            </h3>
+                            <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
+                              {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
+                            </p>
                             <button 
                               onClick={() => { setSelectedJourney(journey); setCurrentSection('journeys'); }}
                               className="px-6 py-2 bg-brand-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-brand-accent transition-colors"
@@ -615,8 +619,12 @@ function Gallery() {
                         onCardClick={() => setSelectedJourney(journey)}
                       />
                       <div className="mt-6 text-center z-10">
-                        <h3 className="font-serif italic text-2xl mb-2">{journey.title}</h3>
-                        <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{journey.country}</p>
+                        <h3 className="font-serif italic text-2xl mb-2">
+                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                        </h3>
+                        <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
+                          {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
+                        </p>
                         <button 
                           onClick={() => setSelectedJourney(journey)}
                           className="px-6 py-2 bg-brand-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-brand-accent transition-colors"
@@ -635,14 +643,18 @@ function Gallery() {
             <motion.section key={`journey-${selectedJourney.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <button onClick={() => setSelectedJourney(null)} className="mb-12 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors">
                 <ChevronRight size={12} className="rotate-180" />
-                Volver a Viajes
+                {lang === 'es' ? 'Volver a Viajes' : lang === 'en' ? 'Back to Journeys' : 'Tornar a Viatges'}
               </button>
               <div className="max-w-4xl mx-auto mb-16 text-center">
-                <h1 className="text-6xl font-serif italic mb-6">{selectedJourney.title}</h1>
-                <p className="text-lg text-brand-secondary font-light leading-relaxed mb-8">{selectedJourney.intro}</p>
+                <h1 className="text-6xl font-serif italic mb-6">
+                  {lang === 'es' ? selectedJourney.title : lang === 'en' ? (selectedJourney.title_en || selectedJourney.title) : (selectedJourney.title_ca || selectedJourney.title)}
+                </h1>
+                <p className="text-lg text-brand-secondary font-light leading-relaxed mb-8">
+                  {lang === 'es' ? selectedJourney.intro : lang === 'en' ? (selectedJourney.intro_en || selectedJourney.intro) : (selectedJourney.intro_ca || selectedJourney.intro)}
+                </p>
                 <div className="flex justify-center gap-4">
-                  {(selectedJourney.subthemes || []).map(st => (
-                    <span key={st} className="px-4 py-2 bg-neutral-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
+                  {((lang === 'es' ? selectedJourney.subthemes : lang === 'en' ? (selectedJourney.subthemes_en || selectedJourney.subthemes) : (selectedJourney.subthemes_ca || selectedJourney.subthemes)) || []).map((st, i) => (
+                    <span key={i} className="px-4 py-2 bg-neutral-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
                       {st}
                     </span>
                   ))}
@@ -650,7 +662,7 @@ function Gallery() {
               </div>
               <div className="justified-gallery">
                 {DB.filter(p => p.journeyId === selectedJourney.id).map(photo => (
-                  <PhotoCard key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                  <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                 ))}
               </div>
               <CommentSection targetId={selectedJourney.id} targetType="journey" />
@@ -735,7 +747,7 @@ function Gallery() {
               ) : (
                 <div className="justified-gallery">
                   {filteredPhotos.map(photo => (
-                    <PhotoCard key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>
               )}
@@ -767,8 +779,8 @@ function Gallery() {
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {DB.filter(p => p.isFavorite).sort((a,b) => (a.favoriteScore || 100) - (b.favoriteScore || 100)).slice(0, favLimit).map(photo => (
-                    <PhotoCard key={photo.id} photo={photo} showRank onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                  {DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, favLimit).map(photo => (
+                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>
               )}
@@ -799,7 +811,7 @@ function Gallery() {
               ) : (
                 <div className="justified-gallery">
                   {DB.slice(0, 50).map(photo => (
-                    <PhotoCard key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>
               )}
@@ -838,7 +850,7 @@ function Gallery() {
               ) : (
                 <div className="justified-gallery">
                   {DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter)).map(photo => (
-                    <PhotoCard key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>
               )}
@@ -848,20 +860,77 @@ function Gallery() {
           {currentSection === 'about' && (
             <motion.section key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-16 items-center">
-                <div className="flex-1 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl">
-                  <img src="https://picsum.photos/seed/photographer/800/1200" alt="Pep Amores" className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 space-y-8">
-                  <h1 className="text-6xl font-serif italic tracking-tighter">Pep Amores</h1>
-                  <p className="text-xl text-brand-primary font-serif italic">
-                    {lang === 'es' ? 'Fotógrafo Documental y de Viajes' : lang === 'ca' ? 'Fotògraf Documental i de Viatges' : 'Documentary & Travel Photographer'}
+                {/* Mobile Header */}
+                <div className="md:hidden text-center space-y-4 w-full">
+                  <h1 className="text-5xl font-serif italic tracking-tighter">Pep Amores Guevara</h1>
+                  <p className="text-lg text-brand-primary font-serif italic">
+                    {lang === 'es' ? 'Fotógrafo y Emprendedor' : lang === 'ca' ? 'Fotògraf i Emprenedor' : 'Photographer & Entrepreneur'}
                   </p>
-                  <div className="space-y-6 text-brand-secondary font-light leading-relaxed">
+                </div>
+
+                <div className="flex-1 aspect-[2048/1526] rounded-3xl overflow-hidden shadow-2xl w-full">
+                  <img src="https://i.imgur.com/HNbYPxW.jpg" alt="Pep Amores Guevara" className="w-full h-full object-cover" />
+                </div>
+                
+                <div className="flex-1 space-y-8">
+                  {/* Desktop Header */}
+                  <div className="hidden md:block space-y-8">
+                    <h1 className="text-6xl font-serif italic tracking-tighter">Pep Amores Guevara</h1>
+                    <p className="text-xl text-brand-primary font-serif italic">
+                      {lang === 'es' ? 'Fotógrafo y Emprendedor' : lang === 'ca' ? 'Fotògraf i Emprenedor' : 'Photographer & Entrepreneur'}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4 text-brand-secondary font-light leading-relaxed text-sm">
                     <p>
-                      {lang === 'es' ? 'Mi fotografía es una búsqueda constante de la esencia humana en los rincones más remotos del planeta. Desde los mercados de Marrakech hasta los templos de Kioto, busco capturar el momento decisivo que cuenta una historia universal.' : lang === 'ca' ? 'La meva fotografia és una recerca constant de l\'essència humana als racons més remots del planeta. Des dels mercats de Marràqueix fins als temples de Kyoto, busco capturar el moment decisiu que explica una història universal.' : 'My photography is a constant search for human essence in the most remote corners of the planet. From the markets of Marrakech to the temples of Kyoto, I seek to capture the decisive moment that tells a universal story.'}
+                      {lang === 'es' ? 'La vida es corta. Extrañamente corta. Y cuanto más lo pienso, más consciente soy de lo poco que sabemos sobre ella. No sé por qué existimos ni qué ocurre cuando dejamos de hacerlo. Esa incertidumbre, lejos de inquietarme, siempre me ha empujado a vivir con intensidad y a intentar estar presente en cada etapa del camino.' :
+                       lang === 'en' ? 'Life is short. Strangely short. And the more I think about it, the more aware I am of how little we know about it. I don\'t know why we exist or what happens when we cease to do so. That uncertainty, far from unsettling me, has always pushed me to live with intensity and try to be present at every stage of the journey.' :
+                       'La vida és curta. Estranyament curta. I com més hi penso, més conscient sóc del poc que en sabem. No sé per què existim ni què passa quan deixem de fer-ho. Aquesta incertesa, lluny d\'inquietar-me, sempre m\'ha empès a viure amb intensitat i a intentar estar present en cada etapa del camí.'}
                     </p>
                     <p>
-                      {lang === 'es' ? 'Especializado en el uso de sistemas Leica, mi trabajo ha sido reconocido en múltiples ocasiones por LFI (Leica Fotografie International), destacando por un estilo minimalista y un uso narrativo de la luz y la sombra.' : lang === 'ca' ? 'Especialitzat en l\'ús de sistemes Leica, el meu treball ha estat reconegut en múltiples ocasions per LFI (Leica Fotografie International), destacant per un estil minimalista i un ús narratiu de la llum i l\'ombra.' : 'Specializing in Leica systems, my work has been recognized multiple times by LFI (Leica Fotografie International), standing out for a minimalist style and narrative use of light and shadow.'}
+                      {lang === 'es' ? 'Quizá por eso he sido emprendedor toda mi vida. He creado empresas en el sector tecnológico y también produzco películas. Siempre he sentido la necesidad de construir, de explorar, de transformar ideas e inquietudes en algo real.' :
+                       lang === 'en' ? 'Perhaps that is why I have been an entrepreneur all my life. I have created companies in the technology sector and I also produce films. I have always felt the need to build, to explore, to transform ideas and concerns into something real.' :
+                       'Potser per això he estat emprenedor tota la meva vida. He creat empreses en el sector tecnològic i també produeixo pel·lícules. Sempre he sentit la necessitat de construir, d\'explorar, de transformar idees i inquietuds en alguna cosa real.'}
+                    </p>
+                    <p>
+                      {lang === 'es' ? 'Pero hay una parte más íntima de ese impulso creativo que encuentra su lugar en la fotografía.' :
+                       lang === 'en' ? 'But there is a more intimate part of that creative impulse that finds its place in photography.' :
+                       'Però hi ha una part més íntima d\'aquest impuls creatiu que troba el seu lloc en la fotografia.'}
+                    </p>
+                    <p>
+                      {lang === 'es' ? 'Fotografiar es, para mí, una forma de mirar el mundo con más atención. De detener el tiempo por un instante y de atrapar aquello que normalmente pasa desapercibido: una luz que aparece de forma inesperada, una mirada fugaz, una emoción que apenas dura unos segundos.' :
+                       lang === 'en' ? 'Photographing is, for me, a way of looking at the world with more attention. Of stopping time for an instant and catching what normally goes unnoticed: a light that appears unexpectedly, a fleeting glance, an emotion that barely lasts a few seconds.' :
+                       'Fotografiar és, per a mi, una manera de mirar el món amb més atenció. D\'aturar el temps per un instant i d\'atrapar allò que normalment passa desapercebut: una llum que apareix de manera inesperada, una mirada fugaç, una emoció que amb prou feines dura uns segons.'}
+                    </p>
+                    <p>
+                      {lang === 'es' ? 'La cámara se convierte entonces en una forma de canalizar inquietudes artísticas y emocionales. Un espacio de libertad donde no hay estrategia ni objetivo más allá de observar, sentir y crear.' :
+                       lang === 'en' ? 'The camera then becomes a way to channel artistic and emotional concerns. A space of freedom where there is no strategy or objective beyond observing, feeling, and creating.' :
+                       'La càmera es converteix llavors en una manera de canalitzar inquietuds artístiques i emocionals. Un espai de llibertat on no hi ha estratègia ni objectiu més enllà d\'observar, sentir i crear.'}
+                    </p>
+                    <p>
+                      {lang === 'es' ? 'También creo profundamente en el aprendizaje continuo. Me gusta aprender de quienes saben más que yo. La humildad es tan necesaria para crecer como la ambición. Por eso participo siempre que puedo en talleres con fotógrafos a los que admiro.' :
+                       lang === 'en' ? 'I also believe deeply in continuous learning. I like to learn from those who know more than I do. Humility is as necessary to grow as ambition. That is why I participate whenever I can in workshops with photographers I admire.' :
+                       'També crec profundament en l\'aprenentatge continu. M\'agrada aprendre dels que en saben més que jo. La humilitat és tan necessària per créixer com l\'ambició. Per això participo sempre que puc en tallers amb fotògrafs als quals admiro.'}
+                    </p>
+                    <p>
+                      {lang === 'es' ? 'He tenido la suerte de compartir aprendizaje con Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu y Joan Boira. Y pronto tendré la oportunidad de hacerlo también con Steve McCurry.' :
+                       lang === 'en' ? 'I have been lucky enough to share learning with Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu, and Joan Boira. And soon I will have the opportunity to do so with Steve McCurry as well.' :
+                       'He tingut la sort de compartir aprenentatge amb Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu i Joan Boira. I aviat tindré l\'oportunitat de fer-ho també amb Steve McCurry.'}
+                    </p>
+                    <p>
+                      {lang === 'es' ? 'Intento vivir de la forma más consciente posible. Disfrutar de mi familia, de mis amigos, de las personas que me rodean. De las conversaciones largas, de los viajes, de los pequeños momentos que muchas veces pasan desapercibidos.' :
+                       lang === 'en' ? 'I try to live as consciously as possible. To enjoy my family, my friends, the people around me. Long conversations, trips, the small moments that often go unnoticed.' :
+                       'Intento viure de la manera més conscient possible. Gaudir de la meva família, dels meus amics, de les persones que m\'envolten. De les converses llargues, dels viatges, dels petits moments que moltes vegades passen desapercebuts.'}
+                    </p>
+                    <p>
+                      {lang === 'es' ? 'Porque, al final, la vida está hecha precisamente de eso: de instantes breves y valiosos.' :
+                       lang === 'en' ? 'Because, in the end, life is made precisely of that: brief and valuable moments.' :
+                       'Perquè, al final, la vida està feta precisament d\'això: d\'instants breus i valuosos.'}
+                    </p>
+                    <p className="font-medium italic">
+                      {lang === 'es' ? 'La fotografía es mi manera de prestarle atención.' :
+                       lang === 'en' ? 'Photography is my way of paying attention to it.' :
+                       'La fotografia és la meva manera de prestar-hi atenció.'}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-8 pt-8 border-t border-neutral-100">
@@ -905,7 +974,7 @@ function Gallery() {
         </AnimatePresence>
       </main>
 
-      <Lightbox photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
+      <Lightbox lang={lang} photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
 
       <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); window.scrollTo(0,0); }} lang={lang} />
     </div>
@@ -1047,12 +1116,11 @@ const PepPanel = () => {
             <div className="bg-white p-8 rounded-3xl shadow-sm">
               <h3 className="text-xl font-serif italic mb-6">Top Fotos (Favoritas)</h3>
               <div className="space-y-4">
-                {photos.filter(p => p.isFavorite).sort((a,b) => (a.favoriteScore || 100) - (b.favoriteScore || 100)).slice(0, 5).map(p => (
+                {photos.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 5).map(p => (
                   <div key={p.id} className="flex items-center gap-4">
                     <img src={p.url} className="w-12 h-12 rounded-lg object-cover" />
                     <div className="flex-1">
                       <p className="text-sm font-bold truncate">{p.title}</p>
-                      <p className="text-[10px] text-brand-secondary uppercase tracking-widest">Score: {p.favoriteScore}</p>
                     </div>
                   </div>
                 ))}

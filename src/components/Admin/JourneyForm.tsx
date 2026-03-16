@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { db, auth } from '../../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { translateMetadata, translateObject } from '../../services/geminiService';
 import { MapPin, Send, Loader2 } from 'lucide-react';
 
 export const JourneyForm: React.FC = () => {
@@ -18,9 +19,61 @@ export const JourneyForm: React.FC = () => {
     if (!auth.currentUser) return;
     setLoading(true);
     try {
+      let title_es = formData.title;
+      let title_en = formData.title;
+      let title_ca = formData.title;
+      let intro_es = formData.intro;
+      let intro_en = formData.intro;
+      let intro_ca = formData.intro;
+      let country_es = formData.country;
+      let country_en = formData.country;
+      let country_ca = formData.country;
+      let subthemes_es: string[] = [];
+      let subthemes_en: string[] = [];
+      let subthemes_ca: string[] = [];
+
+      if (formData.title) {
+        const titleTrans = await translateMetadata(formData.title, ['es', 'en', 'ca']);
+        title_es = titleTrans.es || formData.title;
+        title_en = titleTrans.en || formData.title;
+        title_ca = titleTrans.ca || formData.title;
+      }
+      if (formData.intro) {
+        const introTrans = await translateMetadata(formData.intro, ['es', 'en', 'ca']);
+        intro_es = introTrans.es || formData.intro;
+        intro_en = introTrans.en || formData.intro;
+        intro_ca = introTrans.ca || formData.intro;
+      }
+      if (formData.country) {
+        const objTrans = await translateObject({ country: formData.country }, ['es', 'en', 'ca']);
+        if (objTrans.es?.country) country_es = objTrans.es.country;
+        if (objTrans.en?.country) country_en = objTrans.en.country;
+        if (objTrans.ca?.country) country_ca = objTrans.ca.country;
+      }
+      
+      const subthemesList = formData.subthemes.split(',').map(s => s.trim()).filter(s => s);
+      if (subthemesList.length > 0) {
+        const subthemesText = subthemesList.join(', ');
+        const subthemesTrans = await translateMetadata(subthemesText, ['es', 'en', 'ca']);
+        subthemes_es = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
+        subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
+        subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
+      }
+
       await addDoc(collection(db, 'journeys'), {
         ...formData,
-        subthemes: formData.subthemes.split(',').map(s => s.trim()).filter(s => s),
+        title: title_es,
+        title_en,
+        title_ca,
+        intro: intro_es,
+        intro_en,
+        intro_ca,
+        country: country_es,
+        country_en,
+        country_ca,
+        subthemes: subthemes_es,
+        subthemes_en,
+        subthemes_ca,
         createdAt: serverTimestamp()
       });
       setFormData({ title: '', country: '', intro: '', subthemes: '', coverUrl: '' });
@@ -86,6 +139,7 @@ export const JourneyForm: React.FC = () => {
         className="w-full py-4 bg-black text-white rounded-2xl font-medium flex items-center justify-center gap-3 hover:bg-zinc-800 transition-all disabled:opacity-50"
       >
         {loading ? <Loader2 className="animate-spin" size={20} /> : <><Send size={18} /> Crear Viaje</>}
+        {loading && ' Creando y traduciendo...'}
       </button>
     </form>
   );

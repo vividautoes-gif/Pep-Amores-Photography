@@ -4,7 +4,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { motion } from 'motion/react';
 import { Upload, X, Check, Loader2, Globe, Image as ImageIcon, Send, Award, Star, MapPin } from 'lucide-react';
-import { translateMetadata } from '../../services/geminiService';
+import { translateMetadata, translateObject } from '../../services/geminiService';
 import { Journey } from '../../hooks/usePhotos';
 import ExifReader from 'exifreader';
 
@@ -192,8 +192,17 @@ export const UploadForm: React.FC = () => {
     
     try {
       setTranslating(true);
-      const translations = await translateMetadata(formData.title, ['en', 'ca']);
-      const captionTranslations = formData.caption ? await translateMetadata(formData.caption, ['en', 'ca']) : {};
+      const translations = await translateMetadata(formData.title, ['es', 'en', 'ca']);
+      const captionTranslations = formData.caption ? await translateMetadata(formData.caption, ['es', 'en', 'ca']) : {};
+      
+      const fieldsToTranslate = {
+        country: formData.country,
+        city: formData.city,
+        neighborhood: formData.neighborhood,
+        subtheme: formData.subtheme
+      };
+      const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+      
       setTranslating(false);
 
       setUploadStep('Subiendo imagen a Firebase Storage (2/3)...');
@@ -218,10 +227,24 @@ export const UploadForm: React.FC = () => {
             
             await addDoc(collection(db, 'photos'), {
               ...formData,
+              title: translations.es || formData.title,
               title_en: translations.en || formData.title,
               title_ca: translations.ca || formData.title,
+              caption: captionTranslations.es || formData.caption,
               caption_en: captionTranslations.en || formData.caption,
               caption_ca: captionTranslations.ca || formData.caption,
+              country: objectTranslations.es?.country || formData.country,
+              country_en: objectTranslations.en?.country || formData.country,
+              country_ca: objectTranslations.ca?.country || formData.country,
+              city: objectTranslations.es?.city || formData.city,
+              city_en: objectTranslations.en?.city || formData.city,
+              city_ca: objectTranslations.ca?.city || formData.city,
+              neighborhood: objectTranslations.es?.neighborhood || formData.neighborhood,
+              neighborhood_en: objectTranslations.en?.neighborhood || formData.neighborhood,
+              neighborhood_ca: objectTranslations.ca?.neighborhood || formData.neighborhood,
+              subtheme: objectTranslations.es?.subtheme || formData.subtheme,
+              subtheme_en: objectTranslations.en?.subtheme || formData.subtheme,
+              subtheme_ca: objectTranslations.ca?.subtheme || formData.subtheme,
               url: downloadURL,
               tags: formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t),
               authorUid: auth.currentUser?.uid,

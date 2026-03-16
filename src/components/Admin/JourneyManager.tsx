@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { Journey } from '../../hooks/usePhotos';
+import { translateMetadata, translateObject } from '../../services/geminiService';
 import { Loader2, Edit2, Trash2, Save, X, MapPin } from 'lucide-react';
 
 export const JourneyManager: React.FC = () => {
@@ -9,6 +10,7 @@ export const JourneyManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Journey>>({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, 'journeys'), orderBy('createdAt', 'desc'));
@@ -26,11 +28,56 @@ export const JourneyManager: React.FC = () => {
 
   const handleSave = async (id: string) => {
     try {
-      await updateDoc(doc(db, 'journeys', id), editData);
+      setSaving(true);
+      const finalData = { ...editData };
+      
+      if (finalData.title) {
+        const titleTrans = await translateMetadata(finalData.title, ['es', 'en', 'ca']);
+        finalData.title = titleTrans.es || finalData.title;
+        finalData.title_en = titleTrans.en || finalData.title;
+        finalData.title_ca = titleTrans.ca || finalData.title;
+      }
+      if (finalData.intro) {
+        const introTrans = await translateMetadata(finalData.intro, ['es', 'en', 'ca']);
+        finalData.intro = introTrans.es || finalData.intro;
+        finalData.intro_en = introTrans.en || finalData.intro;
+        finalData.intro_ca = introTrans.ca || finalData.intro;
+      }
+      
+      const fieldsToTranslate = {
+        country: finalData.country || '',
+        city: finalData.city || ''
+      };
+      const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+      
+      if (objTrans.es) {
+        if (objTrans.es.country) finalData.country = objTrans.es.country;
+        if (objTrans.es.city) finalData.city = objTrans.es.city;
+      }
+      if (objTrans.en) {
+        if (objTrans.en.country) finalData.country_en = objTrans.en.country;
+        if (objTrans.en.city) finalData.city_en = objTrans.en.city;
+      }
+      if (objTrans.ca) {
+        if (objTrans.ca.country) finalData.country_ca = objTrans.ca.country;
+        if (objTrans.ca.city) finalData.city_ca = objTrans.ca.city;
+      }
+      
+      if (finalData.subthemes && finalData.subthemes.length > 0) {
+        const subthemesText = finalData.subthemes.join(', ');
+        const subthemesTrans = await translateMetadata(subthemesText, ['es', 'en', 'ca']);
+        finalData.subthemes = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
+        finalData.subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
+        finalData.subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
+      }
+
+      await updateDoc(doc(db, 'journeys', id), finalData);
       setEditingId(null);
+      setSaving(false);
       alert('Viaje actualizado con éxito');
     } catch (error) {
       console.error(error);
+      setSaving(false);
       alert('Error al actualizar el viaje');
     }
   };
@@ -85,10 +132,11 @@ export const JourneyManager: React.FC = () => {
                   placeholder="Introducción"
                 />
                 <div className="flex gap-2">
-                  <button onClick={() => handleSave(journey.id)} className="px-4 py-2 bg-black text-white rounded-xl flex items-center gap-2">
-                    <Save size={16} /> Guardar
+                  <button onClick={() => handleSave(journey.id)} disabled={saving} className="px-4 py-2 bg-black text-white rounded-xl flex items-center gap-2 disabled:opacity-50">
+                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
+                    {saving ? 'Guardando...' : 'Guardar'}
                   </button>
-                  <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-gray-100 rounded-xl flex items-center gap-2">
+                  <button onClick={() => setEditingId(null)} disabled={saving} className="px-4 py-2 bg-gray-100 rounded-xl flex items-center gap-2 disabled:opacity-50">
                     <X size={16} /> Cancelar
                   </button>
                 </div>

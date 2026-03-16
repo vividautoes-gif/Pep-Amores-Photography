@@ -10,12 +10,20 @@ export interface Photo {
   url: string;
   orientation: 'landscape' | 'portrait' | 'square';
   country: string;
+  country_en?: string;
+  country_ca?: string;
   city: string;
+  city_en?: string;
+  city_ca?: string;
   neighborhood?: string;
+  neighborhood_en?: string;
+  neighborhood_ca?: string;
   year: number;
   photoDate?: string;
   journeyId?: string;
   subtheme?: string;
+  subtheme_en?: string;
+  subtheme_ca?: string;
   tags: string[];
   isLFI: boolean;
   lfiType: 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week' | 'none';
@@ -39,13 +47,21 @@ export interface Photo {
 export interface Journey {
   id: string;
   title: string;
+  title_en?: string;
+  title_ca?: string;
   country: string;
+  country_en?: string;
+  country_ca?: string;
   city?: string;
+  city_en?: string;
+  city_ca?: string;
   intro: string;
   intro_en?: string;
   intro_ca?: string;
   coverUrl?: string;
   subthemes: string[];
+  subthemes_en?: string[];
+  subthemes_ca?: string[];
   createdAt: any;
 }
 

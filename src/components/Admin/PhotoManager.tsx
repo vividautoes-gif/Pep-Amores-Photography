@@ -3,6 +3,7 @@ import { db, storage } from '../../firebase';
 import { doc, updateDoc, deleteDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { usePhotos, Photo, Journey } from '../../hooks/usePhotos';
+import { translateMetadata, translateObject } from '../../services/geminiService';
 import { Loader2, Trash2, Save, Edit2, X, MapPin, Tag, Camera, Calendar, Award, Star, Globe } from 'lucide-react';
 
 export const PhotoManager: React.FC = () => {
@@ -10,6 +11,7 @@ export const PhotoManager: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Photo>>({});
   const [journeys, setJourneys] = useState<Journey[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchJourneys = async () => {
@@ -29,16 +31,60 @@ export const PhotoManager: React.FC = () => {
 
   const handleSave = async (id: string) => {
     try {
+      setSaving(true);
       const finalData = { ...editData };
       if (typeof finalData.tags === 'string') {
         finalData.tags = (finalData.tags as string).split(',').map(t => t.trim()).filter(t => t);
       }
       
+      // Translate fields
+      if (finalData.title) {
+        const titleTrans = await translateMetadata(finalData.title, ['es', 'en', 'ca']);
+        finalData.title = titleTrans.es || finalData.title;
+        finalData.title_en = titleTrans.en || finalData.title;
+        finalData.title_ca = titleTrans.ca || finalData.title;
+      }
+      if (finalData.caption) {
+        const capTrans = await translateMetadata(finalData.caption, ['es', 'en', 'ca']);
+        finalData.caption = capTrans.es || finalData.caption;
+        finalData.caption_en = capTrans.en || finalData.caption;
+        finalData.caption_ca = capTrans.ca || finalData.caption;
+      }
+      
+      const fieldsToTranslate = {
+        country: finalData.country || '',
+        city: finalData.city || '',
+        neighborhood: finalData.neighborhood || '',
+        subtheme: finalData.subtheme || ''
+      };
+      const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+      
+      if (objTrans.es) {
+        if (objTrans.es.country) finalData.country = objTrans.es.country;
+        if (objTrans.es.city) finalData.city = objTrans.es.city;
+        if (objTrans.es.neighborhood) finalData.neighborhood = objTrans.es.neighborhood;
+        if (objTrans.es.subtheme) finalData.subtheme = objTrans.es.subtheme;
+      }
+      if (objTrans.en) {
+        if (objTrans.en.country) finalData.country_en = objTrans.en.country;
+        if (objTrans.en.city) finalData.city_en = objTrans.en.city;
+        if (objTrans.en.neighborhood) finalData.neighborhood_en = objTrans.en.neighborhood;
+        if (objTrans.en.subtheme) finalData.subtheme_en = objTrans.en.subtheme;
+      }
+      if (objTrans.ca) {
+        if (objTrans.ca.country) finalData.country_ca = objTrans.ca.country;
+        if (objTrans.ca.city) finalData.city_ca = objTrans.ca.city;
+        if (objTrans.ca.neighborhood) finalData.neighborhood_ca = objTrans.ca.neighborhood;
+        if (objTrans.ca.subtheme) finalData.subtheme_ca = objTrans.ca.subtheme;
+      }
+      
       await updateDoc(doc(db, 'photos', id), finalData);
       setEditingId(null);
+      setSaving(false);
       alert('Foto actualizada con éxito');
     } catch (error) {
       console.error(error);
+      setSaving(false);
       alert('Error al actualizar la fotografía');
     }
   };
@@ -189,14 +235,16 @@ export const PhotoManager: React.FC = () => {
                     <div className="flex gap-3 pt-4 border-t border-neutral-100">
                       <button 
                         onClick={() => handleSave(photo.id)} 
-                        className="flex-1 py-3 bg-black text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all"
+                        disabled={saving}
+                        className="flex-1 py-3 bg-black text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all disabled:opacity-50"
                       >
-                        <Save size={18} />
-                        Guardar Cambios
+                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                        {saving ? 'Guardando y traduciendo...' : 'Guardar Cambios'}
                       </button>
                       <button 
                         onClick={() => setEditingId(null)} 
-                        className="px-6 py-3 bg-neutral-100 text-gray-500 rounded-xl font-medium hover:bg-neutral-200 transition-all"
+                        disabled={saving}
+                        className="px-6 py-3 bg-neutral-100 text-gray-500 rounded-xl font-medium hover:bg-neutral-200 transition-all disabled:opacity-50"
                       >
                         Cancelar
                       </button>
