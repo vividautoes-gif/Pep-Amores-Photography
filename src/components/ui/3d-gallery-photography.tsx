@@ -61,20 +61,23 @@ const createMaterial = () => {
       varying vec2 vUv;
       void main() {
         vec4 color = texture2D(map, vUv);
-        if (blurAmount > 0.0) {
-          vec2 texelSize = 1.0 / vec2(textureSize(map, 0));
+        
+        // Only apply blur if blurAmount is significant and we're not on a low-end device
+        // Simplified blur for better performance
+        if (blurAmount > 0.1) {
+          float blurScale = blurAmount * 0.002;
           vec4 blurred = vec4(0.0);
-          float total = 0.0;
-          for (float x = -2.0; x <= 2.0; x += 1.0) {
-            for (float y = -2.0; y <= 2.0; y += 1.0) {
-              vec2 offset = vec2(x, y) * texelSize * blurAmount;
-              float weight = 1.0 / (1.0 + length(vec2(x, y)));
-              blurred += texture2D(map, vUv + offset) * weight;
-              total += weight;
-            }
-          }
-          color = blurred / total;
+          blurred += texture2D(map, vUv + vec2(-blurScale, -blurScale)) * 0.1;
+          blurred += texture2D(map, vUv + vec2(blurScale, -blurScale)) * 0.1;
+          blurred += texture2D(map, vUv + vec2(-blurScale, blurScale)) * 0.1;
+          blurred += texture2D(map, vUv + vec2(blurScale, blurScale)) * 0.1;
+          blurred += texture2D(map, vUv + vec2(0.0, -blurScale)) * 0.15;
+          blurred += texture2D(map, vUv + vec2(0.0, blurScale)) * 0.15;
+          blurred += texture2D(map, vUv + vec2(-blurScale, 0.0)) * 0.15;
+          blurred += texture2D(map, vUv + vec2(blurScale, 0.0)) * 0.15;
+          color = blurred;
         }
+        
         gl_FragColor = vec4(color.rgb, color.a * opacity);
       }
     `,
@@ -110,7 +113,7 @@ function ImagePlane({
 function GalleryScene({
   images,
   speed = 1,
-  visibleCount = 10,
+  visibleCount: requestedVisibleCount = 10,
   fadeSettings = {
     fadeIn: { start: 0.0, end: 0.15 },
     fadeOut: { start: 0.35, end: 0.45 },
@@ -122,6 +125,12 @@ function GalleryScene({
   },
   isMobile = false,
 }: Omit<InfiniteGalleryProps, "className" | "style"> & { isMobile?: boolean }) {
+  // Cap visible count on mobile to prevent memory/GPU crashes
+  const visibleCount = useMemo(() => {
+    if (isMobile) return Math.min(requestedVisibleCount, 6);
+    return requestedVisibleCount;
+  }, [requestedVisibleCount, isMobile]);
+
   const normalizedImages = useMemo(
     () => images
       .map((img) => (typeof img === "string" ? { src: img, alt: "" } : img))
@@ -133,11 +142,12 @@ function GalleryScene({
     return normalizedImages.map(img => {
       // Use CORS proxy for Firebase Storage to avoid WebGL tainting issues
       if (img.src.includes('firebasestorage.googleapis.com')) {
-        return `https://images.weserv.nl/?url=${encodeURIComponent(img.src)}`;
+        const resizeParam = isMobile ? '&w=800&q=70' : '&w=1600&q=80';
+        return `https://images.weserv.nl/?url=${encodeURIComponent(img.src)}${resizeParam}`;
       }
       return img.src;
     });
-  }, [normalizedImages]);
+  }, [normalizedImages, isMobile]);
 
   const textureResult = useTexture(proxiedUrls);
   const textures = Array.isArray(textureResult) ? textureResult : [textureResult];

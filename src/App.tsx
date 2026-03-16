@@ -417,8 +417,10 @@ function Gallery() {
                       }
 
                       let combined = [...dbImages];
-                      while (combined.length < 25) {
-                        combined = [...combined, ...dbImages];
+                      if (combined.length > 0) {
+                        while (combined.length < 25 && combined.length > 0) {
+                          combined = [...combined, ...dbImages];
+                        }
                       }
                       return combined.slice(0, 25);
                     })()} 
@@ -429,11 +431,11 @@ function Gallery() {
                 </div>
 
                 {/* CAPA 2: Texto Hero centrado (z-index intermedio, pointer-events-none para no bloquear hover de imágenes) */}
-                <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center text-center px-4 mix-blend-exclusion text-white">
-                  <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight mb-4">
+                <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center text-center px-4 md:mix-blend-exclusion text-white">
+                  <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight mb-4 drop-shadow-lg md:drop-shadow-none">
                     <span className="italic">{s.titles.home}</span>
                   </motion.h1>
-                  <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-lg md:text-xl font-light tracking-wide mb-8 text-white/80">
+                  <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-lg md:text-xl font-light tracking-wide mb-8 text-white drop-shadow-md md:drop-shadow-none">
                     {s.subtitles.home}
                   </motion.p>
                   
