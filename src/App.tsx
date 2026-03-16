@@ -417,12 +417,12 @@ function Gallery() {
                       }
 
                       let combined = [...dbImages];
-                      while (combined.length < 15) {
+                      while (combined.length < 25) {
                         combined = [...combined, ...dbImages];
                       }
-                      return combined.slice(0, 15);
+                      return combined.slice(0, 25);
                     })()} 
-                    visibleCount={10}
+                    visibleCount={12}
                     speed={1.2}
                     className="h-full w-full"
                   />

@@ -34,8 +34,8 @@ export const HeroSelector: React.FC = () => {
     
     const files = Array.from(e.target.files);
     
-    if (heroPhotos.length + files.length > 15) {
-      alert(`Solo puedes tener hasta 15 fotos en el Hero. Actualmente tienes ${heroPhotos.length}, y estás intentando añadir ${files.length}.`);
+    if (heroPhotos.length + files.length > 25) {
+      alert(`Solo puedes tener hasta 25 fotos en el Hero. Actualmente tienes ${heroPhotos.length}, y estás intentando añadir ${files.length}.`);
       return;
     }
 
@@ -152,10 +152,10 @@ export const HeroSelector: React.FC = () => {
           <div>
             <h3 className="text-xl font-serif italic mb-2 flex items-center gap-2">
               <ImageIcon size={20} className="text-brand-accent" />
-              Fotos del Hero ({heroPhotos.length}/15)
+              Fotos del Hero ({heroPhotos.length}/25)
             </h3>
             <p className="text-sm text-brand-secondary">
-              Añade hasta 15 fotos de cualquier formato para mostrar en la galería 3D de la página de inicio.
+              Añade hasta 25 fotos de cualquier formato para mostrar en la galería 3D de la página de inicio.
             </p>
           </div>
           
@@ -169,7 +169,7 @@ export const HeroSelector: React.FC = () => {
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading || heroPhotos.length >= 15}
+              disabled={uploading || heroPhotos.length >= 25}
               className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 whitespace-nowrap"
             >
               {uploading ? (
