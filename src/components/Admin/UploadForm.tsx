@@ -192,6 +192,7 @@ export const UploadForm: React.FC = () => {
     
     try {
       setTranslating(true);
+      console.log("Translating metadata for new upload...", formData.title);
       const translations = await translateMetadata(formData.title, ['es', 'en', 'ca']);
       const captionTranslations = formData.caption ? await translateMetadata(formData.caption, ['es', 'en', 'ca']) : {};
       
@@ -202,6 +203,7 @@ export const UploadForm: React.FC = () => {
         subtheme: formData.subtheme
       };
       const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+      console.log("Translations received:", { translations, captionTranslations, objectTranslations });
       
       setTranslating(false);
 
@@ -225,7 +227,7 @@ export const UploadForm: React.FC = () => {
             setUploadStep('Guardando datos en la base de datos (3/3)...');
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             
-            await addDoc(collection(db, 'photos'), {
+            const finalData = {
               ...formData,
               title: translations.es || formData.title,
               title_en: translations.en || formData.title,
@@ -249,7 +251,10 @@ export const UploadForm: React.FC = () => {
               tags: formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t),
               authorUid: auth.currentUser?.uid,
               createdAt: serverTimestamp()
-            });
+            };
+
+            console.log("Final photo data to add:", finalData);
+            await addDoc(collection(db, 'photos'), finalData);
 
             if (formData.isJourneyCover && formData.journeyId) {
               await updateDoc(doc(db, 'journeys', formData.journeyId), {

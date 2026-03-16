@@ -29,19 +29,24 @@ export const JourneyManager: React.FC = () => {
   const handleSave = async (id: string) => {
     try {
       setSaving(true);
+      console.log("Saving journey with translation...", editData);
       const finalData = { ...editData };
       
       if (finalData.title) {
         const titleTrans = await translateMetadata(finalData.title, ['es', 'en', 'ca']);
-        finalData.title = titleTrans.es || finalData.title;
-        finalData.title_en = titleTrans.en || finalData.title;
-        finalData.title_ca = titleTrans.ca || finalData.title;
+        if (Object.keys(titleTrans).length > 0) {
+          finalData.title = titleTrans.es || finalData.title;
+          finalData.title_en = titleTrans.en || finalData.title;
+          finalData.title_ca = titleTrans.ca || finalData.title;
+        }
       }
       if (finalData.intro) {
         const introTrans = await translateMetadata(finalData.intro, ['es', 'en', 'ca']);
-        finalData.intro = introTrans.es || finalData.intro;
-        finalData.intro_en = introTrans.en || finalData.intro;
-        finalData.intro_ca = introTrans.ca || finalData.intro;
+        if (Object.keys(introTrans).length > 0) {
+          finalData.intro = introTrans.es || finalData.intro;
+          finalData.intro_en = introTrans.en || finalData.intro;
+          finalData.intro_ca = introTrans.ca || finalData.intro;
+        }
       }
       
       const fieldsToTranslate = {
@@ -64,13 +69,16 @@ export const JourneyManager: React.FC = () => {
       }
       
       if (finalData.subthemes && finalData.subthemes.length > 0) {
-        const subthemesText = finalData.subthemes.join(', ');
+        const subthemesText = Array.isArray(finalData.subthemes) ? finalData.subthemes.join(', ') : finalData.subthemes;
         const subthemesTrans = await translateMetadata(subthemesText, ['es', 'en', 'ca']);
-        finalData.subthemes = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
-        finalData.subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
-        finalData.subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
+        if (Object.keys(subthemesTrans).length > 0) {
+          finalData.subthemes = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
+          finalData.subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
+          finalData.subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
+        }
       }
 
+      console.log("Final data to save:", finalData);
       await updateDoc(doc(db, 'journeys', id), finalData);
       setEditingId(null);
       setSaving(false);

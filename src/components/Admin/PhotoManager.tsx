@@ -32,6 +32,7 @@ export const PhotoManager: React.FC = () => {
   const handleSave = async (id: string) => {
     try {
       setSaving(true);
+      console.log("Saving photo with translation...", editData);
       const finalData = { ...editData };
       if (typeof finalData.tags === 'string') {
         finalData.tags = (finalData.tags as string).split(',').map(t => t.trim()).filter(t => t);
@@ -40,15 +41,19 @@ export const PhotoManager: React.FC = () => {
       // Translate fields
       if (finalData.title) {
         const titleTrans = await translateMetadata(finalData.title, ['es', 'en', 'ca']);
-        finalData.title = titleTrans.es || finalData.title;
-        finalData.title_en = titleTrans.en || finalData.title;
-        finalData.title_ca = titleTrans.ca || finalData.title;
+        if (Object.keys(titleTrans).length > 0) {
+          finalData.title = titleTrans.es || finalData.title;
+          finalData.title_en = titleTrans.en || finalData.title;
+          finalData.title_ca = titleTrans.ca || finalData.title;
+        }
       }
       if (finalData.caption) {
         const capTrans = await translateMetadata(finalData.caption, ['es', 'en', 'ca']);
-        finalData.caption = capTrans.es || finalData.caption;
-        finalData.caption_en = capTrans.en || finalData.caption;
-        finalData.caption_ca = capTrans.ca || finalData.caption;
+        if (Object.keys(capTrans).length > 0) {
+          finalData.caption = capTrans.es || finalData.caption;
+          finalData.caption_en = capTrans.en || finalData.caption;
+          finalData.caption_ca = capTrans.ca || finalData.caption;
+        }
       }
       
       const fieldsToTranslate = {
@@ -78,6 +83,7 @@ export const PhotoManager: React.FC = () => {
         if (objTrans.ca.subtheme) finalData.subtheme_ca = objTrans.ca.subtheme;
       }
       
+      console.log("Final photo data to save:", finalData);
       await updateDoc(doc(db, 'photos', id), finalData);
       setEditingId(null);
       setSaving(false);

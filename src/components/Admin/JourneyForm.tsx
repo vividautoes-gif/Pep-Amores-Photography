@@ -19,6 +19,7 @@ export const JourneyForm: React.FC = () => {
     if (!auth.currentUser) return;
     setLoading(true);
     try {
+      console.log("Creating journey with translation...", formData.title);
       let title_es = formData.title;
       let title_en = formData.title;
       let title_ca = formData.title;
@@ -34,15 +35,19 @@ export const JourneyForm: React.FC = () => {
 
       if (formData.title) {
         const titleTrans = await translateMetadata(formData.title, ['es', 'en', 'ca']);
-        title_es = titleTrans.es || formData.title;
-        title_en = titleTrans.en || formData.title;
-        title_ca = titleTrans.ca || formData.title;
+        if (Object.keys(titleTrans).length > 0) {
+          title_es = titleTrans.es || formData.title;
+          title_en = titleTrans.en || formData.title;
+          title_ca = titleTrans.ca || formData.title;
+        }
       }
       if (formData.intro) {
         const introTrans = await translateMetadata(formData.intro, ['es', 'en', 'ca']);
-        intro_es = introTrans.es || formData.intro;
-        intro_en = introTrans.en || formData.intro;
-        intro_ca = introTrans.ca || formData.intro;
+        if (Object.keys(introTrans).length > 0) {
+          intro_es = introTrans.es || formData.intro;
+          intro_en = introTrans.en || formData.intro;
+          intro_ca = introTrans.ca || formData.intro;
+        }
       }
       if (formData.country) {
         const objTrans = await translateObject({ country: formData.country }, ['es', 'en', 'ca']);
@@ -55,12 +60,18 @@ export const JourneyForm: React.FC = () => {
       if (subthemesList.length > 0) {
         const subthemesText = subthemesList.join(', ');
         const subthemesTrans = await translateMetadata(subthemesText, ['es', 'en', 'ca']);
-        subthemes_es = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
-        subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
-        subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
+        if (Object.keys(subthemesTrans).length > 0) {
+          subthemes_es = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
+          subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
+          subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
+        } else {
+          subthemes_es = subthemesList;
+          subthemes_en = subthemesList;
+          subthemes_ca = subthemesList;
+        }
       }
 
-      await addDoc(collection(db, 'journeys'), {
+      const finalData = {
         ...formData,
         title: title_es,
         title_en,
@@ -75,7 +86,9 @@ export const JourneyForm: React.FC = () => {
         subthemes_en,
         subthemes_ca,
         createdAt: serverTimestamp()
-      });
+      };
+      console.log("Final journey data to add:", finalData);
+      await addDoc(collection(db, 'journeys'), finalData);
       setFormData({ title: '', country: '', intro: '', subthemes: '', coverUrl: '' });
       alert("Viaje creado con éxito");
     } catch (error) {
