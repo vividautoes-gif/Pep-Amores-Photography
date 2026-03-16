@@ -404,7 +404,13 @@ export default function InfiniteGallery({
       <LocalErrorBoundary fallback={<FallbackGallery images={images} />}>
         <Canvas
           camera={{ position: [0, 0, 0], fov: 55 }}
-          gl={{ antialias: true, alpha: true }}
+          gl={{ 
+            antialias: !isMobile, 
+            alpha: true,
+            powerPreference: 'low-power',
+            precision: isMobile ? 'lowp' : 'highp'
+          }}
+          dpr={isMobile ? [1, 1] : [1, 2]}
         >
           <Suspense fallback={<Html center><div className="text-brand-secondary font-serif italic">Cargando galería...</div></Html>}>
             <GalleryScene

@@ -34,7 +34,7 @@ interface CardProps extends CardImage {
   spacing: { x?: number; y?: number };
 }
 
-const Card = ({
+  const Card = ({
   src, 
   alt, 
   index, 
@@ -47,6 +47,9 @@ const Card = ({
   height,
   spacing
 }: CardProps) => {
+  // On mobile, only render the first card to save memory and prevent crashes
+  if (isMobile && index > 0 && !isFront) return null;
+
   return (
     <motion.div
       className={cn(
@@ -56,7 +59,7 @@ const Card = ({
       style={{
         width,
         height,
-        transformStyle: 'preserve-3d',
+        transformStyle: isMobile ? 'flat' : 'preserve-3d',
         transformOrigin: isMobile ? 'bottom center' : 'left center',
         zIndex: isFront ? 20 : 5 - index,
         filter: isFront || frontCardIndex === null ? 'none' : 'blur(5px)', 
@@ -81,11 +84,11 @@ const Card = ({
           }
         : isHovered
         ? {
-            rotateZ: isMobile ? (index - 1.5) * 5 : 0,
+            rotateZ: isMobile ? 0 : (index - 1.5) * 5,
             rotateY: isMobile ? 0 : -35,
-            x: isMobile ? (index - 1.5) * 30 : index * (spacing.x ?? 40),
-            y: isMobile ? Math.abs(index - 1.5) * 10 : index * -5,
-            z: index * 15,
+            x: isMobile ? 0 : index * (spacing.x ?? 40),
+            y: isMobile ? 0 : index * -5,
+            z: isMobile ? 0 : index * 15,
             scale: 1.05,
             boxShadow: `10px 20px 30px rgba(0, 0, 0, ${0.2 + index * 0.05})`,
             transition: { type: 'spring', stiffness: 300, damping: 50, delay: index * 0.05 }
@@ -109,6 +112,7 @@ const Card = ({
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         style={{ objectFit: 'cover', width: '100%', height: '100%' }}
         className="rounded-xl pointer-events-none"
       />

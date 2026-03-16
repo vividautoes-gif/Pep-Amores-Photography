@@ -317,7 +317,15 @@ function Gallery() {
   const JDB = realJDB.length > 0 ? realJDB : MOCK_JDB;
   
   const [lang, setLang] = useState<'es' | 'en' | 'ca'>('es');
+  const [isMobile, setIsMobile] = useState(false);
   const [currentSection, setCurrentSection] = useState('home');
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoType | null>(null);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -418,13 +426,16 @@ function Gallery() {
 
                       let combined = [...dbImages];
                       if (combined.length > 0) {
-                        while (combined.length < 25 && combined.length > 0) {
+                        // On mobile, we only need a few images for the infinite loop to work
+                        const targetCount = isMobile ? 8 : 25;
+                        while (combined.length < targetCount && combined.length > 0) {
                           combined = [...combined, ...dbImages];
                         }
+                        return combined.slice(0, targetCount);
                       }
-                      return combined.slice(0, 25);
+                      return combined;
                     })()} 
-                    visibleCount={12}
+                    visibleCount={isMobile ? 6 : 12}
                     speed={1.2}
                     className="h-full w-full"
                   />
