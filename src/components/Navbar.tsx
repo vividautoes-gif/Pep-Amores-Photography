@@ -127,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
             <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white transition-transform group-hover:rotate-12">
               <Camera size={20} />
             </div>
-            <span className="text-xl font-extrabold tracking-tighter uppercase hidden sm:block">Pep Amores</span>
+            <span className="text-lg md:text-xl font-extrabold tracking-tighter uppercase block">Pep Amores</span>
           </button>
         </div>
 

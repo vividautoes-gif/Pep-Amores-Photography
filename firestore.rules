@@ -64,9 +64,44 @@ service cloud.firestore {
              data.authorUid == request.auth.uid;
     }
 
+    function isValidMessage(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             data.message is string && data.message.size() > 0 && data.message.size() < 5000 &&
+             data.subject is string &&
+             data.isRead == false &&
+             data.createdAt == request.time;
+    }
+
+    function isValidComment(data) {
+      return data.userName is string && data.userName.size() > 0 && data.userName.size() < 100 &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 2000 &&
+             data.targetId is string &&
+             data.targetType in ['photo', 'journey', 'guestbook'] &&
+             data.isApproved == false &&
+             data.createdAt == request.time;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
+
+    match /albums/{albumId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow create: if isValidMessage(request.resource.data);
+      allow read: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
 
     match /editors/{email} {
       allow read: if isAdmin();
@@ -97,7 +132,7 @@ service cloud.firestore {
 
     match /comments/{commentId} {
       allow read: if true;
-      allow create: if true; // Anyone can comment (moderated by default)
+      allow create: if isValidComment(request.resource.data);
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }

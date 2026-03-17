@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
 import { Lightbox } from './components/Lightbox';
+import { FlowButton } from './components/ui/flow-button';
 import { AdminPage } from './pages/AdminPage';
 import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
 import { Strings } from './data';
@@ -70,9 +71,10 @@ const CommentSection = ({ targetId, targetType }: { targetId: string, targetType
           placeholder="Escribe tu comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
           className="w-full bg-neutral-50 border-none rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-brand-primary/10 h-32 resize-none"
         />
-        <button type="submit" className="px-8 py-3 bg-brand-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-brand-accent transition-colors">
-          Enviar Comentario
-        </button>
+        <FlowButton 
+          type="submit"
+          text="Enviar Comentario"
+        />
       </form>
 
       <div className="space-y-6">
@@ -288,12 +290,10 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
           <p className="text-brand-secondary mb-6 max-w-md">
             {this.state.error?.message || "Ha ocurrido un error inesperado al renderizar la página."}
           </p>
-          <button 
+          <FlowButton 
             onClick={() => window.location.reload()} 
-            className="px-8 py-3 bg-brand-primary text-white text-xs font-bold uppercase tracking-widest rounded-full"
-          >
-            Recargar página
-          </button>
+            text="Recargar página"
+          />
         </div>
       );
     }
@@ -353,6 +353,8 @@ function Gallery() {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
   const [lfiFilter, setLfiFilter] = useState<'all' | 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week'>('all');
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [isSending, setIsSending] = useState(false);
 
   const s = Strings[lang];
 
@@ -425,12 +427,38 @@ function Gallery() {
           {lang === 'es' ? 'Error de conexión' : lang === 'ca' ? 'Error de connexió' : 'Connection Error'}
         </h1>
         <p className="text-brand-secondary mb-6 max-w-md">{photosError.message}</p>
-        <button onClick={() => window.location.reload()} className="px-8 py-3 bg-brand-primary text-white text-xs font-bold uppercase tracking-widest rounded-full">
-          {lang === 'es' ? 'Reintentar' : lang === 'ca' ? 'Reintentar' : 'Retry'}
-        </button>
+        <FlowButton 
+          onClick={() => window.location.reload()} 
+          text={lang === 'es' ? 'Reintentar' : lang === 'ca' ? 'Reintentar' : 'Retry'}
+        />
       </div>
     );
   }
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      alert(lang === 'es' ? 'Por favor, rellena todos los campos.' : lang === 'ca' ? 'Si us plau, omple tots els camps.' : 'Please fill in all fields.');
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      await addDoc(collection(db, 'messages'), {
+        ...contactForm,
+        subject: 'Contacto desde la web',
+        isRead: false,
+        createdAt: serverTimestamp()
+      });
+      setContactForm({ name: '', email: '', message: '' });
+      alert(lang === 'es' ? 'Mensaje enviado correctamente.' : lang === 'ca' ? 'Missatge enviat correctament.' : 'Message sent successfully.');
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert(lang === 'es' ? 'Error al enviar el mensaje.' : lang === 'ca' ? 'Error en enviar el missatge.' : 'Error sending message.');
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const currentIndex = selectedPhoto ? currentPhotoList.findIndex(p => p.id === selectedPhoto.id) : -1;
   const handleNext = currentIndex >= 0 && currentIndex < currentPhotoList.length - 1 ? () => setSelectedPhoto(currentPhotoList[currentIndex + 1]) : undefined;
@@ -564,12 +592,10 @@ function Gallery() {
                           <div className="mt-6 text-center z-10">
                             <h3 className="font-serif italic text-2xl mb-2">{item.title}</h3>
                             <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{item.desc}</p>
-                            <button 
+                            <FlowButton 
                               onClick={() => setCurrentSection(item.id)}
-                              className="px-6 py-2 bg-brand-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-brand-accent transition-colors"
-                            >
-                              {lang === 'es' ? 'Ver sección' : lang === 'en' ? 'View section' : 'Veure secció'}
-                            </button>
+                              text={lang === 'es' ? 'Ver sección' : lang === 'en' ? 'View section' : 'Veure secció'}
+                            />
                           </div>
                         </div>
                       );
@@ -620,12 +646,10 @@ function Gallery() {
                             <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                               {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
                             </p>
-                            <button 
+                            <FlowButton 
                               onClick={() => { setSelectedJourney(journey); setCurrentSection('journeys'); }}
-                              className="px-6 py-2 bg-brand-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-brand-accent transition-colors"
-                            >
-                              {lang === 'es' ? 'Ver viaje' : lang === 'en' ? 'View journey' : 'Veure viatge'}
-                            </button>
+                              text={lang === 'es' ? 'Ver viaje' : lang === 'en' ? 'View journey' : 'Veure viatge'}
+                            />
                           </div>
                         </div>
                       );
@@ -668,12 +692,10 @@ function Gallery() {
                         <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                           {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
                         </p>
-                        <button 
+                        <FlowButton 
                           onClick={() => setSelectedJourney(journey)}
-                          className="px-6 py-2 bg-brand-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-brand-accent transition-colors"
-                        >
-                          {lang === 'es' ? 'Ver viaje' : lang === 'en' ? 'View journey' : 'Veure viatge'}
-                        </button>
+                          text={lang === 'es' ? 'Ver viaje' : lang === 'en' ? 'View journey' : 'Veure viatge'}
+                        />
                       </div>
                     </div>
                   );
@@ -996,15 +1018,45 @@ function Gallery() {
                 <div className="text-center mb-12">
                   <h1 className="text-5xl font-serif italic mb-4">{s.titles.contact}</h1>
                 </div>
-                <div className="glass p-8 md:p-12 rounded-3xl shadow-2xl space-y-8">
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">{s.labels.name}</label><input type="text" className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none" /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Email</label><input type="email" className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none" /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">{s.labels.msg}</label><textarea rows={5} className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none resize-none" /></div>
-                  <button className="w-full py-6 bg-brand-primary text-white text-xs font-bold uppercase tracking-[0.3em] rounded-xl flex items-center justify-center gap-3 group transition-all hover:bg-brand-accent">
-                    {s.labels.send}
-                    <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </button>
-                </div>
+                <form onSubmit={handleContactSubmit} className="glass p-8 md:p-12 rounded-3xl shadow-2xl space-y-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">{s.labels.name}</label>
+                    <input 
+                      type="text" 
+                      value={contactForm.name}
+                      onChange={e => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none" 
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Email</label>
+                    <input 
+                      type="email" 
+                      value={contactForm.email}
+                      onChange={e => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none" 
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">{s.labels.msg}</label>
+                    <textarea 
+                      rows={5} 
+                      value={contactForm.message}
+                      onChange={e => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none resize-none" 
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-center">
+                    <FlowButton 
+                      type="submit"
+                      disabled={isSending}
+                      text={isSending ? (lang === 'es' ? 'Enviando...' : 'Sending...') : s.labels.send}
+                    />
+                  </div>
+                </form>
                 <CommentSection targetId="guestbook" targetType="guestbook" />
               </div>
             </motion.section>
@@ -1143,7 +1195,19 @@ const PepPanel = () => {
                     <p className="text-xs font-bold uppercase tracking-widest mb-1">{c.userName} <span className="text-brand-secondary font-normal">en {c.targetType}</span></p>
                     <p className="text-sm text-brand-secondary">{c.text}</p>
                   </div>
-                  <button className="text-brand-accent hover:underline text-[10px] font-bold uppercase tracking-widest">Aprobar</button>
+                  <button 
+                    onClick={async () => {
+                      try {
+                        const { doc, updateDoc } = await import('firebase/firestore');
+                        await updateDoc(doc(db, 'comments', c.id), { isApproved: true });
+                      } catch (error: any) {
+                        alert('Error al aprobar comentario: ' + error.message);
+                      }
+                    }}
+                    className="text-brand-accent hover:underline text-[10px] font-bold uppercase tracking-widest"
+                  >
+                    Aprobar
+                  </button>
                 </div>
               ))}
               {comments.filter(c => !c.isApproved).length === 0 && <p className="text-sm text-brand-secondary italic">No hay comentarios pendientes.</p>}
