@@ -129,7 +129,19 @@ export const UploadForm: React.FC = () => {
 
       setFormData(prev => ({
         ...prev,
-        cameraModel: cameraMake && !cameraModel.includes(cameraMake) ? `${cameraMake} ${cameraModel}` : cameraModel || prev.cameraModel,
+        cameraModel: (() => {
+          const model = cameraModel || '';
+          const make = cameraMake || '';
+          const full = make && !model.toLowerCase().includes(make.toLowerCase()) 
+            ? `${make} ${model}` 
+            : model;
+          
+          // Remove redundant "Leica Camera AG" or "Leica Camera" prefixes as requested
+          return full
+            .replace(/^Leica Camera AG\s+/i, '')
+            .replace(/^Leica Camera\s+/i, '')
+            .trim() || prev.cameraModel;
+        })(),
         lens: lens || prev.lens,
         focalLength: focalLength ? focalLength.replace(/\s*mm/gi, '') : prev.focalLength,
         exposureTime: exposureTime || prev.exposureTime,

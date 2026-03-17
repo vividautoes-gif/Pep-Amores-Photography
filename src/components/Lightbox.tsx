@@ -110,28 +110,28 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                 <button
                   onClick={() => setActiveTab('INFO')}
                   className={`pb-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors relative ${
-                    activeTab === 'INFO' ? 'text-white' : 'text-white/40 hover:text-white/80'
+                    activeTab === 'INFO' ? 'text-[#B45309]' : 'text-white/40 hover:text-white/80'
                   }`}
                 >
                   INFO
                   {activeTab === 'INFO' && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B45309]"
                     />
                   )}
                 </button>
                 <button
                   onClick={() => setActiveTab('CAMERA')}
                   className={`pb-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors relative ${
-                    activeTab === 'CAMERA' ? 'text-white' : 'text-white/40 hover:text-white/80'
+                    activeTab === 'CAMERA' ? 'text-[#B45309]' : 'text-white/40 hover:text-white/80'
                   }`}
                 >
                   CAMERA
                   {activeTab === 'CAMERA' && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B45309]"
                     />
                   )}
                 </button>

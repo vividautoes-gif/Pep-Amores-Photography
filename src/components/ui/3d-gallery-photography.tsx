@@ -141,7 +141,7 @@ function GalleryScene({
     return normalizedImages.map(img => {
       // Use CORS proxy for Firebase Storage to avoid WebGL tainting issues
       if (img.src.includes('firebasestorage.googleapis.com')) {
-        const resizeParam = isMobile ? '&w=800&q=70' : '&w=1600&q=80';
+        const resizeParam = isMobile ? '&w=1200&q=85&fit=inside' : '&w=2000&q=90&fit=inside';
         return `https://images.weserv.nl/?url=${encodeURIComponent(img.src)}${resizeParam}`;
       }
       return img.src;
@@ -269,11 +269,28 @@ function GalleryScene({
         }
       }
 
-      // Mover mesh directamente (sin re-render de React)
+      // Actualizar mesh directamente (sin re-render de React)
       const mesh = meshRefs.current[i];
       if (mesh) {
         const worldZ = plane.z - DEPTH_RANGE / 2;
         mesh.position.set(plane.x, plane.y, worldZ);
+
+        // Actualizar escala según el aspect ratio de la textura actual
+        const tex = textures[plane.imageIndex];
+        if (tex && tex.image) {
+          const img = tex.image as any;
+          const width = img.width || 0;
+          const height = img.height || 0;
+          if (width > 0 && height > 0) {
+            const aspect = width / height;
+            const baseSize = isMobile ? 1.6 : 1.8;
+            if (aspect > 1) {
+              mesh.scale.set(baseSize * aspect, baseSize, 1);
+            } else {
+              mesh.scale.set(baseSize, baseSize / aspect, 1);
+            }
+          }
+        }
       }
     });
   });
@@ -404,12 +421,12 @@ export default function InfiniteGallery({
         <Canvas
           camera={{ position: [0, 0, 0], fov: 55 }}
           gl={{ 
-            antialias: !isMobile, 
+            antialias: true, 
             alpha: true,
-            powerPreference: 'low-power',
-            precision: isMobile ? 'lowp' : 'highp'
+            powerPreference: 'high-performance',
+            precision: 'highp'
           }}
-          dpr={isMobile ? [1, 1] : [1, 2]}
+          dpr={isMobile ? [1, 2] : [1, 2]}
         >
           <Suspense fallback={<Html center><div className="text-brand-secondary font-serif italic">Cargando galería...</div></Html>}>
             <GalleryScene

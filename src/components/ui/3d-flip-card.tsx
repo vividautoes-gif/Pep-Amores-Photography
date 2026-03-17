@@ -47,8 +47,9 @@ interface CardProps extends CardImage {
   height,
   spacing
 }: CardProps) => {
-  // On mobile, only render the first card to save memory and prevent crashes
-  if (isMobile && index > 0 && !isFront) return null;
+  // Render all cards on mobile to allow the fan-out effect
+  // but limit to index 3 (4 cards total) for performance
+  if (index > 3 && !isFront) return null;
 
   return (
     <motion.div
@@ -59,8 +60,8 @@ interface CardProps extends CardImage {
       style={{
         width,
         height,
-        transformStyle: isMobile ? 'flat' : 'preserve-3d',
-        transformOrigin: isMobile ? 'bottom center' : 'left center',
+        transformStyle: 'preserve-3d',
+        transformOrigin: isMobile ? 'center center' : 'left center',
         zIndex: isFront ? 20 : 5 - index,
         filter: isFront || frontCardIndex === null ? 'none' : 'blur(5px)', 
       }}
@@ -84,11 +85,11 @@ interface CardProps extends CardImage {
           }
         : isHovered
         ? {
-            rotateZ: isMobile ? 0 : (index - 1.5) * 5,
-            rotateY: isMobile ? 0 : -35,
-            x: isMobile ? 0 : index * (spacing.x ?? 40),
-            y: isMobile ? 0 : index * -5,
-            z: isMobile ? 0 : index * 15,
+            rotateZ: (index - 1.5) * (isMobile ? 8 : 5),
+            rotateY: isMobile ? -15 : -35,
+            x: index * (spacing.x ?? (isMobile ? 25 : 40)),
+            y: index * (isMobile ? -2 : -5),
+            z: index * 15,
             scale: 1.05,
             boxShadow: `10px 20px 30px rgba(0, 0, 0, ${0.2 + index * 0.05})`,
             transition: { type: 'spring', stiffness: 300, damping: 50, delay: index * 0.05 }
@@ -144,10 +145,17 @@ export function CardStack3D({
       <div
         className="relative"
         style={{ width: cardWidth, height: cardHeight, perspective: 1000 }}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => !isMobile && setIsHovered(true)}
         onMouseLeave={() => {
-          setIsHovered(false);
-          setFrontCardIndex(null);
+          if (!isMobile) {
+            setIsHovered(false);
+            setFrontCardIndex(null);
+          }
+        }}
+        onClick={() => {
+          if (isMobile) {
+            setIsHovered(prev => !prev);
+          }
         }}
       >
         {images.map((image, index) => (
@@ -161,6 +169,12 @@ export function CardStack3D({
             isFront={frontCardIndex === index}
             frontCardIndex={frontCardIndex}
             onClick={(idx) => {
+              if (isMobile && !isHovered) {
+                // First tap on mobile: just expand
+                setIsHovered(true);
+                return;
+              }
+
               if (onCardClick) {
                 onCardClick();
               } else {

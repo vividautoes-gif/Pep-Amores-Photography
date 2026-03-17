@@ -110,7 +110,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'Street Life',
     binomial: 'Tokyo, Japan',
     photo: {
-      url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80',
       text: 'City lights at night',
       by: 'Pep Amores',
       orientation: 'landscape'
@@ -120,7 +120,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'The Look',
     binomial: 'Portrait Series',
     photo: {
-      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&q=80',
       text: 'Close up portrait',
       by: 'Pep Amores',
       orientation: 'portrait'
@@ -130,7 +130,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'High Peaks',
     binomial: 'Alps, Switzerland',
     photo: {
-      url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
       text: 'Mountain range',
       by: 'Pep Amores',
       orientation: 'landscape'
@@ -140,7 +140,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'Modern Lines',
     binomial: 'Architecture',
     photo: {
-      url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80',
       text: 'Skyscraper geometry',
       by: 'Pep Amores',
       orientation: 'portrait'
@@ -150,7 +150,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'Deep Forest',
     binomial: 'Nature Study',
     photo: {
-      url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80',
       text: 'Sunlight through trees',
       by: 'Pep Amores',
       orientation: 'landscape'
@@ -160,7 +160,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'Parisian Mornings',
     binomial: 'Paris, France',
     photo: {
-      url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80',
       text: 'Eiffel tower view',
       by: 'Pep Amores',
       orientation: 'portrait'
@@ -170,7 +170,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'Minimal Space',
     binomial: 'Interior Design',
     photo: {
-      url: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=1200&q=80',
       text: 'Clean room design',
       by: 'Pep Amores',
       orientation: 'landscape'
@@ -180,7 +180,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'Timeless',
     binomial: 'Black & White',
     photo: {
-      url: 'https://images.unsplash.com/photo-1501139083538-0139583c060f?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1501139083538-0139583c060f?w=1200&q=80',
       text: 'Monochrome clock',
       by: 'Pep Amores',
       orientation: 'square'
@@ -190,7 +190,7 @@ const PREVIEW_ITEMS: GalleryItem[] = [
     common: 'Neon Nights',
     binomial: 'Hong Kong',
     photo: {
-      url: 'https://images.unsplash.com/photo-1470219556762-1771e7f9427d?w=600&q=60',
+      url: 'https://images.unsplash.com/photo-1470219556762-1771e7f9427d?w=1200&q=80',
       text: 'Night city skyline',
       by: 'Pep Amores',
       orientation: 'landscape'
@@ -318,6 +318,27 @@ function Gallery() {
   
   const [lang, setLang] = useState<'es' | 'en' | 'ca'>('es');
   const [isMobile, setIsMobile] = useState(false);
+
+  const heroImages = useMemo(() => {
+    let dbImages = DB.filter(p => p.isHero).length > 0 
+      ? DB.filter(p => p.isHero).map(p => ({ src: p.url, alt: p.title }))
+      : DB.map(p => ({ src: p.url, alt: p.title }));
+    
+    if (dbImages.length === 0) {
+      dbImages = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
+    }
+
+    let combined = [...dbImages];
+    if (combined.length > 0) {
+      const targetCount = isMobile ? 15 : 25;
+      while (combined.length < targetCount && combined.length > 0) {
+        combined = [...combined, ...dbImages];
+      }
+      return combined.slice(0, targetCount);
+    }
+    return combined;
+  }, [DB, isMobile]);
+
   const [currentSection, setCurrentSection] = useState('home');
 
   useEffect(() => {
@@ -427,26 +448,7 @@ function Gallery() {
                 {/* CAPA 1: Canvas 3D de fondo (z-index más bajo) */}
                 <div className="absolute inset-0 z-0">
                   <InfiniteGallery 
-                    images={(() => {
-                      let dbImages = DB.filter(p => p.isHero).length > 0 
-                        ? DB.filter(p => p.isHero).map(p => ({ src: p.url, alt: p.title }))
-                        : DB.map(p => ({ src: p.url, alt: p.title }));
-                      
-                      if (dbImages.length === 0) {
-                        dbImages = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
-                      }
-
-                      let combined = [...dbImages];
-                      if (combined.length > 0) {
-                        // On mobile, we only need a few images for the infinite loop to work
-                        const targetCount = 25;
-                        while (combined.length < targetCount && combined.length > 0) {
-                          combined = [...combined, ...dbImages];
-                        }
-                        return combined.slice(0, targetCount);
-                      }
-                      return combined;
-                    })()} 
+                    images={heroImages} 
                     visibleCount={isMobile ? 10 : 12}
                     speed={1.2}
                     className="h-full w-full"
@@ -720,23 +722,23 @@ function Gallery() {
                 
                 <div className="mb-10 bg-neutral-50 p-6 md:p-8 rounded-3xl border border-neutral-100">
                   <div className="flex flex-col items-center mb-8">
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-brand-primary mb-4 text-center">
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-brand-accent mb-4 text-center">
                       {lang === 'es' ? 'Modo de combinación de Hashtags' : lang === 'en' ? 'Hashtag Combination Mode' : 'Mode de combinació de Hashtags'}
                     </h3>
                     <div className="bg-white p-1.5 rounded-full flex items-center shadow-sm border border-neutral-200 w-full max-w-md relative">
                       <button 
                         onClick={() => setFilterLogic('and')}
-                        className={cn("flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all z-10", filterLogic === 'and' ? "text-white" : "text-brand-secondary hover:text-brand-primary")}
+                        className={cn("flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all z-10", filterLogic === 'and' ? "text-white" : "text-brand-secondary hover:text-brand-accent")}
                       >
                         {lang === 'es' ? 'Todas (Y)' : lang === 'en' ? 'All (AND)' : 'Totes (I)'}
                       </button>
                       <button 
                         onClick={() => setFilterLogic('or')}
-                        className={cn("flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all z-10", filterLogic === 'or' ? "text-white" : "text-brand-secondary hover:text-brand-primary")}
+                        className={cn("flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all z-10", filterLogic === 'or' ? "text-white" : "text-brand-secondary hover:text-brand-accent")}
                       >
                         {lang === 'es' ? 'Cualquiera (O)' : lang === 'en' ? 'Any (OR)' : 'Qualsevol (O)'}
                       </button>
-                      <div className={cn("absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-brand-primary rounded-full transition-all duration-300 ease-in-out", filterLogic === 'and' ? "left-1.5" : "left-[calc(50%+3px)]")} />
+                      <div className={cn("absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-brand-accent rounded-full transition-all duration-300 ease-in-out", filterLogic === 'and' ? "left-1.5" : "left-[calc(50%+3px)]")} />
                     </div>
                     <p className="mt-6 text-sm text-brand-secondary font-light text-center max-w-lg leading-relaxed">
                       {filterLogic === 'and' 
