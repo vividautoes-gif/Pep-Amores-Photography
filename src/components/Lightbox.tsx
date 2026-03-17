@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Photo } from '../hooks/usePhotos';
 import { formatDate } from '../lib/utils';
-import { Strings } from '../data';
 
 interface LightboxProps {
   photo: Photo | null;
@@ -41,8 +40,6 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
   };
-
-  const s = (Strings as any)[lang] || Strings.es;
 
   return (
     <AnimatePresence>
@@ -85,6 +82,8 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                 src={photo.url}
                 alt={photo.title}
                 referrerPolicy="no-referrer"
+                onContextMenu={(e) => e.preventDefault()}
+                onDragStart={(e) => e.preventDefault()}
                 className="max-w-full max-h-full object-contain"
               />
 
@@ -165,18 +164,10 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                         </motion.div>
                         <motion.div variants={itemVariants} className="flex flex-col gap-1">
                           <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
-                            {s.labels.photoDate}
+                            {lang === 'es' ? 'Fecha' : lang === 'en' ? 'Date' : 'Data'}
                           </span>
                           <span className="text-sm font-medium text-white/90">{photo.photoDate ? formatDate(photo.photoDate) : (formatDate(photo.createdAt) || photo.year)}</span>
                         </motion.div>
-                        {photo.isLFI && photo.lfiDate && (
-                          <motion.div variants={itemVariants} className="flex flex-col gap-1">
-                            <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
-                              {s.labels.lfiDate}
-                            </span>
-                            <span className="text-sm font-medium text-white/90">{formatDate(photo.lfiDate)}</span>
-                          </motion.div>
-                        )}
                       </div>
 
                       {(photo.subtheme || photo.subtheme_en || photo.subtheme_ca) && (
@@ -202,7 +193,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                       )}
 
                       {photo.isLFI && (
-                        <motion.div variants={itemVariants} className="flex flex-col mt-4 gap-2">
+                        <motion.div variants={itemVariants} className="flex flex-col mt-4 gap-3">
                           <span className="inline-flex items-center justify-center px-4 py-2 bg-leica-red/10 border border-leica-red/20 rounded-lg text-xs text-leica-red uppercase tracking-widest font-bold">
                             {photo.lfiType === 'lfimastershot' ? 'LFI Mastershot' : 
                              photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
@@ -210,9 +201,12 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                              'LFI Selection'}
                           </span>
                           {photo.lfiDate && (
-                            <span className="text-[10px] text-center text-leica-red/60 font-mono uppercase tracking-tighter">
-                              {s.labels.lfiDate}: {formatDate(photo.lfiDate)}
-                            </span>
+                            <div className="flex flex-col gap-1 text-center">
+                              <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                                {lang === 'es' ? 'Fecha de publicación LFI' : lang === 'en' ? 'LFI Publication Date' : 'Data de publicació LFI'}
+                              </span>
+                              <span className="text-sm font-medium text-leica-red/90">{formatDate(photo.lfiDate)}</span>
+                            </div>
                           )}
                         </motion.div>
                       )}

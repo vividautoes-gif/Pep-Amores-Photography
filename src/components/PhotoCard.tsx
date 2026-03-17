@@ -31,6 +31,8 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, 
         src={photo.url}
         alt={lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
         referrerPolicy="no-referrer"
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
         onLoad={(e) => {
           const target = e.target as HTMLImageElement;
           if (target.naturalWidth && target.naturalHeight) {
@@ -45,30 +47,33 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, 
           <h3 className="text-lg font-bold leading-tight mb-1">
             {lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
           </h3>
-          <div className="flex flex-col gap-1 text-[10px] opacity-80 font-medium uppercase tracking-wider">
-            <div className="flex items-center gap-2">
-              <Calendar size={10} />
-              <span>{photo.photoDate ? formatDate(photo.photoDate) : (formatDate(photo.createdAt) || photo.year)}</span>
-            </div>
+          <div className="flex items-center justify-between gap-2 text-[10px] opacity-80 font-medium uppercase tracking-widest">
+            <span>Pep Amores</span>
             {photo.isLFI && photo.lfiDate && (
-              <div className="flex items-center gap-2 text-leica-red">
-                <Award size={10} />
-                <span>LFI: {formatDate(photo.lfiDate)}</span>
-              </div>
+              <span className="text-leica-red font-bold">
+                {formatDate(photo.lfiDate)}
+              </span>
             )}
-            <div className="mt-1 opacity-60">Pep Amores</div>
           </div>
         </div>
       </div>
 
       <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
         {photo.isLFI && (
-          <span className="bg-leica-red text-white text-[8px] md:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg tracking-tighter">
-            {photo.lfiType === 'lfimastershot' ? 'LFI Mastershot' : 
-             photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
-             photo.lfiType === 'lfi-picture-of-the-week' ? 'LFI Picture of the Week' : 
-             'LFI Selection'}
-          </span>
+          <>
+            <span className="bg-leica-red text-white text-[8px] md:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg tracking-tighter">
+              {photo.lfiType === 'lfimastershot' ? 'LFI Mastershot' : 
+               photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
+               photo.lfiType === 'lfi-picture-of-the-week' ? 'LFI Picture of the Week' : 
+               'LFI Selection'}
+            </span>
+            {photo.lfiDate && (
+              <span className="bg-black/60 backdrop-blur-sm text-white text-[7px] md:text-[8px] font-bold px-1.5 py-0.5 rounded-sm flex items-center gap-1">
+                <Calendar size={8} />
+                {formatDate(photo.lfiDate)}
+              </span>
+            )}
+          </>
         )}
       </div>
 
