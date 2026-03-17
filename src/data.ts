@@ -30,20 +30,20 @@ export const DB: Photo[] = [
 export const Strings = {
   es: { 
     nav: ["Inicio", "Viajes", "Explorar", "Favoritas", "LFI", "Contacto"], 
-    titles: { home: "Historias Visuales", explore: "Explorar Archivo", fav: "Colección Favorita", lfi: "Leica Fotografie International", journeys: "Diarios de Viaje", contact: "Contacto" },
-    subtitles: { home: "Fotografía Documental y de Viajes", lfi: "Selecciones Oficiales LFI Gallery" },
+    titles: { home: "Prestar Atención", explore: "Explorar Archivo", fav: "Colección Favorita", lfi: "Leica Fotografie International", journeys: "Diarios de Viaje", contact: "Contacto" },
+    subtitles: { home: "La fotografía como una forma de mirar, sentir y detener lo que importa.", lfi: "Selecciones Oficiales LFI Gallery" },
     labels: { search: "Buscar foto, país o tag...", clear: "Limpiar filtros", results: "fotos encontradas", viewTrip: "Ver Álbum", name: "Nombre", msg: "Mensaje", send: "Enviar Mensaje" }
   },
   en: { 
     nav: ["Home", "Journeys", "Explore", "Favorites", "LFI", "Contact"], 
-    titles: { home: "Visual Stories", explore: "Explore Archive", fav: "Curated Favorites", lfi: "Leica Fotografie International", journeys: "Travel Journals", contact: "Contact" },
-    subtitles: { home: "Documentary & Travel Photography", lfi: "Official LFI Gallery Selections" },
+    titles: { home: "Paying Attention", explore: "Explore Archive", fav: "Curated Favorites", lfi: "Leica Fotografie International", journeys: "Travel Journals", contact: "Contact" },
+    subtitles: { home: "Photography as a way of looking, feeling and stopping what matters.", lfi: "Official LFI Gallery Selections" },
     labels: { search: "Search photo, country or tag...", clear: "Clear filters", results: "photos found", viewTrip: "View Album", name: "Name", msg: "Message", send: "Send Message" }
   },
   ca: { 
     nav: ["Inici", "Viatges", "Explorar", "Preferides", "LFI", "Contacte"], 
-    titles: { home: "Històries Visuals", explore: "Explorar Arxiu", fav: "Col·lecció Preferida", lfi: "Leica Fotografie International", journeys: "Diaris de Viatge", contact: "Contacte" },
-    subtitles: { home: "Fotografia Documental i de Viatges", lfi: "Seleccions Oficials LFI Gallery" },
+    titles: { home: "Prestar Atenció", explore: "Explorar Arxiu", fav: "Col·lecció Preferida", lfi: "Leica Fotografie International", journeys: "Diaris de Viatge", contact: "Contacte" },
+    subtitles: { home: "La fotografia com una forma de mirar, sentir i aturar el que importa.", lfi: "Seleccions Oficials LFI Gallery" },
     labels: { search: "Cerca foto, país o tag...", clear: "Netejar filtres", results: "fotos trobades", viewTrip: "Veure Àlbum", name: "Nom", msg: "Missatge", send: "Enviar Missatge" }
   }
 };

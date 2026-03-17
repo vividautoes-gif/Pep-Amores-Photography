@@ -904,7 +904,7 @@ function Gallery() {
                   </p>
                 </div>
 
-                <div className="flex-1 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl w-full">
+                <div className="flex-1 aspect-[1198/1245] rounded-3xl overflow-hidden shadow-2xl w-full">
                   <img src="https://i.imgur.com/diHGiy8.jpg" alt="Pep Amores" className="w-full h-full object-cover" />
                 </div>
                 
