@@ -902,7 +902,7 @@ function Gallery() {
                 <div className="md:hidden text-center space-y-4 w-full">
                   <h1 className="text-5xl font-serif italic tracking-tighter">Pep Amores</h1>
                   <p className="text-lg text-brand-primary font-serif italic">
-                    {lang === 'es' ? 'Fotógrafo y Emprendedor' : lang === 'ca' ? 'Fotògraf i Emprenedor' : 'Photographer & Entrepreneur'}
+                    {lang === 'es' ? 'Emprendedor y Fotógrafo' : lang === 'ca' ? 'Emprenedor i Fotògraf' : 'Entrepreneur & Photographer'}
                   </p>
                 </div>
 
@@ -915,7 +915,7 @@ function Gallery() {
                   <div className="hidden md:block space-y-8">
                     <h1 className="text-6xl font-serif italic tracking-tighter">Pep Amores</h1>
                     <p className="text-xl text-brand-primary font-serif italic">
-                      {lang === 'es' ? 'Fotógrafo y Emprendedor' : lang === 'ca' ? 'Fotògraf i Emprenedor' : 'Photographer & Entrepreneur'}
+                      {lang === 'es' ? 'Emprendedor y Fotógrafo' : lang === 'ca' ? 'Emprenedor i Fotògraf' : 'Entrepreneur & Photographer'}
                     </p>
                   </div>
                   
@@ -956,9 +956,9 @@ function Gallery() {
                        'He tingut la sort de compartir aprenentatge amb Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu i Joan Boira. I aviat tindré l\'oportunitat de fer-ho també amb Steve McCurry.'}
                     </p>
                     <p>
-                      {lang === 'es' ? 'Intento vivir de la forma más consciente posible. Disfrutar de mi familia, de mis amigos, de las personas que me rodean. De las conversaciones largas, de los viajes, de los pequeños momentos que muchas veces pasan desapercibidos.' :
-                       lang === 'en' ? 'I try to live as consciously as possible. To enjoy my family, my friends, the people around me. Long conversations, trips, the small moments that often go unnoticed.' :
-                       'Intento viure de la manera més conscient possible. Gaudir de la meva família, dels meus amics, de les persones que m\'envolten. De les converses llargues, dels viatges, dels petits moments que moltes vegades passen desapercebuts.'}
+                      {lang === 'es' ? 'Intento vivir de la forma más consciente posible. Disfrutar de mi familia, de mis amigos, de las personas que me rodean. De conversaciones largas a conversaciones que dejan huella, de los viajes, de los pequeños momentos que muchas veces pasan desapercibidos.' :
+                       lang === 'en' ? 'I try to live as consciously as possible. To enjoy my family, my friends, the people around me. From long conversations to conversations that leave a mark, trips, the small moments that often go unnoticed.' :
+                       'Intento viure de la manera més conscient possible. Gaudir de la meva família, dels meus amics, de les persones que m\'envolten. De converses llargues a converses que deixen petjada, dels viatges, dels petits moments que moltes vegades passen desapercebuts.'}
                     </p>
                     <p>
                       {lang === 'es' ? 'Porque, al final, la vida está hecha precisamente de eso: de instantes breves y valiosos.' :
