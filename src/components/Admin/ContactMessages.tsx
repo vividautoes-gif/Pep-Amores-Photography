@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { Loader2, Mail, Trash2, CheckCircle, Clock } from 'lucide-react';
+import { formatDate } from '../../lib/utils';
 
 interface Message {
   id: string;
@@ -76,7 +77,7 @@ export const ContactMessages: React.FC = () => {
                   <p className="text-blue-600 text-sm">{msg.email}</p>
                   <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                     <Clock size={12} />
-                    {msg.createdAt?.toDate().toLocaleString()}
+                    {formatDate(msg.createdAt)}
                   </p>
                 </div>
                 <div className="flex gap-2">

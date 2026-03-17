@@ -61,7 +61,7 @@ export const AboutMeEditor: React.FC = () => {
               value={content.title} 
               onChange={e => setContent({...content, title: e.target.value})}
               className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black outline-none"
-              placeholder="Ej: Pep Amores Guevara"
+              placeholder="Ej: Pep Amores"
             />
           </div>
           <div className="space-y-2">

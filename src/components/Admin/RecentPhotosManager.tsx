@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { Photo } from '../../hooks/usePhotos';
+import { formatDate } from '../../lib/utils';
 import { Loader2, Clock, Edit2, Save, X } from 'lucide-react';
 
 export const RecentPhotosManager: React.FC = () => {
@@ -72,7 +73,7 @@ export const RecentPhotosManager: React.FC = () => {
                 </div>
               )}
               <p className="text-[10px] text-gray-400 uppercase font-mono mt-1">
-                {photo.createdAt?.toDate().toLocaleDateString()}
+                {formatDate(photo.createdAt)}
               </p>
             </div>
           </div>

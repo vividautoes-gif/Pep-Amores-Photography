@@ -8,7 +8,7 @@ import { Lightbox } from './components/Lightbox';
 import { AdminPage } from './pages/AdminPage';
 import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
 import { Strings } from './data';
-import { cn } from './lib/utils';
+import { cn, formatDate } from './lib/utils';
 import { db, auth } from './firebase';
 import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 
@@ -81,7 +81,7 @@ const CommentSection = ({ targetId, targetType }: { targetId: string, targetType
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold text-xs uppercase tracking-widest">{c.userName}</span>
               <span className="text-[10px] text-brand-secondary font-mono">
-                {c.createdAt?.toDate?.()?.toLocaleDateString() || ''}
+                {formatDate(c.createdAt)}
               </span>
             </div>
             <p className="text-sm text-brand-secondary leading-relaxed">{c.text}</p>
@@ -331,7 +331,6 @@ function Gallery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
-  const [favLimit, setFavLimit] = useState(20);
   const [lfiFilter, setLfiFilter] = useState<'all' | 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week'>('all');
 
   const s = Strings[lang];
@@ -374,6 +373,15 @@ function Gallery() {
     setSearchQuery('');
   };
 
+  const currentPhotoList = useMemo(() => {
+    if (currentSection === 'home' || currentSection === 'explore') return filteredPhotos;
+    if (currentSection === 'favorites') return DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 40);
+    if (currentSection === 'latest') return DB.slice(0, 50);
+    if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter));
+    if (currentSection === 'journeys' && selectedJourney) return DB.filter(p => p.journeyId === selectedJourney.id);
+    return DB;
+  }, [currentSection, filteredPhotos, DB, selectedJourney, lfiFilter]);
+
   if (photosLoading && realDB.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -402,6 +410,10 @@ function Gallery() {
       </div>
     );
   }
+
+  const currentIndex = selectedPhoto ? currentPhotoList.findIndex(p => p.id === selectedPhoto.id) : -1;
+  const handleNext = currentIndex >= 0 && currentIndex < currentPhotoList.length - 1 ? () => setSelectedPhoto(currentPhotoList[currentIndex + 1]) : undefined;
+  const handlePrev = currentIndex > 0 ? () => setSelectedPhoto(currentPhotoList[currentIndex - 1]) : undefined;
 
   return (
     <div className="min-h-screen bg-white">
@@ -787,11 +799,6 @@ function Gallery() {
             <motion.section key="favorites" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
                 <h1 className="text-5xl font-serif italic mb-8">{s.titles.fav}</h1>
-                <div className="flex justify-center gap-8">
-                  {[10, 20, 40].map(limit => (
-                    <button key={limit} onClick={() => setFavLimit(limit)} className={cn("text-[10px] font-bold uppercase tracking-[0.2em] pb-2 border-b-2 transition-all", favLimit === limit ? "border-[#B45309] text-[#B45309]" : "border-transparent text-brand-secondary hover:text-[#B45309]")}>Top {limit}</button>
-                  ))}
-                </div>
               </div>
               {loading && DB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
@@ -808,7 +815,7 @@ function Gallery() {
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, favLimit).map(photo => (
+                  {DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 40).map(photo => (
                     <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>
@@ -891,20 +898,20 @@ function Gallery() {
               <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-16 items-center">
                 {/* Mobile Header */}
                 <div className="md:hidden text-center space-y-4 w-full">
-                  <h1 className="text-5xl font-serif italic tracking-tighter">Pep Amores Guevara</h1>
+                  <h1 className="text-5xl font-serif italic tracking-tighter">Pep Amores</h1>
                   <p className="text-lg text-brand-primary font-serif italic">
                     {lang === 'es' ? 'Fotógrafo y Emprendedor' : lang === 'ca' ? 'Fotògraf i Emprenedor' : 'Photographer & Entrepreneur'}
                   </p>
                 </div>
 
-                <div className="flex-1 aspect-[2048/1526] rounded-3xl overflow-hidden shadow-2xl w-full">
-                  <img src="https://i.imgur.com/HNbYPxW.jpg" alt="Pep Amores Guevara" className="w-full h-full object-cover" />
+                <div className="flex-1 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl w-full">
+                  <img src="https://i.imgur.com/diHGiy8.jpg" alt="Pep Amores" className="w-full h-full object-cover" />
                 </div>
                 
                 <div className="flex-1 space-y-8">
                   {/* Desktop Header */}
                   <div className="hidden md:block space-y-8">
-                    <h1 className="text-6xl font-serif italic tracking-tighter">Pep Amores Guevara</h1>
+                    <h1 className="text-6xl font-serif italic tracking-tighter">Pep Amores</h1>
                     <p className="text-xl text-brand-primary font-serif italic">
                       {lang === 'es' ? 'Fotógrafo y Emprendedor' : lang === 'ca' ? 'Fotògraf i Emprenedor' : 'Photographer & Entrepreneur'}
                     </p>
@@ -967,7 +974,7 @@ function Gallery() {
                       <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2">
                         {lang === 'es' ? 'Equipo' : lang === 'ca' ? 'Equip' : 'Gear'}
                       </h4>
-                      <p className="text-sm font-mono text-brand-secondary">Leica M11, 35mm Summilux</p>
+                      <p className="text-sm font-mono text-brand-secondary">Leica SL3<br />Leica Q3</p>
                     </div>
                     <div>
                       <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2">
@@ -1003,7 +1010,7 @@ function Gallery() {
         </AnimatePresence>
       </main>
 
-      <Lightbox lang={lang} photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
+      <Lightbox lang={lang} photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} onNext={handleNext} onPrev={handlePrev} />
 
       <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); window.scrollTo(0,0); }} lang={lang} />
     </div>

@@ -46,7 +46,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, 
             {lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
           </h3>
           <div className="flex items-center gap-2 text-xs opacity-80 font-medium">
-            <span>Pep Amores Guevara</span>
+            <span>Pep Amores</span>
           </div>
         </div>
       </div>

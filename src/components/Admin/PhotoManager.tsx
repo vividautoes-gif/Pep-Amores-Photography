@@ -4,6 +4,7 @@ import { doc, updateDoc, deleteDoc, collection, getDocs, query, orderBy } from '
 import { ref, deleteObject } from 'firebase/storage';
 import { usePhotos, Photo, Journey } from '../../hooks/usePhotos';
 import { translateMetadata, translateObject } from '../../services/geminiService';
+import { formatDate } from '../../lib/utils';
 import { Loader2, Trash2, Save, Edit2, X, MapPin, Tag, Camera, Calendar, Award, Star, Globe } from 'lucide-react';
 
 export const PhotoManager: React.FC = () => {
@@ -292,7 +293,7 @@ export const PhotoManager: React.FC = () => {
                         <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
                           <Award size={16} className="text-leica-red" />
                           <div className="text-[10px] font-mono uppercase text-leica-red font-bold">
-                            {photo.lfiType} {photo.lfiDate && `• ${photo.lfiDate}`}
+                            {photo.lfiType} {photo.lfiDate && `• ${formatDate(photo.lfiDate)}`}
                           </div>
                         </div>
                       )}
