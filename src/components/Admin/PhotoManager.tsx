@@ -270,7 +270,7 @@ export const PhotoManager: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-1 text-xs">
                               <Calendar size={12} />
-                              {photo.year}
+                              {photo.photoDate ? formatDate(photo.photoDate) : photo.year}
                             </div>
                           </div>
                         </div>

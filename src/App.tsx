@@ -6,6 +6,7 @@ import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
 import { Lightbox } from './components/Lightbox';
 import { FlowButton } from './components/ui/flow-button';
+import { Button as MovingBorderButton } from './components/ui/moving-border';
 import { AdminPage } from './pages/AdminPage';
 import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
 import { Strings } from './data';
@@ -507,17 +508,20 @@ function Gallery() {
                   </motion.p>
                   
                   <div className="pointer-events-auto">
-                    <button 
+                    <MovingBorderButton
                       onClick={() => {
                         const exploreSection = document.getElementById('navigation-folders');
                         if (exploreSection) exploreSection.scrollIntoView({ behavior: 'smooth' });
                         else setCurrentSection('explore');
                       }} 
-                      className="group relative px-12 py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 shadow-2xl"
+                      borderRadius="100px"
+                      className="shadow-2xl px-12 py-4"
+                      containerClassName="w-auto h-auto"
                     >
-                      <span className="relative z-10 group-hover:text-brand-primary transition-colors duration-300">{s.nav[2]}</span>
-                      <div className="absolute inset-0 bg-brand-tertiary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                    </button>
+                      <span className="whitespace-pre-wrap text-center text-sm font-bold uppercase tracking-[0.3em] leading-none text-brand-tertiary lg:text-base">
+                        {s.nav[2]}
+                      </span>
+                    </MovingBorderButton>
                   </div>
                 </div>
               </div>
