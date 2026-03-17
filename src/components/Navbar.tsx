@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
             onClick={() => onNavigate('home')}
             className="flex items-center gap-3 group"
           >
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white transition-transform group-hover:rotate-12">
+            <div className="w-10 h-10 bg-brand-accent rounded-full flex items-center justify-center text-white transition-transform group-hover:rotate-12">
               <Camera size={20} />
             </div>
             <span className="text-lg md:text-xl font-extrabold tracking-tighter uppercase block">Pep Amores</span>
@@ -211,7 +211,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
             >
               <div className="p-6 flex items-center justify-between border-b border-neutral-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white">
+                  <div className="w-8 h-8 bg-brand-accent rounded-full flex items-center justify-center text-white">
                     <Camera size={14} />
                   </div>
                   <span className="text-lg font-extrabold tracking-tighter uppercase">Pep Amores</span>

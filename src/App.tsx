@@ -400,7 +400,12 @@ function Gallery() {
     if (currentSection === 'home' || currentSection === 'explore') return filteredPhotos;
     if (currentSection === 'favorites') return DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 40);
     if (currentSection === 'latest') return DB.slice(0, 50);
-    if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter));
+    if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter))
+      .sort((a, b) => {
+        const dateA = a.lfiDate ? new Date(a.lfiDate).getTime() : 0;
+        const dateB = b.lfiDate ? new Date(b.lfiDate).getTime() : 0;
+        return dateB - dateA;
+      });
     if (currentSection === 'journeys' && selectedJourney) return DB.filter(p => p.journeyId === selectedJourney.id);
     return DB;
   }, [currentSection, filteredPhotos, DB, selectedJourney, lfiFilter]);
