@@ -60,20 +60,12 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, 
 
       <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
         {photo.isLFI && (
-          <>
-            <span className="bg-leica-red text-white text-[8px] md:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg tracking-tighter">
-              {photo.lfiType === 'lfimastershot' ? 'LFI Mastershot' : 
-               photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
-               photo.lfiType === 'lfi-picture-of-the-week' ? 'LFI Picture of the Week' : 
-               'LFI Selection'}
-            </span>
-            {photo.lfiDate && (
-              <span className="bg-black/60 backdrop-blur-sm text-white text-[7px] md:text-[8px] font-bold px-1.5 py-0.5 rounded-sm flex items-center gap-1">
-                <Calendar size={8} />
-                {formatDate(photo.lfiDate)}
-              </span>
-            )}
-          </>
+          <span className="bg-leica-red text-white text-[8px] md:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm shadow-lg tracking-tighter">
+            {photo.lfiType === 'lfimastershot' ? 'LFI Mastershot' : 
+             photo.lfiType === 'lfiexhibition' ? 'LFI Exhibition' : 
+             photo.lfiType === 'lfi-picture-of-the-week' ? 'LFI Picture of the Week' : 
+             'LFI Selection'}
+          </span>
         )}
       </div>
 

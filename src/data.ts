@@ -30,20 +30,140 @@ export const DB: Photo[] = [
 export const Strings = {
   es: { 
     nav: ["Inicio", "Viajes", "Explorar", "Favoritas", "LFI", "Contacto"], 
-    titles: { home: "Prestar Atención", explore: "Explorar Archivo", fav: "Colección Favorita", lfi: "Leica Fotografie International", journeys: "Diarios de Viaje", contact: "Contacto" },
-    subtitles: { home: "La fotografía como una forma de mirar, sentir y detener lo que importa.", lfi: "Selecciones Oficiales LFI Gallery" },
-    labels: { search: "Buscar foto, país o tag...", clear: "Limpiar filtros", results: "fotos encontradas", viewTrip: "Ver Álbum", name: "Nombre", msg: "Mensaje", send: "Enviar Mensaje", photoDate: "Fecha de la Foto", lfiDate: "Publicación LFI" }
+    titles: { 
+      home: "Prestar Atención", 
+      explore: "Explorar Archivo", 
+      fav: "Colección Favorita", 
+      lfi: "Leica Fotografie International", 
+      journeys: "Diarios de Viaje", 
+      contact: "Contacto",
+      about: "Sobre mí",
+      latest: "Últimas 50",
+      exploreCollections: "Explorar Colecciones"
+    },
+    subtitles: { 
+      home: "La fotografía como una forma de mirar, sentir y detener lo que importa.", 
+      lfi: "Selecciones Oficiales LFI Gallery",
+      exploreCollections: "Descubre el archivo a través de nuestras selecciones temáticas.",
+      journeys: "Explora el mundo a través de colecciones fotográficas únicas."
+    },
+    labels: { 
+      search: "Buscar foto, país o tag...", 
+      clear: "Limpiar filtros", 
+      results: "fotos encontradas", 
+      viewTrip: "Ver Álbum", 
+      name: "Nombre", 
+      msg: "Mensaje", 
+      send: "Enviar Mensaje", 
+      photoDate: "Fecha de la Foto", 
+      lfiDate: "Publicación LFI",
+      backToJourneys: "Volver a Viajes",
+      viewAllJourneys: "Ver todos los viajes",
+      viewJourney: "Ver viaje",
+      fullArchive: "Archivo completo",
+      selection: "Selección",
+      recent: "Recientes",
+      gear: "Equipo",
+      basedIn: "Base",
+      hashtagMode: "Modo de combinación de Hashtags",
+      allAnd: "Todas (Y)",
+      anyOr: "Cualquiera (O)",
+      searchingFor: "Buscando fotos que contengan:",
+      loadingArchive: "Cargando archivo...",
+      sending: "Enviando...",
+      lfiGallery: "Leica Gallery"
+    }
   },
   en: { 
     nav: ["Home", "Journeys", "Explore", "Favorites", "LFI", "Contact"], 
-    titles: { home: "Paying Attention", explore: "Explore Archive", fav: "Curated Favorites", lfi: "Leica Fotografie International", journeys: "Travel Journals", contact: "Contact" },
-    subtitles: { home: "Photography as a way of looking, feeling and stopping what matters.", lfi: "Official LFI Gallery Selections" },
-    labels: { search: "Search photo, country or tag...", clear: "Clear filters", results: "photos found", viewTrip: "View Album", name: "Name", msg: "Message", send: "Send Message", photoDate: "Photo Date", lfiDate: "LFI Publication" }
+    titles: { 
+      home: "Paying Attention", 
+      explore: "Explore Archive", 
+      fav: "Curated Favorites", 
+      lfi: "Leica Fotografie International", 
+      journeys: "Travel Journals", 
+      contact: "Contact",
+      about: "About me",
+      latest: "Latest 50",
+      exploreCollections: "Explore Collections"
+    },
+    subtitles: { 
+      home: "Photography as a way of looking, feeling and stopping what matters.", 
+      lfi: "Official LFI Gallery Selections",
+      exploreCollections: "Discover the archive through our thematic selections.",
+      journeys: "Explore the world through unique photographic collections."
+    },
+    labels: { 
+      search: "Search photo, country or tag...", 
+      clear: "Clear filters", 
+      results: "photos found", 
+      viewTrip: "View Album", 
+      name: "Name", 
+      msg: "Message", 
+      send: "Send Message", 
+      photoDate: "Photo Date", 
+      lfiDate: "LFI Publication",
+      backToJourneys: "Back to Journeys",
+      viewAllJourneys: "View all journeys",
+      viewJourney: "View journey",
+      fullArchive: "Full archive",
+      selection: "Selection",
+      recent: "Recent",
+      gear: "Gear",
+      basedIn: "Based in",
+      hashtagMode: "Hashtag Combination Mode",
+      allAnd: "All (AND)",
+      anyOr: "Any (OR)",
+      searchingFor: "Searching photos containing:",
+      loadingArchive: "Loading archive...",
+      sending: "Sending...",
+      lfiGallery: "Leica Gallery"
+    }
   },
   ca: { 
     nav: ["Inici", "Viatges", "Explorar", "Preferides", "LFI", "Contacte"], 
-    titles: { home: "Prestar Atenció", explore: "Explorar Arxiu", fav: "Col·lecció Preferida", lfi: "Leica Fotografie International", journeys: "Diaris de Viatge", contact: "Contacte" },
-    subtitles: { home: "La fotografia com una forma de mirar, sentir i aturar el que importa.", lfi: "Seleccions Oficials LFI Gallery" },
-    labels: { search: "Cerca foto, país o tag...", clear: "Netejar filtres", results: "fotos trobades", viewTrip: "Veure Àlbum", name: "Nom", msg: "Missatge", send: "Enviar Missatge", photoDate: "Data de la Foto", lfiDate: "Publicació LFI" }
+    titles: { 
+      home: "Prestar Atenció", 
+      explore: "Explorar Arxiu", 
+      fav: "Col·lecció Preferida", 
+      lfi: "Leica Fotografie International", 
+      journeys: "Diaris de Viatge", 
+      contact: "Contacte",
+      about: "Sobre mi",
+      latest: "Últimes 50",
+      exploreCollections: "Explorar Col·leccions"
+    },
+    subtitles: { 
+      home: "La fotografia com una forma de mirar, sentir i aturar el que importa.", 
+      lfi: "Seleccions Oficials LFI Gallery",
+      exploreCollections: "Descobreix l'arxiu a través de les nostres seleccions temàtiques.",
+      journeys: "Explora el món a través de col·leccions fotogràfiques úniques."
+    },
+    labels: { 
+      search: "Cerca foto, país o tag...", 
+      clear: "Netejar filtres", 
+      results: "fotos trobades", 
+      viewTrip: "Veure Àlbum", 
+      name: "Nom", 
+      msg: "Missatge", 
+      send: "Enviar Missatge", 
+      photoDate: "Data de la Foto", 
+      lfiDate: "Publicació LFI",
+      backToJourneys: "Tornar a Viatges",
+      viewAllJourneys: "Veure tots els viatges",
+      viewJourney: "Veure viatge",
+      fullArchive: "Arxiu complet",
+      selection: "Selecció",
+      recent: "Recents",
+      gear: "Equip",
+      basedIn: "Base",
+      hashtagMode: "Mode de combinació de Hashtags",
+      allAnd: "Totes (I)",
+      anyOr: "Qualsevol (O)",
+      searchingFor: "Buscant fotos que continguin:",
+      loadingArchive: "Carregant arxiu...",
+      sending: "Enviant...",
+      lfiGallery: "Leica Gallery"
+    }
   }
 };

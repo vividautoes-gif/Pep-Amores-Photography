@@ -48,14 +48,14 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-0 md:p-8"
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-0 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
           onClick={onClose}
         >
           <motion.button
             whileHover={{ rotate: 90, scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={onClose}
-            className="absolute top-6 right-6 text-white/50 hover:text-white z-[110] bg-black/50 rounded-full p-2"
+            className="absolute top-[calc(1.5rem+env(safe-area-inset-top))] right-6 text-white/50 hover:text-white z-[110] bg-black/50 rounded-full p-2"
           >
             <X size={24} strokeWidth={2} />
           </motion.button>

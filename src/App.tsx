@@ -488,7 +488,7 @@ function Gallery() {
   const handlePrev = currentIndex > 0 ? () => setSelectedPhoto(currentPhotoList[currentIndex - 1]) : undefined;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-[100dvh] bg-neutral-50">
       <Navbar lang={lang} setLang={setLang} currentSection={currentSection} onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} />
 
       <main className="pt-20">

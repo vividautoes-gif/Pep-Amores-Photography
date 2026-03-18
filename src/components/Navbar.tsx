@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 h-20 glass z-40 flex items-center justify-between px-6 md:px-12"
+        className="fixed top-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] glass z-40 flex items-center justify-between px-6 md:px-12"
       >
         <div className="flex items-center gap-4">
           <button 

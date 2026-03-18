@@ -121,7 +121,8 @@
 
 @layer base {
   body {
-    @apply bg-white text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
+    @apply bg-neutral-50 text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
   img {

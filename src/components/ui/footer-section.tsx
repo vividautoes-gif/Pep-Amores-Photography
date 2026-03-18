@@ -86,7 +86,7 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
     ];
 
 	return (
-		<footer className="md:rounded-t-6xl relative w-full flex flex-col items-center justify-center rounded-t-4xl border-t border-white/10 bg-slate-950 px-6 py-12 lg:py-16 mt-24 overflow-hidden">
+		<footer className="md:rounded-t-6xl relative w-full flex flex-col items-center justify-center rounded-t-4xl border-t border-white/10 bg-slate-950 px-6 pt-12 pb-[calc(3rem+env(safe-area-inset-bottom))] lg:py-16 mt-24 overflow-hidden">
 			<div className="bg-brand-accent/30 absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur-md" />
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-[radial-gradient(ellipse_at_top,rgba(180,83,9,0.2),transparent_70%)] pointer-events-none" />
 
