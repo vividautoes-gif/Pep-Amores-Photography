@@ -284,7 +284,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
+        <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-neutral-50 p-6 text-center">
           <AlertTriangle size={48} className="text-red-500 mb-4" />
           <h1 className="text-2xl font-serif italic mb-2">Algo ha salido mal</h1>
           <p className="text-brand-secondary mb-6 max-w-md">
@@ -359,19 +359,6 @@ function Gallery() {
     return () => document.removeEventListener('contextmenu', handleContextMenu);
   }, []);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoType | null>(null);
-
-  useEffect(() => {
-    const themeMeta = document.querySelector('meta[name="theme-color"]');
-    if (themeMeta) {
-      if (selectedPhoto) {
-        themeMeta.setAttribute('content', '#09090b');
-        document.documentElement.style.backgroundColor = '#09090b';
-      } else {
-        themeMeta.setAttribute('content', '#f9fafb');
-        document.documentElement.style.backgroundColor = '#f9fafb';
-      }
-    }
-  }, [selectedPhoto]);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
@@ -443,7 +430,7 @@ function Gallery() {
 
   if (photosLoading && realDB.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-neutral-50">
         <motion.div
           animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -457,7 +444,7 @@ function Gallery() {
 
   if (photosError) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-neutral-50 p-6 text-center">
         <AlertTriangle size={48} className="text-brand-accent mb-4" />
         <h1 className="text-2xl font-serif italic mb-2">
           {lang === 'es' ? 'Error de conexión' : lang === 'ca' ? 'Error de connexió' : 'Connection Error'}
@@ -501,14 +488,14 @@ function Gallery() {
   const handlePrev = currentIndex > 0 ? () => setSelectedPhoto(currentPhotoList[currentIndex - 1]) : undefined;
 
   return (
-    <div className="min-h-full flex flex-col bg-neutral-50">
+    <div className="min-h-[100dvh] bg-neutral-50">
       <Navbar lang={lang} setLang={setLang} currentSection={currentSection} onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} />
 
       <main className="pt-20">
         <AnimatePresence mode="wait">
           {currentSection === 'home' && (
             <motion.section key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center justify-center">
-              <div className="relative h-screen w-full overflow-hidden bg-neutral-50">
+              <div className="relative h-[100dvh] w-full overflow-hidden bg-neutral-50">
                 {/* CAPA 1: Canvas 3D de fondo (z-index más bajo) */}
                 <div className="absolute inset-0 z-0">
                   <InfiniteGallery 
@@ -655,7 +642,7 @@ function Gallery() {
               </section>
 
               {/* Featured Journeys */}
-              <section className="w-full py-24 bg-white">
+              <section className="w-full py-24 bg-neutral-50">
                 <div className="container mx-auto px-6">
                   <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div>
@@ -797,7 +784,7 @@ function Gallery() {
                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-brand-accent mb-4 text-center">
                       {lang === 'es' ? 'Modo de combinación de Hashtags' : lang === 'en' ? 'Hashtag Combination Mode' : 'Mode de combinació de Hashtags'}
                     </h3>
-                    <div className="bg-white p-1.5 rounded-full flex items-center shadow-sm border border-neutral-200 w-full max-w-md relative">
+                    <div className="bg-neutral-50 p-1.5 rounded-full flex items-center shadow-sm border border-neutral-200 w-full max-w-md relative">
                       <button 
                         onClick={() => setFilterLogic('and')}
                         className={cn("flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all z-10", filterLogic === 'and' ? "text-white" : "text-brand-secondary hover:text-brand-accent")}
@@ -820,7 +807,7 @@ function Gallery() {
                   </div>
 
                   {activeFilters.size > 0 && (
-                    <div className="mb-8 p-6 bg-white rounded-2xl border border-neutral-200 text-center shadow-sm">
+                    <div className="mb-8 p-6 bg-neutral-50 rounded-2xl border border-neutral-200 text-center shadow-sm">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary block mb-4">
                         {lang === 'es' ? 'Buscando fotos que contengan:' : lang === 'en' ? 'Searching photos containing:' : 'Buscant fotos que continguin:'}
                       </span>
@@ -841,7 +828,7 @@ function Gallery() {
 
                   <div className="flex flex-wrap justify-center gap-2">
                     {allTags.map(tag => (
-                      <button key={tag} onClick={() => toggleFilter(tag)} className={cn("px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", activeFilters.has(tag) ? "bg-brand-primary text-white border-brand-primary shadow-md" : "bg-white text-brand-secondary border-neutral-200 hover:border-brand-primary hover:text-brand-primary")}>#{tag}</button>
+                      <button key={tag} onClick={() => toggleFilter(tag)} className={cn("px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", activeFilters.has(tag) ? "bg-brand-primary text-white border-brand-primary shadow-md" : "bg-neutral-50 text-brand-secondary border-neutral-200 hover:border-brand-primary hover:text-brand-primary")}>#{tag}</button>
                     ))}
                   </div>
                 </div>
@@ -935,7 +922,7 @@ function Gallery() {
                 <p className="text-brand-secondary font-light mb-12">{s.subtitles.lfi}</p>
                 <div className="flex justify-center gap-4 mb-12">
                   {['all', 'lfimastershot', 'lfiexhibition', 'lfi-picture-of-the-week'].map(type => (
-                    <button key={type} onClick={() => setLfiFilter(type as any)} className={cn("px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", lfiFilter === type ? "bg-leica-red text-white border-leica-red" : "bg-white text-brand-secondary border-neutral-200 hover:border-leica-red hover:text-leica-red")}>
+                    <button key={type} onClick={() => setLfiFilter(type as any)} className={cn("px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", lfiFilter === type ? "bg-leica-red text-white border-leica-red" : "bg-neutral-50 text-brand-secondary border-neutral-200 hover:border-leica-red hover:text-leica-red")}>
                       {type === 'all' ? (lang === 'es' ? 'Todo LFI' : lang === 'ca' ? 'Tot LFI' : 'All LFI') : 
                        type === 'lfimastershot' ? 'Mastershot' : 
                        type === 'lfiexhibition' ? 'Exhibition' : 
@@ -1203,7 +1190,7 @@ const PepPanel = () => {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-4 text-center">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-neutral-50 p-4 text-center">
         <h1 className="text-3xl font-serif italic mb-2">Acceso Denegado</h1>
         <p className="text-gray-500 mb-8 max-w-md">Tu cuenta no tiene permisos para acceder a este panel.</p>
         <Link to="/" className="px-8 py-4 bg-black text-white rounded-2xl font-medium hover:bg-zinc-800 transition-all">
@@ -1214,11 +1201,11 @@ const PepPanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-8 md:p-12">
+    <div className="min-h-[100dvh] bg-neutral-50 p-8 md:p-12">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-12">
           <h1 className="text-4xl font-serif italic">Panel Privado de Pep</h1>
-          <Link to="/admin" className="px-6 py-2 bg-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Gestionar Fotos</Link>
+          <Link to="/admin" className="px-6 py-2 bg-neutral-50 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Gestionar Fotos</Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -1227,7 +1214,7 @@ const PepPanel = () => {
             { label: 'Viajes', value: journeys.length, icon: MapPin },
             { label: 'Comentarios', value: comments.length, icon: MessageSquare },
           ].map(stat => (
-            <div key={stat.label} className="bg-white p-8 rounded-3xl shadow-sm">
+            <div key={stat.label} className="bg-neutral-50 p-8 rounded-3xl shadow-sm">
               <stat.icon className="text-brand-accent mb-4" size={24} />
               <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary mb-1">{stat.label}</p>
               <p className="text-3xl font-serif italic">{stat.value}</p>
@@ -1236,7 +1223,7 @@ const PepPanel = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-3xl shadow-sm lg:col-span-2">
+          <div className="bg-neutral-50 p-8 rounded-3xl shadow-sm lg:col-span-2">
             <h3 className="text-xl font-serif italic mb-6">Moderación de Comentarios</h3>
             <div className="space-y-4">
               {comments.filter(c => !c.isApproved).map(c => (
@@ -1265,7 +1252,7 @@ const PepPanel = () => {
           </div>
 
           <div className="space-y-8">
-            <div className="bg-white p-8 rounded-3xl shadow-sm">
+            <div className="bg-neutral-50 p-8 rounded-3xl shadow-sm">
               <h3 className="text-xl font-serif italic mb-6">Top Fotos (Favoritas)</h3>
               <div className="space-y-4">
                 {photos.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 5).map(p => (
@@ -1279,7 +1266,7 @@ const PepPanel = () => {
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl shadow-sm">
+            <div className="bg-neutral-50 p-8 rounded-3xl shadow-sm">
               <h3 className="text-xl font-serif italic mb-6 flex items-center gap-2">
                 <User size={20} />
                 Editores

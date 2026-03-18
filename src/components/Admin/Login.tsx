@@ -17,7 +17,7 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#E4E3E0] p-4">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[#E4E3E0] p-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

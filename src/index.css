@@ -120,24 +120,19 @@
 }
 
 @layer base {
-  html {
+  html, body {
     @apply bg-neutral-50;
-    height: 100%;
-    overflow: hidden;
-  }
-  body {
-    @apply bg-neutral-50 text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 0;
     margin: 0;
-  }
-  
-  #root {
+    padding: 0;
     min-height: 100%;
-    display: flex;
-    flex-col: column;
+    height: 100%;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    @apply text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
+    -webkit-tap-highlight-color: transparent;
   }
   
   img {
@@ -153,7 +148,7 @@
 
 @layer utilities {
   .glass {
-    @apply backdrop-blur-md bg-white/70 border border-white/20;
+    @apply backdrop-blur-md bg-neutral-50/70 border border-white/20;
   }
   
   .glass-dark {

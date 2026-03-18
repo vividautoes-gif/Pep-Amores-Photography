@@ -186,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
             animate={{ opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed inset-0 bg-white z-[100] pointer-events-none"
+            className="fixed inset-0 bg-neutral-50 z-[100] pointer-events-none"
           />
         )}
       </AnimatePresence>

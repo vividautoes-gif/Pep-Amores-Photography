@@ -56,7 +56,7 @@ export const AdminPage: React.FC = () => {
 
   if (loading || (user && isAuthorized === null)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#E4E3E0]">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-[#E4E3E0]">
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -72,7 +72,7 @@ export const AdminPage: React.FC = () => {
 
   if (isAuthorized === false) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#E4E3E0] p-4 text-center">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-[#E4E3E0] p-4 text-center">
         <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-red-600/20">
           <ShieldAlert className="text-white w-8 h-8" />
         </div>
@@ -86,9 +86,9 @@ export const AdminPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#E4E3E0]">
+    <div className="min-h-[100dvh] bg-[#E4E3E0]">
       {/* Admin Header */}
-      <header className="bg-white/50 backdrop-blur-xl border-bottom border-black/5 sticky top-0 z-50">
+      <header className="bg-neutral-50/50 backdrop-blur-xl border-bottom border-black/5 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white">
