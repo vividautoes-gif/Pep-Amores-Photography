@@ -120,9 +120,24 @@
 }
 
 @layer base {
+  html {
+    @apply bg-neutral-50;
+    height: 100%;
+    overflow: hidden;
+  }
   body {
     @apply bg-neutral-50 text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
-    padding-bottom: env(safe-area-inset-bottom);
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    margin: 0;
+  }
+  
+  #root {
+    min-height: 100%;
+    display: flex;
+    flex-col: column;
   }
   
   img {

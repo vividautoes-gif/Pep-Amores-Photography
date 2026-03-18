@@ -48,7 +48,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-0 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-0 md:p-8"
           onClick={onClose}
         >
           <motion.button
@@ -64,7 +64,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="w-full h-full max-w-[1600px] flex flex-col md:flex-row bg-zinc-950 md:rounded-3xl overflow-hidden border border-white/5 shadow-2xl"
+            className="w-full h-full max-w-[1600px] flex flex-col md:flex-row bg-zinc-950 md:rounded-3xl overflow-hidden border border-white/5 shadow-2xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Left: Image Area */}

@@ -359,6 +359,19 @@ function Gallery() {
     return () => document.removeEventListener('contextmenu', handleContextMenu);
   }, []);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoType | null>(null);
+
+  useEffect(() => {
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) {
+      if (selectedPhoto) {
+        themeMeta.setAttribute('content', '#09090b');
+        document.documentElement.style.backgroundColor = '#09090b';
+      } else {
+        themeMeta.setAttribute('content', '#f9fafb');
+        document.documentElement.style.backgroundColor = '#f9fafb';
+      }
+    }
+  }, [selectedPhoto]);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
@@ -488,14 +501,14 @@ function Gallery() {
   const handlePrev = currentIndex > 0 ? () => setSelectedPhoto(currentPhotoList[currentIndex - 1]) : undefined;
 
   return (
-    <div className="min-h-[100dvh] bg-neutral-50">
+    <div className="min-h-full flex flex-col bg-neutral-50">
       <Navbar lang={lang} setLang={setLang} currentSection={currentSection} onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} />
 
       <main className="pt-20">
         <AnimatePresence mode="wait">
           {currentSection === 'home' && (
             <motion.section key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center justify-center">
-              <div className="relative h-screen w-full overflow-hidden bg-white">
+              <div className="relative h-screen w-full overflow-hidden bg-neutral-50">
                 {/* CAPA 1: Canvas 3D de fondo (z-index más bajo) */}
                 <div className="absolute inset-0 z-0">
                   <InfiniteGallery 
