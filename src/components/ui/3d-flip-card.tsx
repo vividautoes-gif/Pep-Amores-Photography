@@ -114,8 +114,6 @@ interface CardProps extends CardImage {
         src={src}
         alt={alt}
         loading="lazy"
-        onContextMenu={(e) => e.preventDefault()}
-        onDragStart={(e) => e.preventDefault()}
         style={{ objectFit: 'cover', width: '100%', height: '100%' }}
         className="rounded-xl pointer-events-none"
       />
