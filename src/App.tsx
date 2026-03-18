@@ -347,6 +347,17 @@ function Gallery() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'IMG' || target.tagName === 'CANVAS') {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener('contextmenu', handleContextMenu);
+    return () => document.removeEventListener('contextmenu', handleContextMenu);
+  }, []);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoType | null>(null);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -402,9 +413,16 @@ function Gallery() {
     if (currentSection === 'latest') return DB.slice(0, 50);
     if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter))
       .sort((a, b) => {
-        const dateA = a.lfiDate ? new Date(a.lfiDate).getTime() : 0;
-        const dateB = b.lfiDate ? new Date(b.lfiDate).getTime() : 0;
-        return dateB - dateA;
+        const getTime = (dateInput: any) => {
+          if (!dateInput) return 0;
+          try {
+            const date = typeof dateInput.toDate === 'function' ? dateInput.toDate() : new Date(dateInput);
+            return isNaN(date.getTime()) ? 0 : date.getTime();
+          } catch (e) {
+            return 0;
+          }
+        };
+        return getTime(b.lfiDate) - getTime(a.lfiDate);
       });
     if (currentSection === 'journeys' && selectedJourney) return DB.filter(p => p.journeyId === selectedJourney.id);
     return DB;
@@ -489,34 +507,35 @@ function Gallery() {
                 </div>
 
                 {/* CAPA 2: Texto Hero centrado (z-index intermedio, pointer-events-none para no bloquear hover de imágenes) */}
-                <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center text-center px-6 text-white">
-                  <div className="mix-blend-exclusion flex flex-col items-center">
-                    <motion.h1 
-                      initial={{ y: 20, opacity: 0 }} 
-                      animate={{ y: 0, opacity: 1 }} 
-                      className="font-serif text-6xl md:text-7xl lg:text-8xl tracking-tighter mb-6"
-                    >
-                      <span className="italic block leading-none">{s.titles.home}</span>
-                    </motion.h1>
-                    <motion.p 
-                      initial={{ y: 20, opacity: 0 }} 
-                      animate={{ y: 0, opacity: 1 }} 
-                      transition={{ delay: 0.1 }} 
-                      className="text-base md:text-xl font-light tracking-[0.2em] uppercase mb-10 text-white/90 max-w-[280px] md:max-w-none mx-auto leading-relaxed"
-                    >
-                      {s.subtitles.home}
-                    </motion.p>
-                  </div>
+                <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center text-center px-6 mix-blend-exclusion text-white">
+                  <motion.h1 
+                    initial={{ y: 20, opacity: 0 }} 
+                    animate={{ y: 0, opacity: 1 }} 
+                    className="font-serif text-6xl md:text-7xl lg:text-8xl tracking-tighter mb-6"
+                  >
+                    <span className="italic block leading-none">{s.titles.home}</span>
+                  </motion.h1>
+                  <motion.p 
+                    initial={{ y: 20, opacity: 0 }} 
+                    animate={{ y: 0, opacity: 1 }} 
+                    transition={{ delay: 0.1 }} 
+                    className="text-base md:text-xl font-light tracking-[0.2em] uppercase mb-10 text-white/90 max-w-[280px] md:max-w-none mx-auto leading-relaxed"
+                  >
+                    {s.subtitles.home}
+                  </motion.p>
                   
                   <div className="pointer-events-auto">
-                    <FlowButton
-                      text={s.nav[2]}
+                    <button 
                       onClick={() => {
                         const exploreSection = document.getElementById('navigation-folders');
                         if (exploreSection) exploreSection.scrollIntoView({ behavior: 'smooth' });
                         else setCurrentSection('explore');
                       }} 
-                    />
+                      className="group relative px-12 py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 shadow-2xl"
+                    >
+                      <span className="relative z-10 group-hover:text-brand-primary transition-colors duration-300">{s.nav[2]}</span>
+                      <div className="absolute inset-0 bg-brand-tertiary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -562,7 +581,21 @@ function Gallery() {
                         id: 'lfi', 
                         title: s.nav[4], 
                         desc: 'Leica Gallery',
-                        images: DB.filter(p => p.isLFI).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))
+                        images: DB.filter(p => p.isLFI)
+                          .sort((a, b) => {
+                            const getTime = (dateInput: any) => {
+                              if (!dateInput) return 0;
+                              try {
+                                const date = typeof dateInput.toDate === 'function' ? dateInput.toDate() : new Date(dateInput);
+                                return isNaN(date.getTime()) ? 0 : date.getTime();
+                              } catch (e) {
+                                return 0;
+                              }
+                            };
+                            return getTime(b.lfiDate) - getTime(a.lfiDate);
+                          })
+                          .slice(0, 4)
+                          .map(p => ({ src: p.url, alt: p.title }))
                       },
                       { 
                         id: 'about', 
@@ -913,7 +946,7 @@ function Gallery() {
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter)).map(photo => (
+                  {currentPhotoList.map(photo => (
                     <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>

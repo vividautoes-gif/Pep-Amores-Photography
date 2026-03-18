@@ -15,7 +15,23 @@ export const LFIManager: React.FC = () => {
       orderBy('createdAt', 'desc')
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setPhotos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Photo[]);
+      const fetchedPhotos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Photo[];
+      
+      // Sort by lfiDate newest first
+      const sortedPhotos = fetchedPhotos.sort((a, b) => {
+        const getTime = (dateInput: any) => {
+          if (!dateInput) return 0;
+          try {
+            const date = typeof dateInput.toDate === 'function' ? dateInput.toDate() : new Date(dateInput);
+            return isNaN(date.getTime()) ? 0 : date.getTime();
+          } catch (e) {
+            return 0;
+          }
+        };
+        return getTime(b.lfiDate) - getTime(a.lfiDate);
+      });
+      
+      setPhotos(sortedPhotos);
       setLoading(false);
     });
     return () => unsubscribe();
