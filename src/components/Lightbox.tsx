@@ -64,7 +64,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="w-full h-full max-w-[1600px] flex flex-col lg:flex-row bg-zinc-950 lg:rounded-3xl overflow-hidden border border-white/5 shadow-2xl"
+            className="w-full h-full max-w-[1600px] flex flex-col xl:flex-row bg-zinc-950 xl:rounded-3xl overflow-hidden border border-white/5 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Left: Image Area */}
@@ -103,7 +103,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
             </div>
 
             {/* Right/Bottom: Details Panel */}
-            <div className="w-full lg:w-[400px] flex-shrink-0 bg-zinc-900/80 p-6 lg:p-10 text-white font-sans border-t lg:border-t-0 lg:border-l border-white/5 overflow-y-auto flex flex-col min-h-[40%] lg:min-h-0">
+            <div className="w-full xl:w-[450px] flex-shrink-0 bg-zinc-900/80 p-6 xl:p-10 text-white font-sans border-t xl:border-t-0 xl:border-l border-white/5 overflow-y-auto flex flex-col h-[45%] xl:h-auto">
               {/* Header */}
               <div className="mb-6 lg:mb-8">
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight uppercase leading-tight">
@@ -186,16 +186,17 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                         </motion.div>
                       )}
 
-                      {(photo.caption || photo.caption_en || photo.caption_ca) && (
-                        <motion.div variants={itemVariants} className="flex flex-col gap-2">
-                          <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
-                            {lang === 'es' ? 'Descripción' : lang === 'en' ? 'Description' : 'Descripció'}
-                          </span>
-                          <span className="text-sm font-light text-white/70 leading-relaxed">
-                            {lang === 'es' ? photo.caption : lang === 'en' ? (photo.caption_en || photo.caption) : (photo.caption_ca || photo.caption)}
-                          </span>
-                        </motion.div>
-                      )}
+                      {/* Description Section */}
+                      <motion.div variants={itemVariants} className="flex flex-col gap-2">
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                          {lang === 'es' ? 'Descripción' : lang === 'en' ? 'Description' : 'Descripció'}
+                        </span>
+                        <span className="text-sm font-light text-white/70 leading-relaxed whitespace-pre-wrap">
+                          {lang === 'es' ? (photo.caption || 'Sin descripción') : 
+                           lang === 'en' ? (photo.caption_en || photo.caption || 'No description') : 
+                           (photo.caption_ca || photo.caption || 'Sense descripció')}
+                        </span>
+                      </motion.div>
 
                       {photo.isLFI && (
                         <motion.div variants={itemVariants} className="flex flex-col mt-4 gap-3">
