@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
 import { Lightbox } from './components/Lightbox';
+import { CommentSection } from './components/CommentSection';
 import { FlowButton } from './components/ui/flow-button';
 import { AdminPage } from './pages/AdminPage';
 import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
@@ -19,80 +20,6 @@ import { Footer } from './components/ui/footer-section';
 
 // --- Components ---
 
-
-const CommentSection = ({ targetId, targetType }: { targetId: string, targetType: 'photo' | 'journey' | 'guestbook' }) => {
-  const [comments, setComments] = useState<any[]>([]);
-  const [newComment, setNewComment] = useState('');
-  const [userName, setUserName] = useState('');
-
-  useEffect(() => {
-    const q = query(
-      collection(db, 'comments'), 
-      where('targetId', '==', targetId),
-      where('targetType', '==', targetType),
-      where('isApproved', '==', true),
-      orderBy('createdAt', 'desc')
-    );
-    return onSnapshot(q, (snap) => {
-      setComments(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-  }, [targetId, targetType]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment || !userName) return;
-    await addDoc(collection(db, 'comments'), {
-      targetId,
-      targetType,
-      userName,
-      text: newComment,
-      isApproved: false, // Moderation by default
-      createdAt: serverTimestamp()
-    });
-    setNewComment('');
-    alert("Comentario enviado. Aparecerá tras ser moderado.");
-  };
-
-  return (
-    <div className="mt-12 pt-12 border-t border-neutral-100">
-      <h3 className="text-xl font-serif italic mb-8 flex items-center gap-2">
-        <MessageSquare size={20} />
-        Comentarios
-      </h3>
-      
-      <form onSubmit={handleSubmit} className="space-y-4 mb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input 
-            type="text" placeholder="Tu nombre" value={userName} onChange={e => setUserName(e.target.value)}
-            className="w-full bg-neutral-50 border-none rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-brand-primary/10"
-          />
-        </div>
-        <textarea 
-          placeholder="Escribe tu comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
-          className="w-full bg-neutral-50 border-none rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-brand-primary/10 h-32 resize-none"
-        />
-        <FlowButton 
-          type="submit"
-          text="Enviar Comentario"
-        />
-      </form>
-
-      <div className="space-y-6">
-        {comments.map(c => (
-          <div key={c.id} className="bg-neutral-50 p-6 rounded-2xl">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-bold text-xs uppercase tracking-widest">{c.userName}</span>
-              <span className="text-[10px] text-brand-secondary font-mono">
-                {formatDate(c.createdAt)}
-              </span>
-            </div>
-            <p className="text-sm text-brand-secondary leading-relaxed">{c.text}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 // --- Main Gallery ---
 
@@ -763,7 +690,7 @@ function Gallery() {
                   <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                 ))}
               </div>
-              <CommentSection targetId={selectedJourney.id} targetType="journey" />
+              <CommentSection targetId={selectedJourney.id} targetType="journey" lang={lang} isDark={false} imageUrl={selectedJourney.coverUrl} />
             </motion.section>
           )}
 
@@ -914,7 +841,7 @@ function Gallery() {
           {currentSection === 'lfi' && (
             <motion.section key="lfi" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
-                <h1 className="text-6xl font-serif italic mb-4 tracking-tighter">LFI Gallery</h1>
+                <h1 className="text-6xl font-serif italic mb-4 tracking-tighter">{s.titles.lfi}</h1>
                 <p className="text-brand-secondary font-light mb-12">{s.subtitles.lfi}</p>
                 <div className="flex justify-center gap-4 mb-12">
                   {['all', 'lfimastershot', 'lfiexhibition', 'lfi-picture-of-the-week'].map(type => (
@@ -1090,7 +1017,7 @@ function Gallery() {
                     />
                   </div>
                 </form>
-                <CommentSection targetId="guestbook" targetType="guestbook" />
+                <CommentSection targetId="guestbook" targetType="guestbook" lang={lang} isDark={false} />
               </div>
             </motion.section>
           )}

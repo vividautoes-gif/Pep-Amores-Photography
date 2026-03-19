@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronLeft, ChevronRight, Camera, Maximize } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Camera, Maximize, MessageSquare } from 'lucide-react';
 import { Photo } from '../hooks/usePhotos';
 import { formatDate } from '../lib/utils';
+import { CommentSection } from './CommentSection';
 
 interface LightboxProps {
   photo: Photo | null;
@@ -13,7 +14,7 @@ interface LightboxProps {
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, lang }) => {
-  const [activeTab, setActiveTab] = useState<'INFO' | 'TECH'>('INFO');
+  const [activeTab, setActiveTab] = useState<'INFO' | 'TECH' | 'COMMENTS'>('INFO');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -136,6 +137,20 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                 >
                   {lang === 'es' ? 'CÁMARA' : lang === 'en' ? 'CAMERA' : 'CÀMERA'}
                   {activeTab === 'TECH' && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B45309]"
+                    />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('COMMENTS')}
+                  className={`pb-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors relative ${
+                    activeTab === 'COMMENTS' ? 'text-[#B45309]' : 'text-white/40 hover:text-white/80'
+                  }`}
+                >
+                  {lang === 'es' ? 'COMENTARIOS' : lang === 'en' ? 'COMMENTS' : 'COMENTARIS'}
+                  {activeTab === 'COMMENTS' && (
                     <motion.div
                       layoutId="activeTab"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B45309]"
@@ -274,6 +289,18 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                         </span>
                         <span className="text-sm font-mono text-white/90">{formatDate(photo.createdAt)}</span>
                       </motion.div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'COMMENTS' && (
+                    <motion.div
+                      key="comments"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="flex-1"
+                    >
+                      <CommentSection targetId={photo.id} targetType="photo" lang={lang} isDark={true} imageUrl={photo.url} />
                     </motion.div>
                   )}
                 </AnimatePresence>

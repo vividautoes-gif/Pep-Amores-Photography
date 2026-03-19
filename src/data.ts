@@ -33,7 +33,7 @@ export const Strings = {
     titles: { 
       home: "Prestar Atención", 
       explore: "Explorar Archivo", 
-      fav: "Colección Favorita", 
+      fav: "Favoritas", 
       lfi: "Leica Fotografie International", 
       journeys: "Diarios de Viaje", 
       contact: "Contacto",
@@ -43,7 +43,7 @@ export const Strings = {
     },
     subtitles: { 
       home: "La fotografía como una forma de mirar, sentir y detener lo que importa.", 
-      lfi: "Selecciones Oficiales LFI Gallery",
+      lfi: "Fotos premiadas por Leica Fotografía Internacional",
       exploreCollections: "Descubre el archivo a través de nuestras selecciones temáticas.",
       journeys: "Explora el mundo a través de colecciones fotográficas únicas."
     },
@@ -71,7 +71,11 @@ export const Strings = {
       searchingFor: "Buscando fotos que contengan:",
       loadingArchive: "Cargando archivo...",
       sending: "Enviando...",
-      lfiGallery: "Leica Gallery"
+      lfiGallery: "Leica Gallery",
+      comments: "Comentarios",
+      commentPlaceholder: "Escribe tu comentario...",
+      sendComment: "Enviar Comentario",
+      moderationNote: "Comentario enviado. Aparecerá tras ser moderado."
     }
   },
   en: { 
@@ -79,7 +83,7 @@ export const Strings = {
     titles: { 
       home: "Paying Attention", 
       explore: "Explore Archive", 
-      fav: "Curated Favorites", 
+      fav: "Favorites", 
       lfi: "Leica Fotografie International", 
       journeys: "Travel Journals", 
       contact: "Contact",
@@ -89,7 +93,7 @@ export const Strings = {
     },
     subtitles: { 
       home: "Photography as a way of looking, feeling and stopping what matters.", 
-      lfi: "Official LFI Gallery Selections",
+      lfi: "Award-winning photos by Leica Photography International",
       exploreCollections: "Discover the archive through our thematic selections.",
       journeys: "Explore the world through unique photographic collections."
     },
@@ -117,7 +121,11 @@ export const Strings = {
       searchingFor: "Searching photos containing:",
       loadingArchive: "Loading archive...",
       sending: "Sending...",
-      lfiGallery: "Leica Gallery"
+      lfiGallery: "Leica Gallery",
+      comments: "Comments",
+      commentPlaceholder: "Write your comment...",
+      sendComment: "Send Comment",
+      moderationNote: "Comment sent. It will appear after being moderated."
     }
   },
   ca: { 
@@ -125,7 +133,7 @@ export const Strings = {
     titles: { 
       home: "Prestar Atenció", 
       explore: "Explorar Arxiu", 
-      fav: "Col·lecció Preferida", 
+      fav: "Preferides", 
       lfi: "Leica Fotografie International", 
       journeys: "Diaris de Viatge", 
       contact: "Contacte",
@@ -135,7 +143,7 @@ export const Strings = {
     },
     subtitles: { 
       home: "La fotografia com una forma de mirar, sentir i aturar el que importa.", 
-      lfi: "Seleccions Oficials LFI Gallery",
+      lfi: "Fotos premiades per Leica Fotografia Internacional",
       exploreCollections: "Descobreix l'arxiu a través de les nostres seleccions temàtiques.",
       journeys: "Explora el món a través de col·leccions fotogràfiques úniques."
     },
@@ -163,7 +171,11 @@ export const Strings = {
       searchingFor: "Buscant fotos que continguin:",
       loadingArchive: "Carregant arxiu...",
       sending: "Enviant...",
-      lfiGallery: "Leica Gallery"
+      lfiGallery: "Leica Gallery",
+      comments: "Comentaris",
+      commentPlaceholder: "Escriu el teu comentari...",
+      sendComment: "Enviar Comentari",
+      moderationNote: "Comentari enviat. Apareixerà després de ser moderat."
     }
   }
 };
