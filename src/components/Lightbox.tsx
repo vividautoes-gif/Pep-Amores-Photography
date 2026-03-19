@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Camera, Maximize } from 'lucide-react';
 import { Photo } from '../hooks/usePhotos';
 import { formatDate } from '../lib/utils';
 
@@ -13,7 +13,7 @@ interface LightboxProps {
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, lang }) => {
-  const [activeTab, setActiveTab] = useState<'INFO' | 'CAMERA'>('INFO');
+  const [activeTab, setActiveTab] = useState<'INFO' | 'TECH'>('INFO');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,37 +68,42 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
             onClick={(e) => e.stopPropagation()}
           >
             {/* Left: Image Area */}
-            <div className="relative flex-1 flex items-center justify-center bg-black p-4 lg:p-8 min-h-[40vh] lg:min-h-0">
-              {onPrev && (
-                <button 
-                  onClick={(e) => { e.stopPropagation(); onPrev(); }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-3 transition-all z-10"
-                >
-                  <ChevronLeft size={32} strokeWidth={1.5} />
-                </button>
-              )}
-              
-              <img
-                src={photo.url}
-                alt={photo.title}
-                referrerPolicy="no-referrer"
-                onContextMenu={(e) => e.preventDefault()}
-                onDragStart={(e) => e.preventDefault()}
-                className="max-w-full max-h-full object-contain"
-              />
+            <div className="relative flex-1 flex flex-col bg-black min-h-0">
+              <div className="flex-1 flex items-center justify-center p-4 lg:p-8 overflow-hidden">
+                <img
+                  src={photo.url}
+                  alt={photo.title}
+                  referrerPolicy="no-referrer"
+                  onContextMenu={(e) => e.preventDefault()}
+                  onDragStart={(e) => e.preventDefault()}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
 
-              {onNext && (
-                <button 
-                  onClick={(e) => { e.stopPropagation(); onNext(); }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-3 transition-all z-10"
-                >
-                  <ChevronRight size={32} strokeWidth={1.5} />
-                </button>
-              )}
+              {/* Navigation Bar below image */}
+              <div className="flex items-center justify-center gap-12 py-4 bg-zinc-950/50 border-t border-white/5 flex-shrink-0">
+                {onPrev && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onPrev(); }}
+                    className="text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-3 transition-all"
+                  >
+                    <ChevronLeft size={28} strokeWidth={1.5} />
+                  </button>
+                )}
+                
+                {onNext && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onNext(); }}
+                    className="text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-3 transition-all"
+                  >
+                    <ChevronRight size={28} strokeWidth={1.5} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Right/Bottom: Details Panel */}
-            <div className="w-full lg:w-[400px] xl:w-[480px] max-h-[45%] lg:max-h-none flex-shrink-0 bg-zinc-900/80 p-6 lg:p-10 text-white font-sans border-t lg:border-t-0 lg:border-l border-white/5 overflow-y-auto flex flex-col">
+            <div className="w-full lg:w-[400px] flex-shrink-0 bg-zinc-900/80 p-6 lg:p-10 text-white font-sans border-t lg:border-t-0 lg:border-l border-white/5 overflow-y-auto flex flex-col min-h-[40%] lg:min-h-0">
               {/* Header */}
               <div className="mb-6 lg:mb-8">
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight uppercase leading-tight">
@@ -108,7 +113,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-6 border-b border-white/10 mb-8">
+              <div className="flex gap-6 border-b border-white/10 mb-8 flex-shrink-0">
                 <button
                   onClick={() => setActiveTab('INFO')}
                   className={`pb-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors relative ${
@@ -124,13 +129,13 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                   )}
                 </button>
                 <button
-                  onClick={() => setActiveTab('CAMERA')}
+                  onClick={() => setActiveTab('TECH')}
                   className={`pb-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors relative ${
-                    activeTab === 'CAMERA' ? 'text-[#B45309]' : 'text-white/40 hover:text-white/80'
+                    activeTab === 'TECH' ? 'text-[#B45309]' : 'text-white/40 hover:text-white/80'
                   }`}
                 >
-                  CAMERA
-                  {activeTab === 'CAMERA' && (
+                  {lang === 'es' ? 'CÁMARA' : lang === 'en' ? 'CAMERA' : 'CÀMERA'}
+                  {activeTab === 'TECH' && (
                     <motion.div
                       layoutId="activeTab"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B45309]"
@@ -213,9 +218,9 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                     </motion.div>
                   )}
 
-                  {activeTab === 'CAMERA' && (
+                  {activeTab === 'TECH' && (
                     <motion.div
-                      key="camera"
+                      key="tech"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -223,23 +228,39 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                       className="grid grid-cols-2 gap-y-8 gap-x-6"
                     >
                       <motion.div variants={itemVariants} className="flex flex-col gap-1">
-                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Camera</span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Camera size={14} className="text-[#B45309]" />
+                          <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                            {lang === 'es' ? 'Cámara' : lang === 'en' ? 'Camera' : 'Càmera'}
+                          </span>
+                        </div>
                         <span className="text-sm font-mono text-white/90">{photo.cameraModel || 'N/A'}</span>
                       </motion.div>
                       <motion.div variants={itemVariants} className="flex flex-col gap-1">
-                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Lens</span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Maximize size={14} className="text-[#B45309]" />
+                          <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                            {lang === 'es' ? 'Lente' : lang === 'en' ? 'Lens' : 'Lent'}
+                          </span>
+                        </div>
                         <span className="text-sm font-mono text-white/90">{photo.lens || 'N/A'}</span>
                       </motion.div>
                       <motion.div variants={itemVariants} className="flex flex-col gap-1">
-                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Focal Length</span>
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                          {lang === 'es' ? 'Distancia Focal' : lang === 'en' ? 'Focal Length' : 'Distància Focal'}
+                        </span>
                         <span className="text-sm font-mono text-white/90">{photo.focalLength ? `${photo.focalLength}mm` : 'N/A'}</span>
                       </motion.div>
                       <motion.div variants={itemVariants} className="flex flex-col gap-1">
-                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Exposure Time</span>
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                          {lang === 'es' ? 'Tiempo de Exposición' : lang === 'en' ? 'Exposure Time' : 'Temps d\'Exposició'}
+                        </span>
                         <span className="text-sm font-mono text-white/90">{photo.exposureTime ? `${photo.exposureTime}s` : 'N/A'}</span>
                       </motion.div>
                       <motion.div variants={itemVariants} className="flex flex-col gap-1">
-                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Aperture</span>
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                          {lang === 'es' ? 'Apertura' : lang === 'en' ? 'Aperture' : 'Obertura'}
+                        </span>
                         <span className="text-sm font-mono text-white/90">{photo.aperture ? `f/${photo.aperture}` : 'N/A'}</span>
                       </motion.div>
                       <motion.div variants={itemVariants} className="flex flex-col gap-1">
@@ -247,7 +268,9 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                         <span className="text-sm font-mono text-white/90">{photo.iso || 'N/A'}</span>
                       </motion.div>
                       <motion.div variants={itemVariants} className="col-span-2 flex flex-col gap-1">
-                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Upload Date</span>
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                          {lang === 'es' ? 'Fecha de Subida' : lang === 'en' ? 'Upload Date' : 'Data de Pujada'}
+                        </span>
                         <span className="text-sm font-mono text-white/90">{formatDate(photo.createdAt)}</span>
                       </motion.div>
                     </motion.div>
