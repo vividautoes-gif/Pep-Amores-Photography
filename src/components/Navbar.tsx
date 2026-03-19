@@ -77,12 +77,12 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] glass z-40 flex items-center justify-between px-6 md:px-12"
+        className="fixed top-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] bg-black/90 backdrop-blur-md border-b border-white/10 z-40 flex items-center justify-between px-6 md:px-12 text-white"
       >
         <div className="flex items-center gap-4">
           <button 
             onClick={handleOpenMenu}
-            className="p-2 -ml-2 text-neutral-600 hover:text-black transition-colors relative w-10 h-10 flex items-center justify-center"
+            className="p-2 -ml-2 text-neutral-400 hover:text-white transition-colors relative w-10 h-10 flex items-center justify-center"
             aria-label="Menu"
           >
             <AnimatePresence mode="wait">
@@ -149,7 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
                 lang === l ? "opacity-100" : "opacity-40 hover:opacity-100"
               )}
             >
-              <span className={cn("text-[10px] font-black uppercase tracking-tighter leading-none", lang === l ? "text-[#B45309]" : "")}>{l}</span>
+              <span className={cn("text-[10px] font-black uppercase tracking-tighter leading-none", lang === l ? "text-[#B45309]" : "text-neutral-400")}>{l}</span>
               {l === 'es' && (
                 <svg viewBox="0 0 6 4" className="w-4 h-3 rounded-[2px] overflow-hidden">
                   <rect width="6" height="4" fill="#c60b1e"/>
@@ -186,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
             animate={{ opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed inset-0 bg-neutral-50 z-[100] pointer-events-none"
+            className="fixed inset-0 bg-white z-[100] pointer-events-none"
           />
         )}
       </AnimatePresence>
@@ -207,16 +207,16 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] glass border-l-0 border-y-0 z-[70] shadow-2xl flex flex-col overflow-y-auto"
+              className="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-black/95 backdrop-blur-xl border-r border-white/10 z-[70] shadow-2xl flex flex-col overflow-y-auto text-white"
             >
-              <div className="p-6 flex items-center justify-between border-b border-neutral-100">
+              <div className="p-6 flex items-center justify-between border-b border-white/10">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-brand-accent rounded-full flex items-center justify-center text-white">
                     <Camera size={14} />
                   </div>
                   <span className="text-lg font-extrabold tracking-tighter uppercase">Pep Amores</span>
                 </div>
-                <button onClick={handleCloseMenu} className="p-2 -mr-2 text-neutral-400 hover:text-black transition-colors relative w-10 h-10 flex items-center justify-center">
+                <button onClick={handleCloseMenu} className="p-2 -mr-2 text-neutral-400 hover:text-white transition-colors relative w-10 h-10 flex items-center justify-center">
                   <AnimatePresence mode="wait">
                     {shutterPhase === 'closing' && isMenuOpen ? (
                       <motion.div
@@ -265,26 +265,26 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
                     className={cn(
                       "text-left py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all",
                       currentSection === link.id 
-                        ? "bg-[#B45309]/10 text-[#B45309]" 
-                        : "text-neutral-600 hover:bg-neutral-50 hover:text-[#B45309]"
+                        ? "bg-[#B45309]/20 text-[#B45309]" 
+                        : "text-neutral-400 hover:bg-white/5 hover:text-white"
                     )}
                   >
                     {link.label}
                   </button>
                 ))}
 
-                <div className="my-6 h-px bg-neutral-100 w-full" />
+                <div className="my-6 h-px bg-white/10 w-full" />
 
                 <div className="flex flex-col gap-1">
-                  <a href="https://www.instagram.com/pepamores?igsh=dGp3ODZxaWdqcnd0" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
+                  <a href="https://www.instagram.com/pepamores?igsh=dGp3ODZxaWdqcnd0" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-400 hover:bg-white/5 transition-all">
                     <Instagram size={18} className="group-hover:text-[#E1306C] transition-colors" />
                     <span className="group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-tr group-hover:from-[#f09433] group-hover:via-[#dc2743] group-hover:to-[#bc1888] transition-all">Instagram</span>
                   </a>
-                  <a href="https://www.linkedin.com/in/josepamores?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
+                  <a href="https://www.linkedin.com/in/josepamores?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-400 hover:bg-white/5 transition-all">
                     <Linkedin size={18} className="group-hover:text-[#0A66C2] transition-colors" />
                     <span className="group-hover:text-[#0A66C2] transition-colors">LinkedIn</span>
                   </a>
-                  <a href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-neutral-50 transition-all">
+                  <a href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-400 hover:bg-white/5 transition-all">
                     <ExternalLink size={18} className="group-hover:text-blue-400 transition-colors" />
                     <span className="group-hover:text-blue-400 transition-colors">LFI Online</span>
                   </a>

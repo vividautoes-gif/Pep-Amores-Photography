@@ -55,7 +55,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
             whileHover={{ rotate: 90, scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={onClose}
-            className="absolute top-[calc(1.5rem+env(safe-area-inset-top))] right-6 text-white/50 hover:text-white z-[110] bg-black/50 rounded-full p-2"
+            className="absolute top-6 right-6 text-white/50 hover:text-white z-[110] bg-black/50 rounded-full p-2"
           >
             <X size={24} strokeWidth={2} />
           </motion.button>
@@ -64,11 +64,11 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="w-full h-full max-w-[1600px] flex flex-col md:flex-row bg-zinc-950 md:rounded-3xl overflow-hidden border border-white/5 shadow-2xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+            className="w-full h-full max-w-[1600px] flex flex-col lg:flex-row bg-zinc-950 lg:rounded-3xl overflow-hidden border border-white/5 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Left: Image Area */}
-            <div className="relative flex-1 flex items-center justify-center bg-black p-4 md:p-8 min-h-[50vh] md:min-h-0">
+            <div className="relative flex-1 flex items-center justify-center bg-black p-4 lg:p-8 min-h-[40vh] lg:min-h-0">
               {onPrev && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); onPrev(); }}
@@ -97,11 +97,11 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
               )}
             </div>
 
-            {/* Right: Details Panel */}
-            <div className="w-full md:w-[400px] lg:w-[480px] flex-shrink-0 bg-zinc-900/80 p-6 md:p-10 text-white font-sans border-l border-white/5 overflow-y-auto flex flex-col">
+            {/* Right/Bottom: Details Panel */}
+            <div className="w-full lg:w-[400px] xl:w-[480px] max-h-[45%] lg:max-h-none flex-shrink-0 bg-zinc-900/80 p-6 lg:p-10 text-white font-sans border-t lg:border-t-0 lg:border-l border-white/5 overflow-y-auto flex flex-col">
               {/* Header */}
-              <div className="mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight uppercase leading-tight">
+              <div className="mb-6 lg:mb-8">
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight uppercase leading-tight">
                   {lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
                 </h2>
                 <p className="text-sm text-white/60 mt-2 uppercase tracking-widest">Pep Amores</p>

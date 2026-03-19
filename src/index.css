@@ -120,19 +120,10 @@
 }
 
 @layer base {
-  html, body {
-    @apply bg-neutral-50;
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    overscroll-behavior: none;
-  }
-
   body {
-    @apply text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
-    -webkit-tap-highlight-color: transparent;
+    @apply bg-black text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
   img {
@@ -148,7 +139,7 @@
 
 @layer utilities {
   .glass {
-    @apply backdrop-blur-md bg-neutral-50/70 border border-white/20;
+    @apply backdrop-blur-md bg-white/70 border border-white/20;
   }
   
   .glass-dark {
