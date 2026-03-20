@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { Image as ImageIcon } from 'lucide-react';
 import { cn } from "../../lib/utils";
 
 interface CardImage {
@@ -19,6 +20,7 @@ interface CardStackProps {
     y?: number;
   };
   onCardClick?: () => void;
+  photoCount?: number;
 }
 
 interface CardProps extends CardImage {
@@ -32,6 +34,7 @@ interface CardProps extends CardImage {
   width: number;
   height: number;
   spacing: { x?: number; y?: number };
+  photoCount?: number;
 }
 
   const Card = ({
@@ -45,7 +48,8 @@ interface CardProps extends CardImage {
   onClick,
   width,
   height,
-  spacing
+  spacing,
+  photoCount
 }: CardProps) => {
   // Render all cards on mobile to allow the fan-out effect
   // but limit to index 3 (4 cards total) for performance
@@ -119,6 +123,12 @@ interface CardProps extends CardImage {
         style={{ objectFit: 'cover', width: '100%', height: '100%' }}
         className="rounded-xl pointer-events-none"
       />
+      {index === 0 && photoCount !== undefined && photoCount > 0 && (
+        <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg border border-brand-accent z-30 flex items-center gap-1.5 shadow-xl">
+          <ImageIcon size={12} className="text-white/80" />
+          <span className="text-[10px] font-bold text-white tracking-wider">{photoCount}</span>
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -129,7 +139,8 @@ export function CardStack3D({
   cardWidth = 220,
   cardHeight = 280,
   spacing = { x: 35, y: 35 },
-  onCardClick
+  onCardClick,
+  photoCount
 }: CardStackProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -186,6 +197,7 @@ export function CardStack3D({
             width={cardWidth}
             height={cardHeight}
             spacing={spacing}
+            photoCount={photoCount}
           />
         ))}
       </div>

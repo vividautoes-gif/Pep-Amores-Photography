@@ -480,25 +480,29 @@ function Gallery() {
                         id: 'journeys', 
                         title: s.nav[1], 
                         desc: lang === 'es' ? 'Colecciones' : lang === 'ca' ? 'Col·leccions' : 'Collections',
-                        images: JDB.slice(0, 4).map(j => ({ src: j.coverUrl || DB[0]?.url, alt: j.title }))
+                        images: JDB.slice(0, 4).map(j => ({ src: j.coverUrl || DB[0]?.url, alt: j.title })),
+                        count: JDB.length
                       },
                       { 
                         id: 'explore', 
                         title: s.nav[2], 
                         desc: lang === 'es' ? 'Archivo completo' : lang === 'ca' ? 'Arxiu complet' : 'Full archive',
-                        images: DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))
+                        images: DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
+                        count: DB.length
                       },
                       { 
                         id: 'favorites', 
                         title: s.nav[3], 
                         desc: lang === 'es' ? 'Selección' : lang === 'ca' ? 'Selecció' : 'Selection',
-                        images: DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))
+                        images: DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
+                        count: DB.filter(p => p.isFavorite).length
                       },
                       { 
                         id: 'latest', 
                         title: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', 
                         desc: lang === 'es' ? 'Recientes' : lang === 'ca' ? 'Recents' : 'Recent',
-                        images: DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))
+                        images: DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
+                        count: Math.min(DB.length, 50)
                       },
                       { 
                         id: 'lfi', 
@@ -518,15 +522,50 @@ function Gallery() {
                             return getTime(b.lfiDate) - getTime(a.lfiDate);
                           })
                           .slice(0, 4)
-                          .map(p => ({ src: p.url, alt: p.title }))
+                          .map(p => ({ src: p.url, alt: p.title })),
+                        count: DB.filter(p => p.isLFI).length
                       },
                       { 
                         id: 'about', 
-                        title: 'About', 
-                        desc: lang === 'es' ? 'Sobre mí' : lang === 'ca' ? 'Sobre mi' : 'About me',
-                        images: DB.slice(4, 8).map(p => ({ src: p.url, alt: p.title }))
+                        title: lang === 'es' ? 'Sobre mí' : lang === 'ca' ? 'Sobre mi' : 'About me', 
+                        desc: 'Pep Amores',
+                        images: [{ src: 'https://i.imgur.com/diHGiy8.jpg', alt: 'Pep Amores' }],
+                        count: 0,
+                        isSingle: true
                       }
                     ].map((item, index) => {
+                      if (item.isSingle) {
+                        return (
+                          <div key={item.id} className="flex flex-col items-center">
+                            <div className="flex justify-center items-center py-8">
+                              <div 
+                                onClick={() => setCurrentSection(item.id)}
+                                className="relative cursor-pointer group"
+                                style={{ width: 220, height: 280 }}
+                              >
+                                <div className="absolute inset-0 bg-neutral-100 rounded-xl overflow-hidden shadow-lg transition-transform duration-500 group-hover:scale-[1.02] group-hover:-translate-y-2">
+                                  <img 
+                                    src={item.images[0].src} 
+                                    alt={item.images[0].alt} 
+                                    className="w-full h-full object-cover"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mt-6 text-center z-10">
+                              <h3 className="font-serif italic text-2xl mb-2">{item.title}</h3>
+                              <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{item.desc}</p>
+                              <FlowButton 
+                                onClick={() => setCurrentSection(item.id)}
+                                text={lang === 'es' ? 'Ver sección' : lang === 'en' ? 'View section' : 'Veure secció'}
+                              />
+                            </div>
+                          </div>
+                        );
+                      }
+
                       // Aseguramos tener exactamente 4 imágenes para que el efecto se vea bien
                       let stackImages = item.images.length >= 4 
                         ? item.images.slice(0, 4) 
@@ -548,6 +587,7 @@ function Gallery() {
                             cardHeight={280}
                             spacing={{ x: 30, y: 30 }}
                             onCardClick={() => setCurrentSection(item.id)}
+                            photoCount={item.count}
                           />
                           <div className="mt-6 text-center z-10">
                             <h3 className="font-serif italic text-2xl mb-2">{item.title}</h3>
@@ -598,6 +638,7 @@ function Gallery() {
                             cardHeight={280}
                             spacing={{ x: 30, y: 30 }}
                             onCardClick={() => { setSelectedJourney(journey); setCurrentSection('journeys'); }}
+                            photoCount={journeyPhotos.length}
                           />
                           <div className="mt-6 text-center z-10">
                             <h3 className="font-serif italic text-2xl mb-2">
@@ -644,6 +685,7 @@ function Gallery() {
                         cardHeight={280}
                         spacing={{ x: 30, y: 30 }}
                         onCardClick={() => setSelectedJourney(journey)}
+                        photoCount={journeyPhotos.length}
                       />
                       <div className="mt-6 text-center z-10">
                         <h3 className="font-serif italic text-2xl mb-2">
