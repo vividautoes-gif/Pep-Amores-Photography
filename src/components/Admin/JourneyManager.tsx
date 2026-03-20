@@ -139,6 +139,18 @@ export const JourneyManager: React.FC = () => {
                   className="w-full p-3 border rounded-xl h-32"
                   placeholder="Introducción"
                 />
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${editData.isSpecial ? 'bg-brand-accent border-brand-accent text-white' : 'border-gray-300 group-hover:border-brand-accent'}`}>
+                    <input 
+                      type="checkbox" 
+                      className="hidden" 
+                      checked={editData.isSpecial || false} 
+                      onChange={e => setEditData(prev => ({ ...prev, isSpecial: e.target.checked }))} 
+                    />
+                    {editData.isSpecial && <Save size={14} className="rotate-45" />}
+                  </div>
+                  <span className="text-sm font-medium">Sesión Especial (Sesiones ESP.)</span>
+                </label>
                 <div className="flex gap-2">
                   <button onClick={() => handleSave(journey.id)} disabled={saving} className="px-4 py-2 bg-black text-white rounded-xl flex items-center gap-2 disabled:opacity-50">
                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 

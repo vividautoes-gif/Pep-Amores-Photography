@@ -62,6 +62,7 @@ export interface Journey {
   subthemes: string[];
   subthemes_en?: string[];
   subthemes_ca?: string[];
+  isSpecial?: boolean;
   createdAt: any;
 }
 

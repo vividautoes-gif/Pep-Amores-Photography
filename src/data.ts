@@ -29,13 +29,14 @@ export const DB: Photo[] = [
 
 export const Strings = {
   es: { 
-    nav: ["Inicio", "Viajes", "Explorar", "Favoritas", "LFI", "Contacto"], 
+    nav: ["Inicio", "Viajes", "Sesiones ESP.", "Explorar", "Favoritas", "LFI", "Contacto"], 
     titles: { 
       home: "Prestar Atención", 
       explore: "Explorar Archivo", 
       fav: "Favoritas", 
       lfi: "Leica Fotografie International", 
       journeys: "Diarios de Viaje", 
+      specialSessions: "Sesiones Especiales",
       contact: "Contacto",
       about: "Sobre mí",
       latest: "Últimas 50",
@@ -79,13 +80,14 @@ export const Strings = {
     }
   },
   en: { 
-    nav: ["Home", "Journeys", "Explore", "Favorites", "LFI", "Contact"], 
+    nav: ["Home", "Journeys", "Special Sessions", "Explore", "Favorites", "LFI", "Contact"], 
     titles: { 
       home: "Paying Attention", 
       explore: "Explore Archive", 
       fav: "Favorites", 
       lfi: "Leica Fotografie International", 
       journeys: "Travel Journals", 
+      specialSessions: "Special Sessions",
       contact: "Contact",
       about: "About me",
       latest: "Latest 50",
@@ -129,13 +131,14 @@ export const Strings = {
     }
   },
   ca: { 
-    nav: ["Inici", "Viatges", "Explorar", "Preferides", "LFI", "Contacte"], 
+    nav: ["Inici", "Viatges", "Sessions ESP.", "Explorar", "Preferides", "LFI", "Contacte"], 
     titles: { 
       home: "Prestar Atenció", 
       explore: "Explorar Arxiu", 
       fav: "Preferides", 
       lfi: "Leica Fotografie International", 
       journeys: "Diaris de Viatge", 
+      specialSessions: "Sessions Especiales",
       contact: "Contacte",
       about: "Sobre mi",
       latest: "Últimes 50",

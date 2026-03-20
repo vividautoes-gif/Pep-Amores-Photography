@@ -426,7 +426,11 @@ export const UploadForm: React.FC = () => {
                 className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
               >
                 <option value="">Ninguno</option>
-                {journeys.map(j => <option key={j.id} value={j.id}>{j.title} ({j.country})</option>)}
+                {journeys.map(j => (
+                  <option key={j.id} value={j.id}>
+                    {j.title} ({j.country}) {j.isSpecial ? '— (Sesión ESP.)' : ''}
+                  </option>
+                ))}
               </select>
             </div>
 

@@ -97,7 +97,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
                   "px-4 py-2 cursor-pointer transition-colors duration-300 h-[34px] flex items-center rounded-[8px]",
                   index === activeIndex 
                     ? "text-[#B45309]" 
-                    : "text-zinc-400 hover:text-white hover:bg-white/5"
+                    : "text-neutral-600 hover:text-[#B45309] hover:bg-[#B45309]/10"
                 )}
                 onClick={() => {
                   setActiveIndex(index)

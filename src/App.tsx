@@ -169,7 +169,7 @@ const MOCK_DB: PhotoType[] = EXTENDED_PREVIEW_ITEMS.map((item, i) => {
     caption_ca: 'Aquesta és una foto de prova. Mostra com quedarà el disseny un cop pugis les teves pròpies fotos a la base de dades.',
     createdAt: { toMillis: () => Date.now() - i * 10000, toDate: () => new Date() },
     authorUid: 'mock-author',
-    journeyId: i % 2 === 0 ? 'mock-journey-1' : 'mock-journey-2',
+    journeyId: i % 2 === 0 ? 'mock-journey-1' : (i % 3 === 0 ? 'mock-special-1' : 'mock-journey-2'),
   };
 });
 
@@ -190,6 +190,16 @@ const MOCK_JDB: Journey[] = [
     intro: 'Explorando los altos picos y los profundos valles de los Alpes suizos. (Viaje de prueba)',
     coverUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=60',
     subthemes: ['Nature', 'Mountains', 'Snow'],
+    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
+  },
+  {
+    id: 'mock-special-1',
+    title: 'Technovation Girls - Madrid',
+    country: 'España',
+    intro: 'Sesión especial documentando el evento Technovation Girls en Madrid. (Sesión de prueba)',
+    coverUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=60',
+    subthemes: ['Tech', 'Education', 'Madrid'],
+    isSpecial: true,
     createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
   }
 ];
@@ -242,6 +252,9 @@ function Gallery() {
 
   const DB = realDB.length > 0 ? realDB : MOCK_DB;
   const JDB = realJDB.length > 0 ? realJDB : MOCK_JDB;
+
+  const journeysOnly = useMemo(() => JDB.filter(j => !j.isSpecial), [JDB]);
+  const specialSessionsOnly = useMemo(() => JDB.filter(j => j.isSpecial), [JDB]);
   
   const [lang, setLang] = useState<'es' | 'en' | 'ca'>('es');
   const [isMobile, setIsMobile] = useState(false);
@@ -351,7 +364,7 @@ function Gallery() {
         };
         return getTime(b.lfiDate) - getTime(a.lfiDate);
       });
-    if (currentSection === 'journeys' && selectedJourney) return DB.filter(p => p.journeyId === selectedJourney.id);
+    if ((currentSection === 'journeys' || currentSection === 'special-sessions') && selectedJourney) return DB.filter(p => p.journeyId === selectedJourney.id);
     return DB;
   }, [currentSection, filteredPhotos, DB, selectedJourney, lfiFilter]);
 
@@ -456,7 +469,7 @@ function Gallery() {
                       onClick={() => setCurrentSection('explore')} 
                       className="group relative px-12 py-4 bg-transparent border-2 border-white text-white text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 shadow-2xl"
                     >
-                      <span className="relative z-10 group-hover:text-black transition-colors duration-300">{s.nav[2]}</span>
+                      <span className="relative z-10 group-hover:text-black transition-colors duration-300">{s.nav[3]}</span>
                       <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
                   </div>
@@ -480,19 +493,26 @@ function Gallery() {
                         id: 'journeys', 
                         title: s.nav[1], 
                         desc: lang === 'es' ? 'Colecciones' : lang === 'ca' ? 'Col·leccions' : 'Collections',
-                        images: JDB.slice(0, 4).map(j => ({ src: j.coverUrl || DB[0]?.url, alt: j.title })),
-                        count: JDB.length
+                        images: journeysOnly.slice(0, 4).map(j => ({ src: j.coverUrl || DB[0]?.url, alt: j.title })),
+                        count: journeysOnly.length
+                      },
+                      { 
+                        id: 'special-sessions', 
+                        title: s.nav[2], 
+                        desc: lang === 'es' ? 'Sesiones Especiales' : lang === 'ca' ? 'Sessions Especiales' : 'Special Sessions',
+                        images: specialSessionsOnly.slice(0, 4).map(j => ({ src: j.coverUrl || DB[0]?.url, alt: j.title })),
+                        count: specialSessionsOnly.length
                       },
                       { 
                         id: 'explore', 
-                        title: s.nav[2], 
+                        title: s.nav[3], 
                         desc: lang === 'es' ? 'Archivo completo' : lang === 'ca' ? 'Arxiu complet' : 'Full archive',
                         images: DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
                         count: DB.length
                       },
                       { 
                         id: 'favorites', 
-                        title: s.nav[3], 
+                        title: s.nav[4], 
                         desc: lang === 'es' ? 'Selección' : lang === 'ca' ? 'Selecció' : 'Selection',
                         images: DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
                         count: DB.filter(p => p.isFavorite).length
@@ -506,7 +526,7 @@ function Gallery() {
                       },
                       { 
                         id: 'lfi', 
-                        title: s.nav[4], 
+                        title: s.nav[5], 
                         desc: 'Leica Gallery',
                         images: DB.filter(p => p.isLFI)
                           .sort((a, b) => {
@@ -620,13 +640,13 @@ function Gallery() {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
-                    {JDB.slice(0, 3).map(journey => {
+                    {journeysOnly.slice(0, 3).map(journey => {
                       const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
                       let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
                       
                       if (stackImages.length < 4) {
                         const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
-                        const rotatedFallback = [...fallback.slice(JDB.indexOf(journey) % fallback.length), ...fallback.slice(0, JDB.indexOf(journey) % fallback.length)];
+                        const rotatedFallback = [...fallback.slice(journeysOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, journeysOnly.indexOf(journey) % fallback.length)];
                         stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
                       }
                       
@@ -667,13 +687,13 @@ function Gallery() {
                 <h1 className="text-5xl font-serif italic mb-4">{s.titles.journeys}</h1>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
-                {JDB.map(journey => {
+                {journeysOnly.map(journey => {
                   const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
                   let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
                   
                   if (stackImages.length < 4) {
                     const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
-                    const rotatedFallback = [...fallback.slice(JDB.indexOf(journey) % fallback.length), ...fallback.slice(0, JDB.indexOf(journey) % fallback.length)];
+                    const rotatedFallback = [...fallback.slice(journeysOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, journeysOnly.indexOf(journey) % fallback.length)];
                     stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
                   }
                   
@@ -706,11 +726,58 @@ function Gallery() {
             </motion.section>
           )}
 
-          {currentSection === 'journeys' && selectedJourney && (
+          {currentSection === 'special-sessions' && !selectedJourney && (
+            <motion.section key="special-sessions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+              <div className="text-center mb-16">
+                <h1 className="text-5xl font-serif italic mb-4">{s.titles.specialSessions}</h1>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
+                {specialSessionsOnly.map(journey => {
+                  const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
+                  let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
+                  
+                  if (stackImages.length < 4) {
+                    const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
+                    const rotatedFallback = [...fallback.slice(specialSessionsOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, specialSessionsOnly.indexOf(journey) % fallback.length)];
+                    stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
+                  }
+                  
+                  return (
+                    <div key={journey.id} className="flex flex-col items-center">
+                      <CardStack3D 
+                        images={stackImages.slice(0, 4)} 
+                        cardWidth={220}
+                        cardHeight={280}
+                        spacing={{ x: 30, y: 30 }}
+                        onCardClick={() => setSelectedJourney(journey)}
+                        photoCount={journeyPhotos.length}
+                      />
+                      <div className="mt-6 text-center z-10">
+                        <h3 className="font-serif italic text-2xl mb-2">
+                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                        </h3>
+                        <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
+                          {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
+                        </p>
+                        <FlowButton 
+                          onClick={() => setSelectedJourney(journey)}
+                          text={lang === 'es' ? 'Ver álbum' : lang === 'en' ? 'View album' : 'Veure àlbum'}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.section>
+          )}
+
+          {(currentSection === 'journeys' || currentSection === 'special-sessions') && selectedJourney && (
             <motion.section key={`journey-${selectedJourney.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <button onClick={() => setSelectedJourney(null)} className="mb-12 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors">
                 <ChevronRight size={12} className="rotate-180" />
-                {lang === 'es' ? 'Volver a Viajes' : lang === 'en' ? 'Back to Journeys' : 'Tornar a Viatges'}
+                {currentSection === 'special-sessions' 
+                  ? (lang === 'es' ? 'Volver a Sesiones ESP.' : lang === 'en' ? 'Back to Special Sessions' : 'Tornar a Sessions ESP.')
+                  : (lang === 'es' ? 'Volver a Viajes' : lang === 'en' ? 'Back to Journeys' : 'Tornar a Viatges')}
               </button>
               <div className="max-w-4xl mx-auto mb-16 text-center">
                 <h1 className="text-6xl font-serif italic mb-6">

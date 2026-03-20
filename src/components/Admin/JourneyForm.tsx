@@ -11,7 +11,8 @@ export const JourneyForm: React.FC = () => {
     country: '',
     intro: '',
     subthemes: '',
-    coverUrl: ''
+    coverUrl: '',
+    isSpecial: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,11 +86,12 @@ export const JourneyForm: React.FC = () => {
         subthemes: subthemes_es,
         subthemes_en,
         subthemes_ca,
+        isSpecial: formData.isSpecial,
         createdAt: serverTimestamp()
       };
       console.log("Final journey data to add:", finalData);
       await addDoc(collection(db, 'journeys'), finalData);
-      setFormData({ title: '', country: '', intro: '', subthemes: '', coverUrl: '' });
+      setFormData({ title: '', country: '', intro: '', subthemes: '', coverUrl: '', isSpecial: false });
       alert("Viaje creado con éxito");
     } catch (error) {
       console.error(error);
@@ -145,6 +147,20 @@ export const JourneyForm: React.FC = () => {
             className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 resize-none"
             placeholder="Breve texto introductorio del viaje..."
           />
+        </div>
+        <div className="col-span-2">
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${formData.isSpecial ? 'bg-brand-accent border-brand-accent text-white' : 'border-gray-300 group-hover:border-brand-accent'}`}>
+              <input 
+                type="checkbox" 
+                className="hidden" 
+                checked={formData.isSpecial} 
+                onChange={e => setFormData(prev => ({ ...prev, isSpecial: e.target.checked }))} 
+              />
+              {formData.isSpecial && <Send size={14} className="rotate-45" />}
+            </div>
+            <span className="text-sm font-medium">Marcar como Sesión Especial (Sesiones ESP.)</span>
+          </label>
         </div>
       </div>
       <button
