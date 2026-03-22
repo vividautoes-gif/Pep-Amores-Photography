@@ -29,7 +29,7 @@ export const DB: Photo[] = [
 
 export const Strings = {
   es: { 
-    nav: ["Inicio", "Viajes", "Sesiones ESP.", "Explorar", "Favoritas", "LFI", "Contacto"], 
+    nav: ["Inicio", "Viajes", "Sesiones ESP.", "Explorar", "Favoritas", "LFI", "Mis Películas", "Contacto"], 
     titles: { 
       home: "Prestar Atención", 
       explore: "Explorar Archivo", 
@@ -80,7 +80,7 @@ export const Strings = {
     }
   },
   en: { 
-    nav: ["Home", "Journeys", "Special Sessions", "Explore", "Favorites", "LFI", "Contact"], 
+    nav: ["Home", "Journeys", "Special Sessions", "Explore", "Favorites", "LFI", "My Movies", "Contact"], 
     titles: { 
       home: "Paying Attention", 
       explore: "Explore Archive", 
@@ -131,7 +131,7 @@ export const Strings = {
     }
   },
   ca: { 
-    nav: ["Inici", "Viatges", "Sessions ESP.", "Explorar", "Preferides", "LFI", "Contacte"], 
+    nav: ["Inici", "Viatges", "Sessions ESP.", "Explorar", "Preferides", "LFI", "Les meves pel·lícules", "Contacte"], 
     titles: { 
       home: "Prestar Atenció", 
       explore: "Explorar Arxiu", 

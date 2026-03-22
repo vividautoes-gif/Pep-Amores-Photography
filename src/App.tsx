@@ -17,6 +17,7 @@ import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot 
 import InfiniteGallery from './components/ui/3d-gallery-photography';
 import { CardStack3D } from './components/ui/3d-flip-card';
 import { Footer } from './components/ui/footer-section';
+import { MyMovies } from './components/MyMovies';
 
 // --- Components ---
 
@@ -1078,6 +1079,12 @@ function Gallery() {
                   </div>
                 </div>
               </div>
+            </motion.section>
+          )}
+
+          {currentSection === 'my-movies' && (
+            <motion.section key="my-movies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <MyMovies lang={lang} />
             </motion.section>
           )}
 

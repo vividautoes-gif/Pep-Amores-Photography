@@ -69,8 +69,9 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
     { label: s.nav[4], id: 'favorites' },
     { label: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', id: 'latest' },
     { label: s.nav[5], id: 'lfi' },
+    { label: s.nav[6], id: 'my-movies' },
     { label: lang === 'es' ? 'Sobre mí' : lang === 'ca' ? 'Sobre mi' : 'About', id: 'about' },
-    { label: s.nav[6], id: 'contact' },
+    { label: s.nav[7], id: 'contact' },
   ];
 
   return (
