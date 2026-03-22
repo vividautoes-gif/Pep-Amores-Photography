@@ -27,6 +27,7 @@ const knownFor: Movie[] = [
     year: 2021,
     type: 'Cortometraje',
     role: 'Executive Producer / Producer / Co-creator',
+    image: 'https://i.imgur.com/PIY1uDo.jpg'
   },
   {
     id: 'kf2',
@@ -34,6 +35,7 @@ const knownFor: Movie[] = [
     year: 'En producción',
     type: 'Película',
     role: 'Executive Producer / Producer / Writer',
+    image: 'https://i.imgur.com/JBC3Og1.jpg'
   },
   {
     id: 'kf3',
@@ -42,6 +44,7 @@ const knownFor: Movie[] = [
     type: 'Película (Comedia / Documental)',
     score: 8.6,
     role: 'Executive Producer / Producer / Actor (como "Pep")',
+    image: 'https://i.imgur.com/oMW9tyb.jpg'
   },
   {
     id: 'kf4',
@@ -50,6 +53,7 @@ const knownFor: Movie[] = [
     type: 'Documental',
     score: 8.2,
     role: 'Producer',
+    image: 'https://i.imgur.com/7yL8kZc.jpg'
   }
 ];
 
@@ -77,6 +81,7 @@ const producerUpcoming: Movie[] = [
     type: 'Película',
     role: 'Executive Producer, Producer',
     status: 'In Production',
+    image: 'https://i.imgur.com/JBC3Og1.jpg'
   }
 ];
 
@@ -89,7 +94,8 @@ const producerPrevious: Movie[] = [
     role: 'Producer',
     score: 8.2,
     imdbLink: 'https://www.imdb.com/title/tt21441412/',
-    description: 'Documental musical sobre Juan Gómez "Chicuelo", compositor y guitarrista flamenco. Producido por Morris Films, dirigido por Luís Gibert. 5 candidaturas a las nominaciones de los Premios Goya 2023.'
+    description: 'Documental musical sobre Juan Gómez "Chicuelo", compositor y guitarrista flamenco. Producido por Morris Films, dirigido por Luís Gibert. 5 candidaturas a las nominaciones de los Premios Goya 2023.',
+    image: 'https://i.imgur.com/7yL8kZc.jpg'
   },
   {
     id: 'pp2',
@@ -98,7 +104,8 @@ const producerPrevious: Movie[] = [
     type: 'Cortometraje (Short)',
     role: 'Executive Producer / Producer',
     score: null,
-    description: 'Cortometraje co-creado por Pep Amores.'
+    description: 'Cortometraje co-creado por Pep Amores.',
+    image: 'https://i.imgur.com/PIY1uDo.jpg'
   },
   {
     id: 'pp3',
@@ -108,7 +115,8 @@ const producerPrevious: Movie[] = [
     role: 'Executive Producer / Producer',
     score: 8.6,
     imdbLink: 'https://www.imdb.com/title/tt14233396/',
-    description: 'Pep reúne a tres directores de informática, músicos amateur, para proponerles hacer una película que termine con un gran concierto que les lleve a la fama. Dirigida por Júlia Girós, Pol Picas y Nina Solà.'
+    description: 'Pep reúne a tres directores de informática, músicos amateur, para proponerles hacer una película que termine con un gran concierto que les lleve a la fama. Dirigida por Júlia Girós, Pol Picas y Nina Solà.',
+    image: 'https://i.imgur.com/oMW9tyb.jpg'
   },
   {
     id: 'pp4',
@@ -117,7 +125,8 @@ const producerPrevious: Movie[] = [
     type: 'TV Movie',
     role: 'Associate Producer',
     score: 6.8,
-    description: 'Película para televisión.'
+    description: 'Película para televisión.',
+    image: 'https://i.imgur.com/pA8cj4F.jpg'
   },
   {
     id: 'pp5',
@@ -126,7 +135,8 @@ const producerPrevious: Movie[] = [
     type: 'Película',
     role: 'Associate Producer',
     score: 7.5,
-    description: 'Película en la que Pep Amores participó como associate producer.'
+    description: 'Película en la que Pep Amores participó como associate producer.',
+    image: 'https://i.imgur.com/c0wNCTX.jpg'
   },
   {
     id: 'pp6',
@@ -136,7 +146,8 @@ const producerPrevious: Movie[] = [
     role: 'Associate Producer',
     score: 7.4,
     imdbLink: 'https://www.imdb.com/title/tt4521400/',
-    description: 'Película biográfica para televisión dirigida por Sílvia Quer, con Laia Marull y Fran Perea.'
+    description: 'Película biográfica para televisión dirigida por Sílvia Quer, con Laia Marull y Fran Perea.',
+    image: 'https://i.imgur.com/SPAkZId.jpg'
   },
   {
     id: 'pp7',
@@ -145,7 +156,8 @@ const producerPrevious: Movie[] = [
     type: 'Cortometraje (Short)',
     role: 'Executive Producer',
     score: null,
-    description: 'Cortometraje producido ejecutivamente por Pep Amores.'
+    description: 'Cortometraje producido ejecutivamente por Pep Amores.',
+    image: 'https://i.imgur.com/nrEI6Kw.jpg'
   },
   {
     id: 'pp8',
@@ -155,7 +167,8 @@ const producerPrevious: Movie[] = [
     role: 'Associate Producer',
     score: 7.2,
     imdbLink: 'https://www.imdb.com/title/tt2207519/',
-    description: 'Película biográfica para televisión sobre Concepción Arenal, pionera feminista y visitadora de cárceles en España. Dirigida por Laura Mañá, protagonizada por Blanca Portillo.'
+    description: 'Película biográfica para televisión sobre Concepción Arenal, pionera feminista y visitadora de cárceles en España. Dirigida por Laura Mañá, protagonizada por Blanca Portillo.',
+    image: 'https://i.imgur.com/RLUzUco.jpg'
   },
   {
     id: 'pp9',
@@ -165,7 +178,8 @@ const producerPrevious: Movie[] = [
     role: 'Associate Producer',
     score: 6.2,
     imdbLink: 'https://www.imdb.com/title/tt1986825/',
-    description: 'Película en la que Pep Amores participó tanto como associate producer como actor (papel de Miquel).'
+    description: 'Película en la que Pep Amores participó tanto como associate producer como actor (papel de Miquel).',
+    image: 'https://i.imgur.com/Ijmbr9a.jpg'
   },
   {
     id: 'pp10',
@@ -175,7 +189,8 @@ const producerPrevious: Movie[] = [
     role: 'Associate Producer',
     score: 6.8,
     imdbLink: 'https://www.imdb.com/title/tt1743229/',
-    description: 'Película biográfica para televisión sobre Clara Campoamor, la primera mujer en dirigirse a la asamblea constituyente de España defendiendo el sufragio femenino. Dirigida por Laura Mañá, con Elvira Mínguez y Antonio de la Torre.'
+    description: 'Película biográfica para televisión sobre Clara Campoamor, la primera mujer en dirigirse a la asamblea constituyente de España defendiendo el sufragio femenino. Dirigida por Laura Mañá, con Elvira Mínguez y Antonio de la Torre.',
+    image: 'https://i.imgur.com/Q0ZCGoC.jpg'
   },
   {
     id: 'pp11',
@@ -185,7 +200,8 @@ const producerPrevious: Movie[] = [
     role: 'Associate Producer',
     score: 6.2,
     imdbLink: 'https://www.imdb.com/title/tt1525915/',
-    description: 'Comedia biográfica sobre Manuel Vázquez, el mejor dibujante de cómics de la España de los años 60. Dirigida por Óscar Aibar, protagonizada por Santiago Segura. Nominada al Goya al mejor actor secundario. Presentada en el Festival de San Sebastián 2010.'
+    description: 'Comedia biográfica sobre Manuel Vázquez, el mejor dibujante de cómics de la España de los años 60. Dirigida por Óscar Aibar, protagonizada por Santiago Segura. Nominada al Goya al mejor actor secundario. Presentada en el Festival de San Sebastián 2010.',
+    image: 'https://i.imgur.com/W5z97sw.jpg'
   }
 ];
 
@@ -198,7 +214,8 @@ const actorPrevious: Movie[] = [
     role: 'Actor',
     character: 'Pep',
     score: 8.6,
-    imdbLink: 'https://www.imdb.com/title/tt14233396/'
+    imdbLink: 'https://www.imdb.com/title/tt14233396/',
+    image: 'https://i.imgur.com/oMW9tyb.jpg'
   },
   {
     id: 'ap2',
@@ -208,7 +225,8 @@ const actorPrevious: Movie[] = [
     role: 'Actor',
     character: 'Aduladors',
     score: 7.4,
-    imdbLink: 'https://www.imdb.com/title/tt4521400/'
+    imdbLink: 'https://www.imdb.com/title/tt4521400/',
+    image: 'https://i.imgur.com/SPAkZId.jpg'
   },
   {
     id: 'ap3',
@@ -218,7 +236,8 @@ const actorPrevious: Movie[] = [
     role: 'Actor',
     character: 'Juez 2',
     score: 7.2,
-    imdbLink: 'https://www.imdb.com/title/tt2207519/'
+    imdbLink: 'https://www.imdb.com/title/tt2207519/',
+    image: 'https://i.imgur.com/RLUzUco.jpg'
   },
   {
     id: 'ap4',
@@ -228,7 +247,8 @@ const actorPrevious: Movie[] = [
     role: 'Actor',
     character: 'Miquel',
     score: 6.2,
-    imdbLink: 'https://www.imdb.com/title/tt1986825/'
+    imdbLink: 'https://www.imdb.com/title/tt1986825/',
+    image: 'https://i.imgur.com/Ijmbr9a.jpg'
   },
   {
     id: 'ap5',
@@ -238,7 +258,8 @@ const actorPrevious: Movie[] = [
     role: 'Actor',
     character: 'Suárez Picallo',
     score: 6.8,
-    imdbLink: 'https://www.imdb.com/title/tt1743229/'
+    imdbLink: 'https://www.imdb.com/title/tt1743229/',
+    image: 'https://i.imgur.com/Q0ZCGoC.jpg'
   }
 ];
 
@@ -249,7 +270,8 @@ const writerUpcoming: Movie[] = [
     year: 'Desconocida',
     type: 'Película',
     role: 'Writer',
-    status: 'In Production'
+    status: 'In Production',
+    image: 'https://i.imgur.com/JBC3Og1.jpg'
   }
 ];
 
@@ -260,7 +282,8 @@ const writerPrevious: Movie[] = [
     year: 2021,
     type: 'Cortometraje (Short)',
     role: 'Co-creator (Creator)',
-    score: null
+    score: null,
+    image: 'https://i.imgur.com/PIY1uDo.jpg'
   }
 ];
 
