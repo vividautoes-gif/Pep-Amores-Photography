@@ -998,7 +998,15 @@ function Gallery() {
             <motion.section key="lfi" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
                 <h1 className="text-6xl font-serif italic mb-4 tracking-tighter">{s.titles.lfi}</h1>
-                <p className="text-brand-secondary font-light mb-12">{s.subtitles.lfi}</p>
+                <p className="text-brand-secondary font-light mb-4">{s.subtitles.lfi}</p>
+                <a 
+                  href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-block text-leica-red hover:underline font-medium mb-12"
+                >
+                  {lang === 'es' ? 'Ver perfil de Pep Amores en Leica' : lang === 'ca' ? 'Veure perfil de Pep Amores a Leica' : 'View Pep Amores profile on Leica'}
+                </a>
                 <div className="flex justify-center gap-4 mb-12">
                   {['all', 'lfimastershot', 'lfiexhibition', 'lfi-picture-of-the-week'].map(type => (
                     <button key={type} onClick={() => setLfiFilter(type as any)} className={cn("px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", lfiFilter === type ? "bg-leica-red text-white border-leica-red" : "bg-white text-brand-secondary border-neutral-200 hover:border-leica-red hover:text-leica-red")}>

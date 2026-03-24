@@ -7,7 +7,7 @@ export interface Review {
   name: string;
   text: string;
   createdAt: any;
-  approved: boolean;
+  isApproved: boolean;
 }
 
 export function useReviews(isAdmin: boolean = false) {
@@ -28,7 +28,7 @@ export function useReviews(isAdmin: boolean = false) {
       })) as Review[];
       
       // If admin, show all. If public, only approved.
-      setReviews(isAdmin ? reviewsData : reviewsData.filter(r => r.approved));
+      setReviews(isAdmin ? reviewsData : reviewsData.filter(r => r.isApproved));
       setLoading(false);
     }, (err) => {
       handleFirestoreError(err, OperationType.GET, 'reviews');
@@ -45,7 +45,7 @@ export function useReviews(isAdmin: boolean = false) {
         name,
         text,
         createdAt: serverTimestamp(),
-        approved: false // Default to false for moderation
+        isApproved: false // Default to false for moderation
       });
       return { success: true };
     } catch (err) {
@@ -54,10 +54,10 @@ export function useReviews(isAdmin: boolean = false) {
     }
   };
 
-  const approveReview = async (id: string, approved: boolean) => {
+  const approveReview = async (id: string, isApproved: boolean) => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore');
-      await updateDoc(doc(db, 'reviews', id), { approved });
+      await updateDoc(doc(db, 'reviews', id), { isApproved });
       return { success: true };
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, 'reviews');

@@ -23,8 +23,8 @@ export const ReviewManager: React.FC = () => {
     );
   }
 
-  const pendingReviews = reviews.filter(r => !r.approved);
-  const approvedReviews = reviews.filter(r => r.approved);
+  const pendingReviews = reviews.filter(r => !r.isApproved);
+  const approvedReviews = reviews.filter(r => r.isApproved);
 
   const ReviewCard = ({ review, isPending }: { review: Review, isPending: boolean }) => (
     <motion.div
