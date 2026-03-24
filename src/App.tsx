@@ -6,6 +6,7 @@ import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
 import { Lightbox } from './components/Lightbox';
 import { CommentSection } from './components/CommentSection';
+import { ReviewsSection } from './components/ReviewsSection';
 import { FlowButton } from './components/ui/flow-button';
 import { AdminPage } from './pages/AdminPage';
 import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
@@ -668,6 +669,8 @@ function Gallery() {
                 </div>
               </section>
 
+              <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
+
               {/* Featured Journeys */}
               <section className="w-full py-24 bg-white">
                 <div className="container mx-auto px-6">
@@ -1122,6 +1125,27 @@ function Gallery() {
                   </div>
                 </div>
               </div>
+              
+              <div className="mt-24">
+                <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
+              </div>
+            </motion.section>
+          )}
+
+          {currentSection === 'reviews' && (
+            <motion.section key="all-reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+              <div className="text-center mb-16">
+                <h1 className="text-5xl font-serif italic mb-4">
+                  {lang === 'es' ? 'Todas las Reseñas' : lang === 'en' ? 'All Reviews' : 'Totes les Ressenyes'}
+                </h1>
+                <button 
+                  onClick={() => setCurrentSection('home')}
+                  className="text-xs font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors"
+                >
+                  {lang === 'es' ? 'Volver al inicio' : lang === 'en' ? 'Back to home' : 'Tornar a l\'inici'}
+                </button>
+              </div>
+              <ReviewsSection lang={lang} showSeeMore={false} />
             </motion.section>
           )}
 

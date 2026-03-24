@@ -103,6 +103,13 @@ service cloud.firestore {
              data.createdAt == request.time;
     }
 
+    function isValidReview(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 2000 &&
+             data.isApproved == false &&
+             data.createdAt == request.time;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -162,6 +169,13 @@ service cloud.firestore {
     match /home_collections/{collectionId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true; // Public reviews
+      allow create: if isValidReview(request.resource.data);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /stats/{statId} {
