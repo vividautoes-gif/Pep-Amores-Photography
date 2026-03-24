@@ -1,11 +1,160 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-brand-primary: #111111;
+  --color-brand-secondary: #757575;
+  --color-brand-tertiary: #B45309;
+  --color-brand-accent: #B45309;
+  --color-leica-red: #E11B22;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+
+  @keyframes beam {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes aurora {
+    from { background-position: 50% 50%, 50% 50%; }
+    to { background-position: 350% 50%, 350% 50%; }
+  }
+  --animate-aurora: aurora 60s linear infinite;
+
+  @keyframes shutterBladeSwing {
+    0%   { transform: rotate(0deg); }
+    30%  { transform: rotate(var(--shutter-open-angle)); }
+    70%  { transform: rotate(var(--shutter-open-angle)); }
+    100% { transform: rotate(0deg); }
+  }
+  --animate-shutter-blade-swing: shutterBladeSwing 1.8s ease-in-out infinite;
+
+  @keyframes shutterGlobalRotate {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  --animate-shutter-global-rotate: shutterGlobalRotate 8s linear infinite;
 }
 
-body {
-  font-family: var(--font-sans);
-  background-color: #f9fafb;
-  color: #111827;
+@layer components {
+  /* ----------------------------------------------------------
+     ROOT CONTAINER
+     ---------------------------------------------------------- */
+  .shutter-spinner {
+    /* Theming: override via inline style or parent class */
+    color: #111111;
+  }
+
+  /* ----------------------------------------------------------
+     OUTER RING — thin lens-barrel border
+     ---------------------------------------------------------- */
+  .shutter-spinner > .shutter-ring {
+    border: 2px solid currentColor;
+    opacity: 0.15;
+    border-radius: 9999px;
+    pointer-events: none;
+  }
+
+  /* ----------------------------------------------------------
+     JUSTIFIED IMAGE GRID
+     ---------------------------------------------------------- */
+  .justified-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Margen constante */
+  }
+  
+  /* Pseudo-elemento para evitar que la última fila se expanda desproporcionadamente */
+  .justified-gallery::after {
+    content: '';
+    flex-grow: 999999999;
+    min-width: 200px;
+    height: 0;
+  }
+
+  .justified-item {
+    /* Alturas base responsivas */
+    --target-height: 150px;
+    
+    /* El flex-grow y flex-basis dependen del aspect-ratio calculado */
+    flex-grow: var(--aspect-ratio, 1);
+    flex-basis: calc(var(--target-height) * var(--aspect-ratio, 1));
+    
+    /* Mantenemos la altura controlada por el aspect-ratio y el ancho */
+    height: auto;
+    aspect-ratio: var(--aspect-ratio, 1);
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .justified-item {
+      --target-height: 160px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .justified-item {
+      --target-height: 200px;
+    }
+  }
+
+  /* En móvil, forzamos un tamaño más pequeño para que se adapten bien */
+  @media (max-width: 767px) {
+    .justified-item {
+      --target-height: 120px;
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-black text-brand-primary antialiased selection:bg-brand-primary selection:text-white;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  img {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-md bg-white/70 border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-md bg-black/40 border border-white/10;
+  }
+
+  .mesh-gradient {
+    background-color: #ffffff;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
