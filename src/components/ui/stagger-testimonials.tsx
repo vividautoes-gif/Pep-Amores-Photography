@@ -43,12 +43,12 @@ export function StaggerTestimonials({ testimonials, className }: StaggerTestimon
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="w-full flex flex-col items-center text-center"
           >
-            <Quote className="w-12 h-12 text-primary/20 mb-6" />
+            <Quote className="w-12 h-12 text-brand-primary/20 mb-6" />
             <p className="text-xl md:text-2xl font-serif italic text-foreground leading-relaxed mb-8">
               "{testimonials[currentIndex].text}"
             </p>
             <div className="flex flex-col items-center">
-              <div className="w-12 h-px bg-primary/30 mb-4" />
+              <div className="w-12 h-px bg-brand-tertiary mb-4" />
               <h4 className="text-lg font-medium tracking-wide uppercase">
                 {testimonials[currentIndex].name}
               </h4>
@@ -61,7 +61,7 @@ export function StaggerTestimonials({ testimonials, className }: StaggerTestimon
       <div className="flex justify-center gap-4 mt-8">
         <button
           onClick={prev}
-          className="p-2 rounded-full border border-primary/20 hover:bg-primary/5 transition-colors"
+          className="p-2 rounded-full border border-brand-primary/20 hover:bg-brand-primary/5 transition-colors"
           aria-label="Previous testimonial"
         >
           <ChevronLeft className="w-6 h-6" />
@@ -76,14 +76,14 @@ export function StaggerTestimonials({ testimonials, className }: StaggerTestimon
               }}
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-300",
-                idx === currentIndex ? "w-6 bg-primary" : "bg-primary/20"
+                idx === currentIndex ? "w-6 bg-brand-primary" : "bg-brand-primary/20"
               )}
             />
           ))}
         </div>
         <button
           onClick={next}
-          className="p-2 rounded-full border border-primary/20 hover:bg-primary/5 transition-colors"
+          className="p-2 rounded-full border border-brand-primary/20 hover:bg-brand-primary/5 transition-colors"
           aria-label="Next testimonial"
         >
           <ChevronRight className="w-6 h-6" />

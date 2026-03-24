@@ -48,7 +48,7 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
           <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
             {lang === 'es' ? 'Reseñas' : lang === 'en' ? 'Reviews' : 'Ressenyes'}
           </h2>
-          <div className="w-24 h-1 bg-brand-primary mx-auto opacity-20" />
+          <div className="w-24 h-1 bg-brand-tertiary mx-auto" />
         </div>
 
         {loading ? (
@@ -77,7 +77,7 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
         )}
 
         {/* Submission Form */}
-        <div className="max-w-2xl mx-auto mt-24 pt-24 border-t border-brand-primary/10">
+        <div className="max-w-2xl mx-auto mt-24 pt-24 border-t border-brand-tertiary">
           <div className="text-center mb-12">
             <h3 className="text-2xl font-serif italic mb-2">
               {lang === 'es' ? 'Deja tu reseña' : lang === 'en' ? 'Leave a review' : 'Deixa la teva ressenya'}
