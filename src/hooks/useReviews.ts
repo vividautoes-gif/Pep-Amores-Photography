@@ -10,7 +10,7 @@ export interface Review {
   approved: boolean;
 }
 
-export function useReviews() {
+export function useReviews(isAdmin: boolean = false) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +27,8 @@ export function useReviews() {
         ...doc.data()
       })) as Review[];
       
-      // Only show approved reviews in the public UI
-      setReviews(reviewsData.filter(r => r.approved));
+      // If admin, show all. If public, only approved.
+      setReviews(isAdmin ? reviewsData : reviewsData.filter(r => r.approved));
       setLoading(false);
     }, (err) => {
       handleFirestoreError(err, OperationType.GET, 'reviews');
@@ -37,7 +37,7 @@ export function useReviews() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isAdmin]);
 
   const addReview = async (name: string, text: string) => {
     try {
@@ -54,5 +54,27 @@ export function useReviews() {
     }
   };
 
-  return { reviews, loading, error, addReview };
+  const approveReview = async (id: string, approved: boolean) => {
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      await updateDoc(doc(db, 'reviews', id), { approved });
+      return { success: true };
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, 'reviews');
+      return { success: false, error: err };
+    }
+  };
+
+  const deleteReview = async (id: string) => {
+    try {
+      const { doc, deleteDoc } = await import('firebase/firestore');
+      await deleteDoc(doc(db, 'reviews', id));
+      return { success: true };
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, 'reviews');
+      return { success: false, error: err };
+    }
+  };
+
+  return { reviews, loading, error, addReview, approveReview, deleteReview };
 }

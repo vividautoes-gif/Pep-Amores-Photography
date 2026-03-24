@@ -42,27 +42,27 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
   const t = Strings[lang];
 
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
+    <section className="py-24 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-serif tracking-tight mb-4">
+          <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
             {lang === 'es' ? 'Reseñas' : lang === 'en' ? 'Reviews' : 'Ressenyes'}
           </h2>
-          <div className="w-24 h-1 bg-primary mx-auto opacity-20" />
+          <div className="w-24 h-1 bg-brand-primary mx-auto opacity-20" />
         </div>
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary/40" />
+            <Loader2 className="w-8 h-8 animate-spin text-brand-primary/40" />
           </div>
         ) : error ? (
-          <div className="text-center text-destructive py-12">
+          <div className="text-center text-red-600 py-12">
             {error}
           </div>
         ) : reviews.length > 0 ? (
           <StaggerTestimonials testimonials={reviews} />
         ) : (
-          <div className="text-center text-muted-foreground py-12 italic">
+          <div className="text-center text-brand-secondary py-12 italic">
             {lang === 'es' ? 'Aún no hay reseñas aprobadas.' : lang === 'en' ? 'No approved reviews yet.' : 'Encara no hi ha ressenyes aprovades.'}
           </div>
         )}
@@ -77,19 +77,19 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
         )}
 
         {/* Submission Form */}
-        <div className="max-w-2xl mx-auto mt-24 pt-24 border-t border-primary/10">
+        <div className="max-w-2xl mx-auto mt-24 pt-24 border-t border-brand-primary/10">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-serif mb-2">
+            <h3 className="text-2xl font-serif italic mb-2">
               {lang === 'es' ? 'Deja tu reseña' : lang === 'en' ? 'Leave a review' : 'Deixa la teva ressenya'}
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-brand-secondary">
               {lang === 'es' ? 'Comparte tu experiencia conmigo.' : lang === 'en' ? 'Share your experience with me.' : 'Comparteix la teva experiència amb mi.'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium uppercase tracking-wider opacity-60">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
                 {t.labels.name}
               </label>
               <input
@@ -97,12 +97,12 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full bg-transparent border-b border-primary/20 py-3 focus:outline-none focus:border-primary transition-colors"
+                className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none"
                 placeholder={lang === 'es' ? 'Tu nombre' : lang === 'en' ? 'Your name' : 'El teu nom'}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium uppercase tracking-wider opacity-60">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
                 {lang === 'es' ? 'Reseña' : lang === 'en' ? 'Review' : 'Ressenya'}
               </label>
               <textarea
@@ -110,7 +110,7 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
                 onChange={(e) => setText(e.target.value)}
                 required
                 rows={4}
-                className="w-full bg-transparent border border-primary/10 rounded-lg p-4 focus:outline-none focus:border-primary transition-colors resize-none"
+                className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none resize-none"
                 placeholder={lang === 'es' ? 'Escribe aquí tu experiencia...' : lang === 'en' ? 'Write your experience here...' : 'Escriu aquí la teva experiència...'}
               />
             </div>
@@ -121,10 +121,10 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex items-center justify-center gap-2 text-green-600 bg-green-50 py-4 rounded-lg"
+                  className="flex items-center justify-center gap-2 text-green-600 bg-green-50 py-4 rounded-xl"
                 >
                   <CheckCircle2 className="w-5 h-5" />
-                  <span>
+                  <span className="text-sm font-medium">
                     {lang === 'es' ? '¡Gracias! Tu reseña aparecerá tras ser moderada.' : lang === 'en' ? 'Thank you! Your review will appear after moderation.' : 'Gràcies! La teva ressenya apareixerà després de ser moderada.'}
                   </span>
                 </motion.div>
@@ -133,24 +133,24 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex items-center justify-center gap-2 text-destructive bg-destructive/5 py-4 rounded-lg"
+                  className="flex items-center justify-center gap-2 text-red-600 bg-red-50 py-4 rounded-xl"
                 >
                   <AlertCircle className="w-5 h-5" />
-                  <span>{submitError}</span>
+                  <span className="text-sm font-medium">{submitError}</span>
                 </motion.div>
               ) : (
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   disabled={submitting}
-                  className="w-full bg-primary text-primary-foreground py-4 rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
+                  className="w-full bg-brand-primary text-white py-4 rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-all hover:bg-zinc-800"
                 >
                   {submitting ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      <span>{lang === 'es' ? 'Enviar reseña' : lang === 'en' ? 'Send review' : 'Enviar ressenya'}</span>
+                      <span className="uppercase tracking-widest text-xs font-bold">{lang === 'es' ? 'Enviar reseña' : lang === 'en' ? 'Send review' : 'Enviar ressenya'}</span>
                     </>
                   )}
                 </motion.button>

@@ -5,7 +5,7 @@ import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { Login } from '../components/Admin/Login';
 import { UploadForm } from '../components/Admin/UploadForm';
 import { motion } from 'motion/react';
-import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert, Layers, Hash, Star, Award, Mail } from 'lucide-react';
+import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert, Layers, Hash, Star, Award, Mail, MessageSquare } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { JourneyForm } from '../components/Admin/JourneyForm';
 import { HeroSelector } from '../components/Admin/HeroSelector';
@@ -19,13 +19,14 @@ import { RecentPhotosManager } from '../components/Admin/RecentPhotosManager';
 import { LFIManager } from '../components/Admin/LFIManager';
 import { AboutMeEditor } from '../components/Admin/AboutMeEditor';
 import { ContactMessages } from '../components/Admin/ContactMessages';
+import { ReviewManager } from '../components/Admin/ReviewManager';
 import { HomeCollectionsManager } from '../components/Admin/HomeCollectionsManager';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos' | 'manage-journeys' | 'manage-albums' | 'manage-tags' | 'manage-favorites' | 'manage-recent' | 'manage-lfi' | 'manage-about' | 'manage-messages' | 'manage-home-collections'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos' | 'manage-journeys' | 'manage-albums' | 'manage-tags' | 'manage-favorites' | 'manage-recent' | 'manage-lfi' | 'manage-about' | 'manage-messages' | 'manage-home-collections' | 'manage-reviews'>('photos');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [visitorCount, setVisitorCount] = useState<number>(0);
 
@@ -241,6 +242,13 @@ export const AdminPage: React.FC = () => {
                 <Mail size={18} />
                 Mensajes
               </button>
+              <button 
+                onClick={() => setActiveTab('manage-reviews')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-reviews' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <MessageSquare size={18} />
+                Reseñas
+              </button>
             </nav>
           </aside>
 
@@ -268,6 +276,7 @@ export const AdminPage: React.FC = () => {
                   {activeTab === 'manage-about' && 'Sobre Mí'}
                   {activeTab === 'manage-home-collections' && 'Home Colecciones'}
                   {activeTab === 'manage-messages' && 'Mensajes'}
+                  {activeTab === 'manage-reviews' && 'Gestionar Reseñas'}
                 </h2>
                 <p className="text-gray-500">
                   {activeTab === 'photos' && 'Sube una imagen y completa los metadatos.'}
@@ -284,6 +293,7 @@ export const AdminPage: React.FC = () => {
                   {activeTab === 'manage-about' && 'Edita tu biografía y perfil.'}
                   {activeTab === 'manage-home-collections' && 'Selecciona las 4 fotos para cada álbum de la Home.'}
                   {activeTab === 'manage-messages' && 'Lee los mensajes recibidos.'}
+                  {activeTab === 'manage-reviews' && 'Aprobar o eliminar reseñas de clientes.'}
                 </p>
               </div>
               
@@ -301,6 +311,7 @@ export const AdminPage: React.FC = () => {
               {activeTab === 'manage-about' && <AboutMeEditor />}
               {activeTab === 'manage-home-collections' && <HomeCollectionsManager />}
               {activeTab === 'manage-messages' && <ContactMessages />}
+              {activeTab === 'manage-reviews' && <ReviewManager />}
             </motion.div>
           </section>
         </div>
