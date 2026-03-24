@@ -11,13 +11,14 @@ import { AdminPage } from './pages/AdminPage';
 import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
 import { Strings } from './data';
 import { cn, formatDate } from './lib/utils';
-import { db, auth } from './firebase';
-import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { db, auth, handleFirestoreError, OperationType } from './firebase';
+import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, doc } from 'firebase/firestore';
 
 import InfiniteGallery from './components/ui/3d-gallery-photography';
 import { CardStack3D } from './components/ui/3d-flip-card';
 import { Footer } from './components/ui/footer-section';
 import { MyMovies } from './components/MyMovies';
+import { CookieBanner } from './components/CookieBanner';
 
 // --- Components ---
 
@@ -221,12 +222,22 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
   render() {
     if (this.state.hasError) {
+      let errorMessage = "Ha ocurrido un error inesperado al renderizar la página.";
+      try {
+        const parsed = JSON.parse(this.state.error?.message || "");
+        if (parsed.error && parsed.operationType) {
+          errorMessage = `Error de Firestore (${parsed.operationType} en ${parsed.path}): ${parsed.error}`;
+        }
+      } catch (e) {
+        errorMessage = this.state.error?.message || errorMessage;
+      }
+
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
           <AlertTriangle size={48} className="text-red-500 mb-4" />
           <h1 className="text-2xl font-serif italic mb-2">Algo ha salido mal</h1>
           <p className="text-brand-secondary mb-6 max-w-md">
-            {this.state.error?.message || "Ha ocurrido un error inesperado al renderizar la página."}
+            {errorMessage}
           </p>
           <FlowButton 
             onClick={() => window.location.reload()} 
@@ -245,14 +256,45 @@ function Gallery() {
   const { photos: rawPhotos, loading: photosLoading, error: photosError } = usePhotos();
   const { journeys: rawJourneys, loading: journeysLoading } = useJourneys();
   
+  const [homeCollections, setHomeCollections] = useState<Record<string, string[]>>({});
+  const [homeCollectionsLoading, setHomeCollectionsLoading] = useState(true);
+
+  useEffect(() => {
+    const path = 'home_collections';
+    const unsub = onSnapshot(collection(db, path), { includeMetadataChanges: true }, (snap) => {
+      const data: Record<string, string[]> = {};
+      snap.docs.forEach(doc => {
+        data[doc.id] = doc.data().imageUrls || [];
+      });
+      setHomeCollections(data);
+      
+      // Only stop loading if we have data OR if it's not from cache
+      if (snap.docs.length > 0 || !snap.metadata.fromCache) {
+        setHomeCollectionsLoading(false);
+      }
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, path);
+      setHomeCollectionsLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  const getCollectionImages = (id: string, defaultImages: { src: string, alt: string }[]) => {
+    const custom = homeCollections[id];
+    if (custom && custom.length === 4) {
+      return custom.map(url => ({ src: url, alt: id }));
+    }
+    return defaultImages;
+  };
+
   const loading = photosLoading || journeysLoading;
   
   // Sanitización de datos: Asegurarse de que las fotos tengan URL y los campos necesarios
   const realDB = useMemo(() => rawPhotos.filter(p => p && p.url && p.id), [rawPhotos]);
   const realJDB = useMemo(() => rawJourneys.filter(j => j && j.id && j.title), [rawJourneys]);
 
-  const DB = realDB.length > 0 ? realDB : MOCK_DB;
-  const JDB = realJDB.length > 0 ? realJDB : MOCK_JDB;
+  const DB = realDB;
+  const JDB = realJDB;
 
   const journeysOnly = useMemo(() => JDB.filter(j => !j.isSpecial), [JDB]);
   const specialSessionsOnly = useMemo(() => JDB.filter(j => j.isSpecial), [JDB]);
@@ -265,7 +307,8 @@ function Gallery() {
       ? DB.filter(p => p.isHero).map(p => ({ src: p.url, alt: p.title }))
       : DB.map(p => ({ src: p.url, alt: p.title }));
     
-    if (dbImages.length === 0) {
+    if (dbImages.length === 0 && !photosLoading && realDB.length === 0) {
+      // Only use preview items if we are sure there are no real photos at all
       dbImages = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
     }
 
@@ -312,7 +355,17 @@ function Gallery() {
 
   const allTags = useMemo(() => {
     if (!DB) return [];
-    return [...new Set(DB.flatMap(p => Array.isArray(p.tags) ? p.tags.filter(t => typeof t === 'string') : []))].sort();
+    const tagsSet = new Set<string>();
+    DB.forEach(p => {
+      if (Array.isArray(p.tags)) {
+        p.tags.forEach(t => {
+          if (typeof t === 'string') {
+            tagsSet.add(t.toLowerCase());
+          }
+        });
+      }
+    });
+    return Array.from(tagsSet).sort();
   }, [DB]);
 
   const filteredPhotos = useMemo(() => {
@@ -320,13 +373,13 @@ function Gallery() {
     return DB.filter(p => {
       const query = searchQuery.toLowerCase();
       const title = lang === 'es' ? p.title : lang === 'en' ? p.title_en : p.title_ca;
-      const tags = Array.isArray(p.tags) ? p.tags.filter(t => typeof t === 'string') : [];
+      const tags = Array.isArray(p.tags) ? p.tags.filter(t => typeof t === 'string').map(t => t.toLowerCase()) : [];
       const matchText = (title || '').toLowerCase().includes(query) || 
                         (p.country || '').toLowerCase().includes(query) || 
                         (p.city || '').toLowerCase().includes(query) ||
-                        tags.some(t => t.toLowerCase().includes(query));
+                        tags.some(t => t.includes(query));
       
-      const activeFiltersArray = Array.from(activeFilters);
+      const activeFiltersArray = Array.from(activeFilters).map(t => t.toLowerCase());
       const matchTags = activeFiltersArray.length === 0 ? true :
         filterLogic === 'and'
           ? activeFiltersArray.every((t: string) => tags.includes(t))
@@ -369,7 +422,7 @@ function Gallery() {
     return DB;
   }, [currentSection, filteredPhotos, DB, selectedJourney, lfiFilter]);
 
-  if (photosLoading && realDB.length === 0) {
+  if (photosLoading || journeysLoading || homeCollectionsLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <motion.div
@@ -384,13 +437,19 @@ function Gallery() {
   }
 
   if (photosError) {
+    let errorMessage = photosError.message;
+    try {
+      const parsed = JSON.parse(photosError.message);
+      if (parsed.error) errorMessage = parsed.error;
+    } catch (e) {}
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
         <AlertTriangle size={48} className="text-brand-accent mb-4" />
         <h1 className="text-2xl font-serif italic mb-2">
           {lang === 'es' ? 'Error de conexión' : lang === 'ca' ? 'Error de connexió' : 'Connection Error'}
         </h1>
-        <p className="text-brand-secondary mb-6 max-w-md">{photosError.message}</p>
+        <p className="text-brand-secondary mb-6 max-w-md">{errorMessage}</p>
         <FlowButton 
           onClick={() => window.location.reload()} 
           text={lang === 'es' ? 'Reintentar' : lang === 'ca' ? 'Reintentar' : 'Retry'}
@@ -407,8 +466,9 @@ function Gallery() {
     }
 
     setIsSending(true);
+    const path = 'messages';
     try {
-      await addDoc(collection(db, 'messages'), {
+      await addDoc(collection(db, path), {
         ...contactForm,
         subject: 'Contacto desde la web',
         isRead: false,
@@ -417,7 +477,7 @@ function Gallery() {
       setContactForm({ name: '', email: '', message: '' });
       alert(lang === 'es' ? 'Mensaje enviado correctamente.' : lang === 'ca' ? 'Missatge enviat correctament.' : 'Message sent successfully.');
     } catch (error) {
-      console.error("Error sending message:", error);
+      handleFirestoreError(error, OperationType.WRITE, path);
       alert(lang === 'es' ? 'Error al enviar el mensaje.' : lang === 'ca' ? 'Error en enviar el missatge.' : 'Error sending message.');
     } finally {
       setIsSending(false);
@@ -484,9 +544,6 @@ function Gallery() {
                     <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
                       {lang === 'es' ? 'Explorar Colecciones' : lang === 'en' ? 'Explore Collections' : 'Explorar Col·leccions'}
                     </h2>
-                    <p className="text-brand-secondary font-light max-w-xl mx-auto">
-                      {lang === 'es' ? 'Descubre el archivo a través de nuestras selecciones temáticas.' : lang === 'en' ? 'Discover the archive through our thematic selections.' : 'Descobreix l\'arxiu a través de les nostres seleccions temàtiques.'}
-                    </p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
                     {[
@@ -494,56 +551,42 @@ function Gallery() {
                         id: 'journeys', 
                         title: s.nav[1], 
                         desc: lang === 'es' ? 'Colecciones' : lang === 'ca' ? 'Col·leccions' : 'Collections',
-                        images: journeysOnly.slice(0, 4).map(j => ({ src: j.coverUrl || DB[0]?.url, alt: j.title })),
+                        images: getCollectionImages('journeys', journeysOnly.slice(0, 4).map(j => ({ src: j.coverUrl || (DB.length > 0 ? DB[0].url : ''), alt: j.title }))),
                         count: journeysOnly.length
                       },
                       { 
                         id: 'special-sessions', 
                         title: s.nav[2], 
                         desc: lang === 'es' ? 'Sesiones Especiales' : lang === 'ca' ? 'Sessions Especiales' : 'Special Sessions',
-                        images: specialSessionsOnly.slice(0, 4).map(j => ({ src: j.coverUrl || DB[0]?.url, alt: j.title })),
+                        images: getCollectionImages('special-sessions', specialSessionsOnly.slice(0, 4).map(j => ({ src: j.coverUrl || (DB.length > 0 ? DB[0].url : ''), alt: j.title }))),
                         count: specialSessionsOnly.length
                       },
                       { 
                         id: 'explore', 
                         title: s.nav[3], 
                         desc: lang === 'es' ? 'Archivo completo' : lang === 'ca' ? 'Arxiu complet' : 'Full archive',
-                        images: DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
+                        images: getCollectionImages('explore', DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
                         count: DB.length
                       },
                       { 
                         id: 'favorites', 
                         title: s.nav[4], 
                         desc: lang === 'es' ? 'Selección' : lang === 'ca' ? 'Selecció' : 'Selection',
-                        images: DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
+                        images: getCollectionImages('favorites', DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
                         count: DB.filter(p => p.isFavorite).length
                       },
                       { 
                         id: 'latest', 
                         title: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', 
                         desc: lang === 'es' ? 'Recientes' : lang === 'ca' ? 'Recents' : 'Recent',
-                        images: DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title })),
+                        images: getCollectionImages('latest', DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
                         count: Math.min(DB.length, 50)
                       },
                       { 
                         id: 'lfi', 
                         title: s.nav[5], 
                         desc: 'Leica Gallery',
-                        images: DB.filter(p => p.isLFI)
-                          .sort((a, b) => {
-                            const getTime = (dateInput: any) => {
-                              if (!dateInput) return 0;
-                              try {
-                                const date = typeof dateInput.toDate === 'function' ? dateInput.toDate() : new Date(dateInput);
-                                return isNaN(date.getTime()) ? 0 : date.getTime();
-                              } catch (e) {
-                                return 0;
-                              }
-                            };
-                            return getTime(b.lfiDate) - getTime(a.lfiDate);
-                          })
-                          .slice(0, 4)
-                          .map(p => ({ src: p.url, alt: p.title })),
+                        images: getCollectionImages('lfi', DB.filter(p => p.isLFI).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
                         count: DB.filter(p => p.isLFI).length
                       },
                       { 
@@ -592,8 +635,8 @@ function Gallery() {
                         ? item.images.slice(0, 4) 
                         : [...item.images, ...DB.slice(0, 4 - item.images.length).map(p => ({ src: p.url, alt: p.title }))];
                       
-                      // Si aún no hay 4 (porque la base de datos está vacía o tiene pocas fotos), usamos PREVIEW_ITEMS
-                      if (stackImages.length < 4) {
+                      // Si aún no hay 4 (porque la base de datos está vacía o tiene pocas fotos), usamos PREVIEW_ITEMS solo si realDB está vacío
+                      if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
                         const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
                         // Rotamos el array de fallback según el índice para que cada carpeta muestre fotos distintas
                         const rotatedFallback = [...fallback.slice(index % fallback.length), ...fallback.slice(0, index % fallback.length)];
@@ -645,7 +688,7 @@ function Gallery() {
                       const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
                       let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
                       
-                      if (stackImages.length < 4) {
+                      if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
                         const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
                         const rotatedFallback = [...fallback.slice(journeysOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, journeysOnly.indexOf(journey) % fallback.length)];
                         stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
@@ -692,7 +735,7 @@ function Gallery() {
                   const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
                   let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
                   
-                  if (stackImages.length < 4) {
+                  if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
                     const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
                     const rotatedFallback = [...fallback.slice(journeysOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, journeysOnly.indexOf(journey) % fallback.length)];
                     stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
@@ -737,7 +780,7 @@ function Gallery() {
                   const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
                   let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
                   
-                  if (stackImages.length < 4) {
+                  if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
                     const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
                     const rotatedFallback = [...fallback.slice(specialSessionsOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, specialSessionsOnly.indexOf(journey) % fallback.length)];
                     stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
@@ -1143,6 +1186,7 @@ function Gallery() {
       <Lightbox lang={lang} photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} onNext={handleNext} onPrev={handlePrev} />
 
       <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); window.scrollTo(0,0); }} lang={lang} />
+      <CookieBanner lang={lang} />
     </div>
   );
 }
@@ -1156,6 +1200,17 @@ const PepPanel = () => {
   const [editors, setEditors] = useState<any[]>([]);
   const [newEditorEmail, setNewEditorEmail] = useState('');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [visitorCount, setVisitorCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
+    const unsub = onSnapshot(doc(db, 'stats', 'visitors'), (docSnap: any) => {
+      if (docSnap.exists()) {
+        setVisitorCount(docSnap.data().count || 0);
+      }
+    });
+    return () => unsub();
+  }, [isAuthorized]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -1247,11 +1302,12 @@ const PepPanel = () => {
           <Link to="/admin" className="px-6 py-2 bg-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Gestionar Fotos</Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
             { label: 'Total Fotos', value: photos.length, icon: ImageIcon },
             { label: 'Viajes', value: journeys.length, icon: MapPin },
             { label: 'Comentarios', value: comments.length, icon: MessageSquare },
+            { label: 'Visitas', value: visitorCount, icon: User },
           ].map(stat => (
             <div key={stat.label} className="bg-white p-8 rounded-3xl shadow-sm">
               <stat.icon className="text-brand-accent mb-4" size={24} />

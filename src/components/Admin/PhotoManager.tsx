@@ -2,25 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { db, storage } from '../../firebase';
 import { doc, updateDoc, deleteDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
-import { usePhotos, Photo, Journey } from '../../hooks/usePhotos';
+import { usePhotos, useJourneys, Photo, Journey } from '../../hooks/usePhotos';
 import { translateMetadata, translateObject } from '../../services/geminiService';
 import { formatDate } from '../../lib/utils';
 import { Loader2, Trash2, Save, Edit2, X, MapPin, Tag, Camera, Calendar, Award, Star, Globe } from 'lucide-react';
 
 export const PhotoManager: React.FC = () => {
   const { photos, loading } = usePhotos();
+  const { journeys, loading: journeysLoading } = useJourneys();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Photo>>({});
-  const [journeys, setJourneys] = useState<Journey[]>([]);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    const fetchJourneys = async () => {
-      const jSnap = await getDocs(query(collection(db, 'journeys'), orderBy('createdAt', 'desc')));
-      setJourneys(jSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Journey[]);
-    };
-    fetchJourneys();
-  }, []);
 
   const handleEdit = (photo: Photo) => {
     setEditingId(photo.id);
@@ -36,7 +28,7 @@ export const PhotoManager: React.FC = () => {
       console.log("Saving photo with translation...", editData);
       const finalData = { ...editData };
       if (typeof finalData.tags === 'string') {
-        finalData.tags = (finalData.tags as string).split(',').map(t => t.trim()).filter(t => t);
+        finalData.tags = (finalData.tags as string).split(',').map(t => t.trim().toLowerCase()).filter(t => t);
       }
       
       // Translate fields

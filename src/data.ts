@@ -29,7 +29,7 @@ export const DB: Photo[] = [
 
 export const Strings = {
   es: { 
-    nav: ["Inicio", "Viajes", "Sesiones ESP.", "Explorar", "Favoritas", "LFI", "Mis Películas", "Contacto"], 
+    nav: ["Inicio", "Viajes", "Sesiones Especiales", "Explorar", "Favoritas", "LFI", "Mis Películas", "Contacto"], 
     titles: { 
       home: "Prestar Atención", 
       explore: "Explorar Archivo", 
@@ -45,7 +45,6 @@ export const Strings = {
     subtitles: { 
       home: "La fotografía como una forma de mirar, sentir y detener lo que importa.", 
       lfi: "Fotos premiadas por Leica Fotografía Internacional",
-      exploreCollections: "Descubre el archivo a través de nuestras selecciones temáticas.",
       journeys: "Explora el mundo a través de colecciones fotográficas únicas."
     },
     labels: { 
@@ -96,7 +95,6 @@ export const Strings = {
     subtitles: { 
       home: "Photography as a way of looking, feeling and stopping what matters.", 
       lfi: "Award-winning photos by Leica Photography International",
-      exploreCollections: "Discover the archive through our thematic selections.",
       journeys: "Explore the world through unique photographic collections."
     },
     labels: { 
@@ -131,7 +129,7 @@ export const Strings = {
     }
   },
   ca: { 
-    nav: ["Inici", "Viatges", "Sessions ESP.", "Explorar", "Preferides", "LFI", "Les meves pel·lícules", "Contacte"], 
+    nav: ["Inici", "Viatges", "Sessions Especiales", "Explorar", "Preferides", "LFI", "Les meves pel·lícules", "Contacte"], 
     titles: { 
       home: "Prestar Atenció", 
       explore: "Explorar Arxiu", 
@@ -147,7 +145,6 @@ export const Strings = {
     subtitles: { 
       home: "La fotografia com una forma de mirar, sentir i aturar el que importa.", 
       lfi: "Fotos premiades per Leica Fotografia Internacional",
-      exploreCollections: "Descobreix l'arxiu a través de les nostres seleccions temàtiques.",
       journeys: "Explora el món a través de col·leccions fotogràfiques úniques."
     },
     labels: { 

@@ -17,7 +17,7 @@ export const TagManager: React.FC = () => {
       snapshot.docs.forEach(doc => {
         const data = doc.data() as Photo;
         if (data.tags) {
-          data.tags.forEach(tag => allTags.add(tag));
+          data.tags.forEach(tag => allTags.add(tag.toLowerCase().trim()));
         }
       });
       setTags(Array.from(allTags).sort());
@@ -37,8 +37,8 @@ export const TagManager: React.FC = () => {
 
       snapshot.docs.forEach(photoDoc => {
         const data = photoDoc.data() as Photo;
-        if (data.tags && data.tags.includes(oldTag)) {
-          const updatedTags = data.tags.map(t => t === oldTag ? newTagName.toLowerCase().trim() : t);
+        if (data.tags && data.tags.some(t => t.toLowerCase() === oldTag.toLowerCase())) {
+          const updatedTags = data.tags.map(t => t.toLowerCase() === oldTag.toLowerCase() ? newTagName.toLowerCase().trim() : t);
           batch.update(photoDoc.ref, { tags: updatedTags });
           count++;
         }

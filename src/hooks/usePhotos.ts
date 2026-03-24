@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db } from '../firebase';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 export interface Photo {
@@ -84,19 +84,25 @@ export const usePhotos = () => {
 
   useEffect(() => {
     console.log("usePhotos: initializing onSnapshot");
-    const q = query(collection(db, 'photos'), orderBy('createdAt', 'desc'));
+    const path = 'photos';
+    const q = query(collection(db, path), orderBy('createdAt', 'desc'));
     
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      console.log("usePhotos: onSnapshot received data, docs length:", snapshot.docs.length);
+    const unsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+      console.log("usePhotos: onSnapshot received data, docs length:", snapshot.docs.length, "fromCache:", snapshot.metadata.fromCache);
       const photoData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Photo[];
       setPhotos(photoData);
-      setLoading(false);
+      
+      // Only stop loading if we have data OR if it's not from cache (meaning we've hit the server)
+      // This prevents flickering when the cache is empty but the server has data.
+      if (photoData.length > 0 || !snapshot.metadata.fromCache) {
+        setLoading(false);
+      }
       setError(null);
     }, (err) => {
-      console.error("Error fetching photos:", err);
+      handleFirestoreError(err, OperationType.GET, path);
       setError(err instanceof Error ? err : new Error(String(err)));
       setLoading(false);
     });
@@ -113,18 +119,30 @@ export const usePhotos = () => {
 export const useJourneys = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'journeys'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setJourneys(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Journey[]);
-      setLoading(false);
+    console.log("useJourneys: initializing onSnapshot");
+    const path = 'journeys';
+    const q = query(collection(db, path), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+      console.log("useJourneys: onSnapshot received data, docs length:", snapshot.docs.length, "fromCache:", snapshot.metadata.fromCache);
+      const journeyData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Journey[];
+      setJourneys(journeyData);
+      
+      // If we have data, or we've received a response from the server (even if empty)
+      if (journeyData.length > 0 || !snapshot.metadata.fromCache) {
+        setLoading(false);
+      }
+      setError(null);
     }, (err) => {
-      console.error("Error fetching journeys:", err);
+      console.error("useJourneys: error", err);
+      handleFirestoreError(err, OperationType.GET, path);
+      setError(err instanceof Error ? err : new Error(String(err)));
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  return { journeys, loading };
+  return { journeys, loading, error };
 };

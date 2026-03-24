@@ -149,7 +149,7 @@ export const JourneyManager: React.FC = () => {
                     />
                     {editData.isSpecial && <Save size={14} className="rotate-45" />}
                   </div>
-                  <span className="text-sm font-medium">Sesión Especial (Sesiones ESP.)</span>
+                  <span className="text-sm font-medium">Sesión Especial (Sesiones Especiales)</span>
                 </label>
                 <div className="flex gap-2">
                   <button onClick={() => handleSave(journey.id)} disabled={saving} className="px-4 py-2 bg-black text-white rounded-xl flex items-center gap-2 disabled:opacity-50">

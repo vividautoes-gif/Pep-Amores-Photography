@@ -9,9 +9,9 @@ service cloud.firestore {
     // Collection: photos
     // Fields:
     //   - title, title_en, title_ca: string
-    //   - url: string (valid URL)
+    //   - url: string
     //   - orientation: string (landscape, portrait, square)
-    //   - country, location: string
+    //   - country, city: string
     //   - year: number
     //   - tags: list of strings
     //   - isLFI: bool
@@ -22,11 +22,32 @@ service cloud.firestore {
     //   - createdAt: timestamp
     //   - authorUid: string
     //
+    // Collection: journeys
+    // Fields:
+    //   - title, title_en, title_ca: string
+    //   - country, city: string
+    //   - intro, intro_en, intro_ca: string
+    //   - coverUrl: string
+    //   - subthemes: list of strings
+    //   - isSpecial: bool
+    //   - createdAt: timestamp
+    //
+    // Collection: home_collections
+    // Fields:
+    //   - collectionId: string
+    //   - imageUrls: list of strings
+    //   - updatedAt: timestamp
+    //
     // Collection: users
     // Fields:
     //   - email: string
     //   - role: string (admin, editor)
     //   - displayName: string
+    //
+    // Collection: editors
+    // Fields:
+    //   - email: string (doc ID is email)
+    //   - role: string
     
     // ===============================================================
     // Helper Functions
@@ -38,9 +59,9 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && (
-        exists(/databases/$(database)/documents/editors/$(request.auth.token.email)) ||
         (request.auth.token.email == "eduard.kun115@gmail.com" && request.auth.token.email_verified == true) ||
-        (request.auth.token.email == "pep.amores@gmail.com" && request.auth.token.email_verified == true)
+        (request.auth.token.email == "pep.amores@gmail.com" && request.auth.token.email_verified == true) ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
       );
     }
     
@@ -104,8 +125,9 @@ service cloud.firestore {
     }
 
     match /editors/{email} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      // Allow users to read their own editor status to avoid circularity in isAdmin
+      allow read: if isAuthenticated() && request.auth.token.email == email;
+      allow read, write: if isAdmin();
     }
 
     match /users/{userId} {
@@ -135,6 +157,19 @@ service cloud.firestore {
       allow create: if isValidComment(request.resource.data);
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    match /home_collections/{collectionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /stats/{statId} {
+      allow read: if isAdmin();
+      allow create: if statId == 'visitors' && request.resource.data.count == 1;
+      allow update: if statId == 'visitors' && 
+                    request.resource.data.count == resource.data.count + 1 &&
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count']);
     }
   }
 }

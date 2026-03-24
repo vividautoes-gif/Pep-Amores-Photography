@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { db, auth } from '../../firebase';
+import { db, auth, handleFirestoreError, OperationType } from '../../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { translateMetadata, translateObject } from '../../services/geminiService';
 import { MapPin, Send, Loader2 } from 'lucide-react';
@@ -19,6 +19,7 @@ export const JourneyForm: React.FC = () => {
     e.preventDefault();
     if (!auth.currentUser) return;
     setLoading(true);
+    const path = 'journeys';
     try {
       console.log("Creating journey with translation...", formData.title);
       let title_es = formData.title;
@@ -90,11 +91,12 @@ export const JourneyForm: React.FC = () => {
         createdAt: serverTimestamp()
       };
       console.log("Final journey data to add:", finalData);
-      await addDoc(collection(db, 'journeys'), finalData);
+      await addDoc(collection(db, path), finalData);
       setFormData({ title: '', country: '', intro: '', subthemes: '', coverUrl: '', isSpecial: false });
       alert("Viaje creado con éxito");
     } catch (error) {
-      console.error(error);
+      handleFirestoreError(error, OperationType.WRITE, path);
+      alert("Error al crear el viaje: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setLoading(false);
     }

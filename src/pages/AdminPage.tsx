@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { Login } from '../components/Admin/Login';
 import { UploadForm } from '../components/Admin/UploadForm';
 import { motion } from 'motion/react';
@@ -19,13 +19,25 @@ import { RecentPhotosManager } from '../components/Admin/RecentPhotosManager';
 import { LFIManager } from '../components/Admin/LFIManager';
 import { AboutMeEditor } from '../components/Admin/AboutMeEditor';
 import { ContactMessages } from '../components/Admin/ContactMessages';
+import { HomeCollectionsManager } from '../components/Admin/HomeCollectionsManager';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos' | 'manage-journeys' | 'manage-albums' | 'manage-tags' | 'manage-favorites' | 'manage-recent' | 'manage-lfi' | 'manage-about' | 'manage-messages'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos' | 'manage-journeys' | 'manage-albums' | 'manage-tags' | 'manage-favorites' | 'manage-recent' | 'manage-lfi' | 'manage-about' | 'manage-messages' | 'manage-home-collections'>('photos');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [visitorCount, setVisitorCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
+    const unsub = onSnapshot(doc(db, 'stats', 'visitors'), (docSnap) => {
+      if (docSnap.exists()) {
+        setVisitorCount(docSnap.data().count || 0);
+      }
+    });
+    return () => unsub();
+  }, [isAuthorized]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -101,6 +113,10 @@ export const AdminPage: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-sm font-medium">
+              <User size={14} />
+              <span>{visitorCount} Visitas</span>
+            </div>
             <Link to="/pep-panel" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black flex items-center gap-2">
               <LayoutDashboard size={14} />
               Dashboard
@@ -212,6 +228,13 @@ export const AdminPage: React.FC = () => {
                 Sobre Mí
               </button>
               <button 
+                onClick={() => setActiveTab('manage-home-collections')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-home-collections' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <Layers size={18} />
+                Home Colecciones
+              </button>
+              <button 
                 onClick={() => setActiveTab('manage-messages')}
                 className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-messages' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
               >
@@ -243,6 +266,7 @@ export const AdminPage: React.FC = () => {
                   {activeTab === 'manage-recent' && 'Últimas 50'}
                   {activeTab === 'manage-lfi' && 'Gestionar LFI'}
                   {activeTab === 'manage-about' && 'Sobre Mí'}
+                  {activeTab === 'manage-home-collections' && 'Home Colecciones'}
                   {activeTab === 'manage-messages' && 'Mensajes'}
                 </h2>
                 <p className="text-gray-500">
@@ -258,6 +282,7 @@ export const AdminPage: React.FC = () => {
                   {activeTab === 'manage-recent' && 'Revisa las últimas 50 fotos subidas.'}
                   {activeTab === 'manage-lfi' && 'Gestionar reconocimientos LFI.'}
                   {activeTab === 'manage-about' && 'Edita tu biografía y perfil.'}
+                  {activeTab === 'manage-home-collections' && 'Selecciona las 4 fotos para cada álbum de la Home.'}
                   {activeTab === 'manage-messages' && 'Lee los mensajes recibidos.'}
                 </p>
               </div>
@@ -274,6 +299,7 @@ export const AdminPage: React.FC = () => {
               {activeTab === 'manage-recent' && <RecentPhotosManager />}
               {activeTab === 'manage-lfi' && <LFIManager />}
               {activeTab === 'manage-about' && <AboutMeEditor />}
+              {activeTab === 'manage-home-collections' && <HomeCollectionsManager />}
               {activeTab === 'manage-messages' && <ContactMessages />}
             </motion.div>
           </section>

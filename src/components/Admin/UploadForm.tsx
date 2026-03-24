@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage, auth } from '../../firebase';
+import { db, storage, auth, handleFirestoreError, OperationType } from '../../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { motion } from 'motion/react';
 import { Upload, X, Check, Loader2, Globe, Image as ImageIcon, Send, Award, Star, MapPin } from 'lucide-react';
 import { translateMetadata, translateObject } from '../../services/geminiService';
-import { Journey } from '../../hooks/usePhotos';
+import { useJourneys, Journey } from '../../hooks/usePhotos';
 import ExifReader from 'exifreader';
 
 export const UploadForm: React.FC = () => {
@@ -18,7 +18,7 @@ export const UploadForm: React.FC = () => {
   const [geocoding, setGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   
-  const [journeys, setJourneys] = useState<Journey[]>([]);
+  const { journeys, loading: journeysLoading, error: journeysError } = useJourneys();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -46,14 +46,6 @@ export const UploadForm: React.FC = () => {
     aperture: '',
     iso: ''
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const jSnap = await getDocs(query(collection(db, 'journeys'), orderBy('createdAt', 'desc')));
-      setJourneys(jSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Journey[]);
-    };
-    fetchData();
-  }, []);
 
   const handleFileSelection = async (selectedFile: File) => {
     setFile(selectedFile);
@@ -419,19 +411,29 @@ export const UploadForm: React.FC = () => {
             </div>
 
             <div className="col-span-2">
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Viaje (Journey)</label>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
+                Viaje (Journey)
+                {journeysLoading && <Loader2 size={12} className="animate-spin" />}
+                {journeysError && <span className="text-red-500 text-[10px] normal-case">Error al cargar</span>}
+              </label>
               <select 
                 value={formData.journeyId}
                 onChange={e => setFormData(prev => ({ ...prev, journeyId: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                className={`w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all ${journeysError ? 'ring-1 ring-red-200' : ''}`}
+                disabled={journeysLoading}
               >
-                <option value="">Ninguno</option>
+                <option value="">{journeysLoading ? 'Cargando viajes...' : journeysError ? 'Error al cargar viajes' : 'Ninguno'}</option>
                 {journeys.map(j => (
                   <option key={j.id} value={j.id}>
                     {j.title} ({j.country}) {j.isSpecial ? '— (Sesión ESP.)' : ''}
                   </option>
                 ))}
               </select>
+              {journeysError && (
+                <p className="mt-1 text-[10px] text-red-500 italic">
+                  No se han podido cargar los viajes. Comprueba tu conexión o permisos.
+                </p>
+              )}
             </div>
 
             <div className="col-span-2 md:col-span-1">
