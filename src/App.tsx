@@ -823,7 +823,7 @@ function Gallery() {
               <button onClick={() => setSelectedJourney(null)} className="mb-12 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors">
                 <ChevronRight size={12} className="rotate-180" />
                 {currentSection === 'special-sessions' 
-                  ? (lang === 'es' ? 'Volver a Sesiones ESP.' : lang === 'en' ? 'Back to Special Sessions' : 'Tornar a Sessions ESP.')
+                  ? (lang === 'es' ? 'Volver a Sesiones Especiales' : lang === 'en' ? 'Back to Special Sessions' : 'Tornar a Sessions Especiales')
                   : (lang === 'es' ? 'Volver a Viajes' : lang === 'en' ? 'Back to Journeys' : 'Tornar a Viatges')}
               </button>
               <div className="max-w-4xl mx-auto mb-16 text-center">

@@ -161,7 +161,7 @@ export const JourneyForm: React.FC = () => {
               />
               {formData.isSpecial && <Send size={14} className="rotate-45" />}
             </div>
-            <span className="text-sm font-medium">Marcar como Sesión Especial (Sesiones ESP.)</span>
+            <span className="text-sm font-medium">Marcar como Sesión Especial (Sesiones Especiales)</span>
           </label>
         </div>
       </div>
