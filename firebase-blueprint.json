@@ -111,6 +111,20 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Submission timestamp" }
       },
       "required": ["name", "text"]
+    },
+    "Session": {
+      "title": "Session",
+      "description": "A visitor session with approximate location data.",
+      "type": "object",
+      "properties": {
+        "country": { "type": "string" },
+        "city": { "type": "string" },
+        "region": { "type": "string" },
+        "device": { "type": "string" },
+        "browser": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["timestamp"]
     }
   },
   "firestore": {
@@ -120,6 +134,7 @@
     "comments": { "schema": "Comment", "description": "User comments" },
     "users": { "schema": "User", "description": "Registered users and their roles" },
     "home_collections": { "schema": "HomeCollection", "description": "Custom home page collection images" },
-    "reviews": { "schema": "Review", "description": "User reviews" }
+    "reviews": { "schema": "Review", "description": "User reviews" },
+    "sessions": { "schema": "Session", "description": "Visitor session logs" }
   }
 }

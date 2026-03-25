@@ -185,5 +185,11 @@ service cloud.firestore {
                     request.resource.data.count == resource.data.count + 1 &&
                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count']);
     }
+
+    match /sessions/{sessionId} {
+      allow create: if request.resource.data.timestamp == request.time;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
   }
 }

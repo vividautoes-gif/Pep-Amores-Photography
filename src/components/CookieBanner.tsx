@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { db } from '../firebase';
-import { doc, setDoc, increment } from 'firebase/firestore';
+import { doc, setDoc, increment, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface CookieBannerProps {
   lang: 'es' | 'en' | 'ca';
@@ -25,8 +25,38 @@ export const CookieBanner: React.FC<CookieBannerProps> = ({ lang }) => {
     const hasVisited = localStorage.getItem('hasVisited');
     if (!hasVisited) {
       try {
+        // Increment global counter
         const statsRef = doc(db, 'stats', 'visitors');
         await setDoc(statsRef, { count: increment(1) }, { merge: true });
+        
+        // Try to get location and save session
+        try {
+          const geoResponse = await fetch('https://ipapi.co/json/');
+          const geoData = await geoResponse.json();
+          
+          if (geoData && !geoData.error) {
+            const sessionsRef = collection(db, 'sessions');
+            await addDoc(sessionsRef, {
+              country: geoData.country_name || 'Unknown',
+              city: geoData.city || 'Unknown',
+              region: geoData.region || 'Unknown',
+              device: window.innerWidth < 768 ? 'Mobile' : 'Desktop',
+              browser: navigator.userAgent.split(') ')[1]?.split(' ')[0] || 'Unknown',
+              timestamp: serverTimestamp()
+            });
+          }
+        } catch (geoError) {
+          console.error('Error fetching location:', geoError);
+          // Still save a basic session if geo fails
+          const sessionsRef = collection(db, 'sessions');
+          await addDoc(sessionsRef, {
+            country: 'Unknown',
+            city: 'Unknown',
+            device: window.innerWidth < 768 ? 'Mobile' : 'Desktop',
+            timestamp: serverTimestamp()
+          });
+        }
+
         localStorage.setItem('hasVisited', 'true');
       } catch (error) {
         console.error('Error updating visitor count:', error);

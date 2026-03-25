@@ -5,7 +5,7 @@ import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { Login } from '../components/Admin/Login';
 import { UploadForm } from '../components/Admin/UploadForm';
 import { motion } from 'motion/react';
-import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert, Layers, Hash, Star, Award, Mail, MessageSquare } from 'lucide-react';
+import { LogOut, LayoutDashboard, Image as ImageIcon, Settings, User, MapPin, Clock, ShieldAlert, Layers, Hash, Star, Award, Mail, MessageSquare, BarChart3 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { JourneyForm } from '../components/Admin/JourneyForm';
 import { HeroSelector } from '../components/Admin/HeroSelector';
@@ -21,12 +21,13 @@ import { AboutMeEditor } from '../components/Admin/AboutMeEditor';
 import { ContactMessages } from '../components/Admin/ContactMessages';
 import { ReviewManager } from '../components/Admin/ReviewManager';
 import { HomeCollectionsManager } from '../components/Admin/HomeCollectionsManager';
+import { SessionManager } from '../components/Admin/SessionManager';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export const AdminPage: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos' | 'manage-journeys' | 'manage-albums' | 'manage-tags' | 'manage-favorites' | 'manage-recent' | 'manage-lfi' | 'manage-about' | 'manage-messages' | 'manage-home-collections' | 'manage-reviews'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'journeys' | 'hero' | 'albums' | 'manage-photos' | 'manage-journeys' | 'manage-albums' | 'manage-tags' | 'manage-favorites' | 'manage-recent' | 'manage-lfi' | 'manage-about' | 'manage-messages' | 'manage-home-collections' | 'manage-reviews' | 'manage-sessions'>('photos');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [visitorCount, setVisitorCount] = useState<number>(0);
 
@@ -249,6 +250,13 @@ export const AdminPage: React.FC = () => {
                 <MessageSquare size={18} />
                 Reseñas
               </button>
+              <button 
+                onClick={() => setActiveTab('manage-sessions')}
+                className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-sessions' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
+              >
+                <BarChart3 size={18} />
+                Estadísticas
+              </button>
             </nav>
           </aside>
 
@@ -277,6 +285,7 @@ export const AdminPage: React.FC = () => {
                   {activeTab === 'manage-home-collections' && 'Home Colecciones'}
                   {activeTab === 'manage-messages' && 'Mensajes'}
                   {activeTab === 'manage-reviews' && 'Gestionar Reseñas'}
+                  {activeTab === 'manage-sessions' && 'Estadísticas de Visitas'}
                 </h2>
                 <p className="text-gray-500">
                   {activeTab === 'photos' && 'Sube una imagen y completa los metadatos.'}
@@ -294,6 +303,7 @@ export const AdminPage: React.FC = () => {
                   {activeTab === 'manage-home-collections' && 'Selecciona las 4 fotos para cada álbum de la Home.'}
                   {activeTab === 'manage-messages' && 'Lee los mensajes recibidos.'}
                   {activeTab === 'manage-reviews' && 'Aprobar o eliminar reseñas de clientes.'}
+                  {activeTab === 'manage-sessions' && 'Analiza de dónde vienen tus visitantes y qué dispositivos usan.'}
                 </p>
               </div>
               
@@ -312,6 +322,7 @@ export const AdminPage: React.FC = () => {
               {activeTab === 'manage-home-collections' && <HomeCollectionsManager />}
               {activeTab === 'manage-messages' && <ContactMessages />}
               {activeTab === 'manage-reviews' && <ReviewManager />}
+              {activeTab === 'manage-sessions' && <SessionManager />}
             </motion.div>
           </section>
         </div>
