@@ -526,12 +526,20 @@ function Gallery() {
                     {s.subtitles.home}
                   </motion.p>
                   
-                  <div className="pointer-events-auto">
+                  <div className="pointer-events-auto flex flex-col gap-4 items-center">
                     <button 
                       onClick={() => setCurrentSection('explore')} 
                       className="group relative px-12 py-4 bg-transparent border-2 border-white text-white text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 shadow-2xl"
                     >
                       <span className="relative z-10 group-hover:text-black transition-colors duration-300">{s.nav[3]}</span>
+                      <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                    </button>
+
+                    <button 
+                      onClick={() => setCurrentSection('reviews')} 
+                      className="group relative px-10 py-3 bg-transparent border-2 border-white/50 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 hover:border-white hover:text-white"
+                    >
+                      <span className="relative z-10 group-hover:text-black transition-colors duration-300">{s.labels.leaveReview}</span>
                       <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
                   </div>

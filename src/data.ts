@@ -75,7 +75,8 @@ export const Strings = {
       comments: "Comentarios",
       commentPlaceholder: "Escribe tu comentario...",
       sendComment: "Enviar Comentario",
-      moderationNote: "Comentario enviado. Aparecerá tras ser moderado."
+      moderationNote: "Comentario enviado. Aparecerá tras ser moderado.",
+      leaveReview: "¿quieres dejar una reseña?"
     }
   },
   en: { 
@@ -125,7 +126,8 @@ export const Strings = {
       comments: "Comments",
       commentPlaceholder: "Write your comment...",
       sendComment: "Send Comment",
-      moderationNote: "Comment sent. It will appear after being moderated."
+      moderationNote: "Comment sent. It will appear after being moderated.",
+      leaveReview: "want to leave a review?"
     }
   },
   ca: { 
@@ -175,7 +177,8 @@ export const Strings = {
       comments: "Comentaris",
       commentPlaceholder: "Escriu el teu comentari...",
       sendComment: "Enviar Comentari",
-      moderationNote: "Comentari enviat. Apareixerà després de ser moderat."
+      moderationNote: "Comentari enviat. Apareixerà després de ser moderat.",
+      leaveReview: "¿vols deixar una ressenya?"
     }
   }
 };

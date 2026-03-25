@@ -80,8 +80,8 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
                     title: 'LFI Online (External)', 
                     href: 'https://lfi-online.de/en/gallery/Pep-Amores-874174.html', 
                     icon: ExternalLink,
-                    iconHoverClass: 'group-hover:text-blue-400',
-                    textHoverClass: 'group-hover:text-blue-400'
+                    iconHoverClass: 'group-hover:text-red-600',
+                    textHoverClass: 'group-hover:text-red-600'
                 },
                 { 
                     title: 'IMDb', 

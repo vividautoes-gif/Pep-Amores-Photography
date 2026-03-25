@@ -287,8 +287,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
                     <span className="group-hover:text-[#0A66C2] transition-colors">LinkedIn</span>
                   </a>
                   <a href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-[#B45309]/5 transition-all">
-                    <ExternalLink size={18} className="group-hover:text-blue-600 transition-colors" />
-                    <span className="group-hover:text-blue-600 transition-colors">LFI Online</span>
+                    <ExternalLink size={18} className="group-hover:text-red-600 transition-colors" />
+                    <span className="group-hover:text-red-600 transition-colors">LFI Online</span>
                   </a>
                 </div>
               </div>

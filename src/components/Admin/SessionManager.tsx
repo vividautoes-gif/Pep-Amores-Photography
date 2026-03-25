@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Globe, Monitor, Smartphone, Clock, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { MapPin, Globe, Monitor, Smartphone, Clock, ChevronDown, ChevronUp, Users, Plus, Minus, RotateCcw } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
@@ -23,6 +23,7 @@ export const SessionManager: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCountry, setExpandedCountry] = useState<string | null>(null);
+  const [position, setPosition] = useState({ coordinates: [0, 0] as [number, number], zoom: 1 });
 
   useEffect(() => {
     const q = query(collection(db, 'sessions'), orderBy('timestamp', 'desc'));
@@ -33,14 +34,34 @@ export const SessionManager: React.FC = () => {
     return () => unsub();
   }, []);
 
+  function handleZoomIn() {
+    if (position.zoom >= 8) return;
+    setPosition((pos) => ({ ...pos, zoom: pos.zoom * 1.5 }));
+  }
+
+  function handleZoomOut() {
+    if (position.zoom <= 1) return;
+    setPosition((pos) => ({ ...pos, zoom: pos.zoom / 1.5 }));
+  }
+
+  function handleReset() {
+    setPosition({ coordinates: [0, 0], zoom: 1 });
+  }
+
+  function handleMoveEnd(position: { coordinates: [number, number]; zoom: number }) {
+    setPosition(position);
+  }
+
   const stats = useMemo(() => {
     const total = sessions.length;
     const byCountry: Record<string, { count: number, regions: Record<string, { count: number, cities: Record<string, number> }> }> = {};
+    const byDevice: Record<string, number> = { 'Mobile': 0, 'Desktop': 0 };
 
     sessions.forEach(session => {
       const country = session.country || 'Unknown';
       const region = session.region || 'Unknown';
       const city = session.city || 'Unknown';
+      const device = session.device || 'Desktop';
 
       if (!byCountry[country]) {
         byCountry[country] = { count: 0, regions: {} };
@@ -56,6 +77,9 @@ export const SessionManager: React.FC = () => {
         byCountry[country].regions[region].cities[city] = 0;
       }
       byCountry[country].regions[region].cities[city]++;
+
+      if (device === 'Mobile') byDevice['Mobile']++;
+      else byDevice['Desktop']++;
     });
 
     const countriesArray = Object.entries(byCountry).map(([name, data]) => ({
@@ -74,7 +98,7 @@ export const SessionManager: React.FC = () => {
       })).sort((a, b) => b.count - a.count)
     })).sort((a, b) => b.count - a.count);
 
-    return { total, countries: countriesArray };
+    return { total, countries: countriesArray, byDevice };
   }, [sessions]);
 
   const maxSessions = useMemo(() => {
@@ -105,14 +129,81 @@ export const SessionManager: React.FC = () => {
             <div className="text-3xl font-serif italic">{stats.total}</div>
           </div>
         </div>
+        
+        <div className="bg-white border border-gray-100 px-6 py-4 rounded-2xl flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400">
+              <Monitor size={16} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Desktop</div>
+              <div className="text-lg font-bold">{stats.byDevice['Desktop']}</div>
+            </div>
+          </div>
+          <div className="w-px h-8 bg-gray-100" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400">
+              <Smartphone size={16} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Mobile</div>
+              <div className="text-lg font-bold">{stats.byDevice['Mobile']}</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Map Section */}
       <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-        <h3 className="text-xl font-serif italic mb-6">Mapa de Visitantes</h3>
-        <div className="w-full h-[400px] bg-neutral-50 rounded-2xl overflow-hidden border border-gray-100">
-          <ComposableMap projectionConfig={{ scale: 140 }} width={800} height={400}>
-            <ZoomableGroup>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-serif italic">Mapa de Visitantes</h3>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleZoomIn}
+              className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-100 text-gray-600 transition-colors"
+              title="Aumentar zoom"
+            >
+              <Plus size={18} />
+            </button>
+            <button 
+              onClick={handleZoomOut}
+              className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-100 text-gray-600 transition-colors"
+              title="Disminuir zoom"
+            >
+              <Minus size={18} />
+            </button>
+            <button 
+              onClick={handleReset}
+              className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-100 text-gray-600 transition-colors"
+              title="Restablecer vista"
+            >
+              <RotateCcw size={18} />
+            </button>
+            <button 
+              onClick={() => {
+                setPosition({ coordinates: [-3.7, 40.4], zoom: 4 });
+                setExpandedCountry('Spain');
+              }}
+              className="px-3 py-2 bg-brand-accent/10 hover:bg-brand-accent/20 rounded-lg border border-brand-accent/20 text-brand-accent text-xs font-bold transition-colors"
+            >
+              Ver España
+            </button>
+          </div>
+        </div>
+        
+        <div className="w-full h-[400px] bg-neutral-50 rounded-2xl overflow-hidden border border-gray-100 relative group">
+          <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-gray-100 text-[10px] font-bold uppercase tracking-widest text-gray-500 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+            Usa el ratón o gestos para mover y hacer zoom
+          </div>
+          
+          <ComposableMap projectionConfig={{ scale: 140 }} width={800} height={400} className="w-full h-full touch-none">
+            <ZoomableGroup
+              zoom={position.zoom}
+              center={position.coordinates}
+              onMoveEnd={handleMoveEnd}
+              maxZoom={8}
+              minZoom={1}
+            >
               <Geographies geography={geoUrl}>
                 {({ geographies }) =>
                   geographies.map((geo) => {
