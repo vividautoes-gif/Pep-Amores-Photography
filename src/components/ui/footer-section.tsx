@@ -27,6 +27,7 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
         favorites: { es: 'Favoritos', en: 'Favorites', ca: 'Preferits' },
         collections: { es: 'Colecciones', en: 'Collections', ca: 'Col·leccions' },
         aboutLabel: { es: 'Sobre mí', en: 'About', ca: 'Sobre mi' },
+        movies: { es: 'Mis Películas', en: 'My Movies', ca: 'Les meves pel·lícules' },
         about: { es: 'Biografía', en: 'About', ca: 'Biografia' },
         contact: { es: 'Contacto', en: 'Contact', ca: 'Contacte' },
         social: { es: 'Redes Sociales', en: 'Social Links', ca: 'Xarxes Socials' },
@@ -48,18 +49,12 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
             links: [
                 { title: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', onClick: () => onNavigate('latest') },
                 { title: 'LFI Gallery', onClick: () => onNavigate('lfi') },
-                { 
-                    title: 'LFI Online (External)', 
-                    href: 'https://lfi-online.de/en/gallery/Pep-Amores-874174.html', 
-                    icon: ExternalLink,
-                    iconHoverClass: 'group-hover:text-blue-400',
-                    textHoverClass: 'group-hover:text-blue-400'
-                },
             ],
         },
         {
             label: t.aboutLabel[lang],
             links: [
+                { title: t.movies[lang], onClick: () => onNavigate('my-movies') },
                 { title: t.about[lang], onClick: () => onNavigate('about') },
                 { title: t.contact[lang], onClick: () => onNavigate('contact') },
             ],
@@ -80,6 +75,20 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
                     icon: Linkedin,
                     iconHoverClass: 'group-hover:text-[#0A66C2]',
                     textHoverClass: 'group-hover:text-[#0A66C2]'
+                },
+                { 
+                    title: 'LFI Online (External)', 
+                    href: 'https://lfi-online.de/en/gallery/Pep-Amores-874174.html', 
+                    icon: ExternalLink,
+                    iconHoverClass: 'group-hover:text-blue-400',
+                    textHoverClass: 'group-hover:text-blue-400'
+                },
+                { 
+                    title: 'IMDb', 
+                    href: 'https://www.imdb.com/name/nm10620703/?ref_=ext_shr_lnk', 
+                    icon: ExternalLink,
+                    iconHoverClass: 'group-hover:text-yellow-400',
+                    textHoverClass: 'group-hover:text-yellow-400'
                 },
             ],
         },
