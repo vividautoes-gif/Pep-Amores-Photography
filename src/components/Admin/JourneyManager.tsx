@@ -32,40 +32,15 @@ export const JourneyManager: React.FC = () => {
       console.log("Saving journey with translation...", editData);
       const finalData = { ...editData };
       
-      if (finalData.title) {
-        const titleTrans = await translateMetadata(finalData.title, ['es', 'en', 'ca']);
-        if (Object.keys(titleTrans).length > 0) {
-          finalData.title = titleTrans.es || finalData.title;
-          finalData.title_en = titleTrans.en || finalData.title;
-          finalData.title_ca = titleTrans.ca || finalData.title;
-        }
-      }
       if (finalData.intro) {
-        const introTrans = await translateMetadata(finalData.intro, ['es', 'en', 'ca']);
-        if (Object.keys(introTrans).length > 0) {
-          finalData.intro = introTrans.es || finalData.intro;
-          finalData.intro_en = introTrans.en || finalData.intro;
-          finalData.intro_ca = introTrans.ca || finalData.intro;
+        if (!finalData.intro_en || !finalData.intro_ca) {
+          const introTrans = await translateMetadata(finalData.intro, ['es', 'en', 'ca']);
+          if (Object.keys(introTrans).length > 0) {
+            finalData.intro = introTrans.es || finalData.intro;
+            finalData.intro_en = finalData.intro_en || introTrans.en || finalData.intro;
+            finalData.intro_ca = finalData.intro_ca || introTrans.ca || finalData.intro;
+          }
         }
-      }
-      
-      const fieldsToTranslate = {
-        country: finalData.country || '',
-        city: finalData.city || ''
-      };
-      const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
-      
-      if (objTrans.es) {
-        if (objTrans.es.country) finalData.country = objTrans.es.country;
-        if (objTrans.es.city) finalData.city = objTrans.es.city;
-      }
-      if (objTrans.en) {
-        if (objTrans.en.country) finalData.country_en = objTrans.en.country;
-        if (objTrans.en.city) finalData.city_en = objTrans.en.city;
-      }
-      if (objTrans.ca) {
-        if (objTrans.ca.country) finalData.country_ca = objTrans.ca.country;
-        if (objTrans.ca.city) finalData.city_ca = objTrans.ca.city;
       }
       
       if (finalData.subthemes && finalData.subthemes.length > 0) {
@@ -121,24 +96,82 @@ export const JourneyManager: React.FC = () => {
           <div key={journey.id} className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-100">
             {editingId === journey.id ? (
               <div className="space-y-4">
-                <input 
-                  value={editData.title || ''} 
-                  onChange={e => setEditData({...editData, title: e.target.value})}
-                  className="w-full p-3 border rounded-xl"
-                  placeholder="Título del viaje"
-                />
-                <input 
-                  value={editData.country || ''} 
-                  onChange={e => setEditData({...editData, country: e.target.value})}
-                  className="w-full p-3 border rounded-xl"
-                  placeholder="País"
-                />
-                <textarea 
-                  value={editData.intro || ''} 
-                  onChange={e => setEditData({...editData, intro: e.target.value})}
-                  className="w-full p-3 border rounded-xl h-32"
-                  placeholder="Introducción"
-                />
+                <div className="grid grid-cols-1 gap-4">
+                  <input 
+                    value={editData.title || ''} 
+                    onChange={e => setEditData({...editData, title: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="Título del viaje"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <input 
+                    value={editData.country || ''} 
+                    onChange={e => setEditData({...editData, country: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="País (ES)"
+                  />
+                  <input 
+                    value={editData.country_en || ''} 
+                    onChange={e => setEditData({...editData, country_en: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="País (EN)"
+                  />
+                  <input 
+                    value={editData.country_ca || ''} 
+                    onChange={e => setEditData({...editData, country_ca: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="País (CA)"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <input 
+                    value={editData.city || ''} 
+                    onChange={e => setEditData({...editData, city: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="Ciudad (ES)"
+                  />
+                  <input 
+                    value={editData.city_en || ''} 
+                    onChange={e => setEditData({...editData, city_en: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="Ciudad (EN)"
+                  />
+                  <input 
+                    value={editData.city_ca || ''} 
+                    onChange={e => setEditData({...editData, city_ca: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="Ciudad (CA)"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <textarea 
+                    value={editData.intro || ''} 
+                    onChange={e => setEditData({...editData, intro: e.target.value})}
+                    className="w-full p-3 border rounded-xl h-32"
+                    placeholder="Introducción (ES)"
+                  />
+                  <textarea 
+                    value={editData.intro_en || ''} 
+                    onChange={e => setEditData({...editData, intro_en: e.target.value})}
+                    className="w-full p-3 border rounded-xl h-32"
+                    placeholder="Introducción (EN)"
+                  />
+                  <textarea 
+                    value={editData.intro_ca || ''} 
+                    onChange={e => setEditData({...editData, intro_ca: e.target.value})}
+                    className="w-full p-3 border rounded-xl h-32"
+                    placeholder="Introducción (CA)"
+                  />
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <input 
+                    value={Array.isArray(editData.subthemes) ? editData.subthemes.join(', ') : (editData.subthemes || '')} 
+                    onChange={e => setEditData({...editData, subthemes: e.target.value})}
+                    className="w-full p-3 border rounded-xl"
+                    placeholder="Subtemas (separados por comas)"
+                  />
+                </div>
                 <label className="flex items-center gap-3 cursor-pointer group">
                   <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${editData.isSpecial ? 'bg-brand-accent border-brand-accent text-white' : 'border-gray-300 group-hover:border-brand-accent'}`}>
                     <input 

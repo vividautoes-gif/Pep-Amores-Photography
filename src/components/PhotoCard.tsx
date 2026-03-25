@@ -29,7 +29,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, 
     >
       <motion.img
         src={photo.url}
-        alt={lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
+        alt={photo.title}
         referrerPolicy="no-referrer"
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
@@ -45,7 +45,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, 
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 pointer-events-none">
         <div className="text-white translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
           <h3 className="text-lg font-bold leading-tight mb-1">
-            {lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
+            {photo.title}
           </h3>
           <div className="flex items-center justify-between gap-2 text-[10px] opacity-80 font-medium uppercase tracking-widest">
             <span>Pep Amores</span>

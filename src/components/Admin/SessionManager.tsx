@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Globe, Monitor, Smartphone, Clock, ChevronDown, ChevronUp, Users, Plus, Minus, RotateCcw } from 'lucide-react';
+import { MapPin, Globe, Monitor, Smartphone, Clock, ChevronDown, ChevronUp, Users, Plus, Minus, RotateCcw, Calendar } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
@@ -23,7 +23,35 @@ export const SessionManager: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCountry, setExpandedCountry] = useState<string | null>(null);
+  const [expandedYear, setExpandedYear] = useState<number | null>(new Date().getFullYear());
   const [position, setPosition] = useState({ coordinates: [0, 0] as [number, number], zoom: 1 });
+
+  const monthlyStats = useMemo(() => {
+    const stats: Record<number, Record<number, number>> = {};
+    
+    sessions.forEach(session => {
+      if (!session.timestamp) return;
+      let date: Date;
+      if (typeof session.timestamp.toDate === 'function') {
+        date = session.timestamp.toDate();
+      } else {
+        date = new Date(session.timestamp);
+      }
+      
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0-11
+      
+      if (!stats[year]) {
+        stats[year] = {};
+      }
+      if (!stats[year][month]) {
+        stats[year][month] = 0;
+      }
+      stats[year][month]++;
+    });
+    
+    return stats;
+  }, [sessions]);
 
   useEffect(() => {
     const q = query(collection(db, 'sessions'), orderBy('timestamp', 'desc'));
@@ -357,6 +385,71 @@ export const SessionManager: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Monthly Stats */}
+      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+        <h3 className="text-xl font-serif italic mb-6 flex items-center gap-2">
+          <Calendar size={20} className="text-brand-accent" />
+          Visitas por Mes
+        </h3>
+        
+        <div className="space-y-4">
+          {Object.keys(monthlyStats).sort((a, b) => Number(b) - Number(a)).map(yearStr => {
+            const year = Number(yearStr);
+            const isExpanded = expandedYear === year;
+            const yearData = monthlyStats[year];
+            const totalYearVisits = Object.values(yearData).reduce((sum, count) => sum + count, 0);
+            
+            return (
+              <div key={year} className="border border-gray-100 rounded-2xl overflow-hidden">
+                <button
+                  onClick={() => setExpandedYear(isExpanded ? null : year)}
+                  className="w-full bg-gray-50 p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold">{year}</span>
+                    <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded-md border border-gray-200">
+                      {totalYearVisits} visitas en total
+                    </span>
+                  </div>
+                  {isExpanded ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
+                </button>
+                
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 bg-white">
+                        {Array.from({ length: 12 }).map((_, monthIndex) => {
+                          const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                          const count = yearData[monthIndex] || 0;
+                          
+                          return (
+                            <div key={monthIndex} className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100 flex flex-col items-center justify-center">
+                              <span className="text-sm text-gray-500 mb-1">{monthNames[monthIndex]}</span>
+                              <span className="text-2xl font-serif italic text-brand-accent">{count}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+          
+          {Object.keys(monthlyStats).length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No hay datos de visitas mensuales disponibles.
+            </div>
+          )}
         </div>
       </div>
     </div>

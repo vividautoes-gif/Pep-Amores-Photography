@@ -155,8 +155,6 @@ const MOCK_DB: PhotoType[] = EXTENDED_PREVIEW_ITEMS.map((item, i) => {
   return {
     id: `mock-photo-${i}`,
     title: item.photo.text,
-    title_en: item.photo.text,
-    title_ca: item.photo.text,
     url: item.photo.url,
     orientation: item.photo.orientation || 'landscape',
     country: item.binomial.split(', ')[1] || 'Unknown',
@@ -358,8 +356,9 @@ function Gallery() {
     if (!DB) return [];
     const tagsSet = new Set<string>();
     DB.forEach(p => {
-      if (Array.isArray(p.tags)) {
-        p.tags.forEach(t => {
+      const tags = lang === 'en' && p.tags_en ? p.tags_en : lang === 'ca' && p.tags_ca ? p.tags_ca : p.tags;
+      if (Array.isArray(tags)) {
+        tags.forEach(t => {
           if (typeof t === 'string') {
             tagsSet.add(t.toLowerCase());
           }
@@ -367,17 +366,24 @@ function Gallery() {
       }
     });
     return Array.from(tagsSet).sort();
-  }, [DB]);
+  }, [DB, lang]);
 
   const filteredPhotos = useMemo(() => {
     if (!DB) return [];
     return DB.filter(p => {
       const query = searchQuery.toLowerCase();
-      const title = lang === 'es' ? p.title : lang === 'en' ? p.title_en : p.title_ca;
-      const tags = Array.isArray(p.tags) ? p.tags.filter(t => typeof t === 'string').map(t => t.toLowerCase()) : [];
+      const title = p.title;
+      const country = lang === 'en' && p.country_en ? p.country_en : lang === 'ca' && p.country_ca ? p.country_ca : p.country;
+      const city = lang === 'en' && p.city_en ? p.city_en : lang === 'ca' && p.city_ca ? p.city_ca : p.city;
+      const subtheme = lang === 'en' && p.subtheme_en ? p.subtheme_en : lang === 'ca' && p.subtheme_ca ? p.subtheme_ca : p.subtheme;
+      
+      const tagsArray = lang === 'en' && p.tags_en ? p.tags_en : lang === 'ca' && p.tags_ca ? p.tags_ca : p.tags;
+      const tags = Array.isArray(tagsArray) ? tagsArray.filter(t => typeof t === 'string').map(t => t.toLowerCase()) : [];
+      
       const matchText = (title || '').toLowerCase().includes(query) || 
-                        (p.country || '').toLowerCase().includes(query) || 
-                        (p.city || '').toLowerCase().includes(query) ||
+                        (country || '').toLowerCase().includes(query) || 
+                        (city || '').toLowerCase().includes(query) ||
+                        (subtheme || '').toLowerCase().includes(query) ||
                         tags.some(t => t.includes(query));
       
       const activeFiltersArray = Array.from(activeFilters).map(t => t.toLowerCase());
@@ -389,6 +395,10 @@ function Gallery() {
       return matchText && matchTags;
     });
   }, [DB, searchQuery, activeFilters, filterLogic, lang]);
+
+  useEffect(() => {
+    setActiveFilters(new Set());
+  }, [lang]);
 
   const toggleFilter = (tag: string) => {
     const newFilters = new Set(activeFilters);
@@ -717,7 +727,7 @@ function Gallery() {
                           />
                           <div className="mt-6 text-center z-10">
                             <h3 className="font-serif italic text-2xl mb-2">
-                              {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                              {journey.title}
                             </h3>
                             <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                               {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
@@ -764,7 +774,7 @@ function Gallery() {
                       />
                       <div className="mt-6 text-center z-10">
                         <h3 className="font-serif italic text-2xl mb-2">
-                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                          {journey.title}
                         </h3>
                         <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                           {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
@@ -809,7 +819,7 @@ function Gallery() {
                       />
                       <div className="mt-6 text-center z-10">
                         <h3 className="font-serif italic text-2xl mb-2">
-                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                          {journey.title}
                         </h3>
                         <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                           {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
@@ -836,7 +846,7 @@ function Gallery() {
               </button>
               <div className="max-w-4xl mx-auto mb-16 text-center">
                 <h1 className="text-6xl font-serif italic mb-6">
-                  {lang === 'es' ? selectedJourney.title : lang === 'en' ? (selectedJourney.title_en || selectedJourney.title) : (selectedJourney.title_ca || selectedJourney.title)}
+                  {selectedJourney.title}
                 </h1>
                 <p className="text-lg text-brand-secondary font-light leading-relaxed mb-8">
                   {lang === 'es' ? selectedJourney.intro : lang === 'en' ? (selectedJourney.intro_en || selectedJourney.intro) : (selectedJourney.intro_ca || selectedJourney.intro)}

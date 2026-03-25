@@ -68,8 +68,6 @@ export const HeroSelector: React.FC = () => {
 
                   await addDoc(collection(db, 'photos'), {
                     title: file.name.split('.')[0],
-                    title_en: file.name.split('.')[0],
-                    title_ca: file.name.split('.')[0],
                     caption: '',
                     caption_en: '',
                     caption_ca: '',
@@ -93,8 +91,6 @@ export const HeroSelector: React.FC = () => {
                   // Fallback if image cannot be loaded (e.g. unsupported format in browser)
                   await addDoc(collection(db, 'photos'), {
                     title: file.name.split('.')[0],
-                    title_en: file.name.split('.')[0],
-                    title_ca: file.name.split('.')[0],
                     caption: '',
                     caption_en: '',
                     caption_ca: '',

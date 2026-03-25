@@ -5,6 +5,7 @@ import { db } from '../firebase';
 import { FlowButton } from './ui/flow-button';
 import { formatDate } from '../lib/utils';
 import { Strings } from '../data';
+import { translateMetadata } from '../services/geminiService';
 
 interface CommentSectionProps {
   targetId: string;
@@ -18,6 +19,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ targetId, target
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
   const [userName, setUserName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const s = (Strings as any)[lang] || Strings.es;
 
   useEffect(() => {
@@ -35,13 +37,21 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ targetId, target
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !userName.trim()) return;
+    if (!newComment.trim() || !userName.trim() || isSubmitting) return;
+    
+    setIsSubmitting(true);
     try {
+      // Translate comment to es, en, ca
+      const translations = await translateMetadata(newComment, ['es', 'en', 'ca']);
+      
       await addDoc(collection(db, 'comments'), {
         targetId,
         targetType,
         userName,
         text: newComment,
+        text_es: translations.es || newComment,
+        text_en: translations.en || newComment,
+        text_ca: translations.ca || newComment,
         isApproved: false,
         createdAt: serverTimestamp()
       });
@@ -50,6 +60,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ targetId, target
       alert(s.labels.moderationNote);
     } catch (error) {
       console.error("Error adding comment: ", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -122,7 +134,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ targetId, target
                   {formatDate(c.createdAt)}
                 </span>
               </div>
-              <p className={`text-xs ${isDark ? 'text-white/70' : 'text-neutral-700'} leading-relaxed`}>{c.text}</p>
+              <p className={`text-xs ${isDark ? 'text-white/70' : 'text-neutral-700'} leading-relaxed`}>
+                {lang === 'es' ? (c.text_es || c.text) : lang === 'en' ? (c.text_en || c.text) : (c.text_ca || c.text)}
+              </p>
             </div>
           ))
         )}

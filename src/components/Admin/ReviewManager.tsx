@@ -81,7 +81,11 @@ export const ReviewManager: React.FC = () => {
       
       <div className="flex gap-3 text-gray-600 bg-zinc-50 p-4 rounded-xl italic text-sm">
         <MessageSquare size={16} className="shrink-0 mt-1 opacity-40" />
-        <p>{review.text}</p>
+        <div className="space-y-2 w-full">
+          <p><span className="font-bold not-italic text-xs uppercase mr-2">Original ({review.originalLang || 'es'}):</span> {review.text}</p>
+          {review.text_en && <p className="text-gray-500"><span className="font-bold not-italic text-xs uppercase mr-2">EN:</span> {review.text_en}</p>}
+          {review.text_ca && <p className="text-gray-500"><span className="font-bold not-italic text-xs uppercase mr-2">CA:</span> {review.text_ca}</p>}
+        </div>
       </div>
     </motion.div>
   );

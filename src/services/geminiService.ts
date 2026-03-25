@@ -43,6 +43,44 @@ export const translateMetadata = async (text: string, targetLangs: string[]) => 
   }
 };
 
+export const translateReview = async (text: string, targetLang: string) => {
+  if (!text || !targetLang) return null;
+
+  console.log(`Translating review: "${text}" to ${targetLang}`);
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Translate the following review text to the language code: ${targetLang}. 
+      The input text is: "${text}"
+      
+      IMPORTANT: 
+      1. Return ONLY a valid JSON object.
+      2. Identify the original language of the input text and return its language code (e.g., 'es', 'en', 'ca', 'fr', 'zh', etc.) in the 'originalLang' field.
+      3. Return the translated text in the 'translatedText' field.
+      4. If the original language is the same as the target language, 'translatedText' should be the same as the input text.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            originalLang: { type: Type.STRING },
+            translatedText: { type: Type.STRING }
+          },
+          required: ["originalLang", "translatedText"]
+        }
+      }
+    });
+
+    const result = JSON.parse(response.text || '{}');
+    console.log("Review translation result:", result);
+    return result as { originalLang: string, translatedText: string };
+  } catch (error) {
+    console.error("Review translation error:", error);
+    return null;
+  }
+};
+
 export const translateObject = async (data: Record<string, string>, targetLangs: string[]) => {
   const keysToTranslate = Object.keys(data).filter(k => data[k] && data[k].trim() !== '');
   if (keysToTranslate.length === 0 || targetLangs.length === 0) return {};

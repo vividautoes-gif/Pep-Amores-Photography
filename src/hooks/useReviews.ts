@@ -6,6 +6,10 @@ export interface Review {
   id: string;
   name: string;
   text: string;
+  text_es?: string;
+  text_en?: string;
+  text_ca?: string;
+  originalLang?: string;
   createdAt: any;
   isApproved: boolean;
 }
@@ -41,9 +45,36 @@ export function useReviews(isAdmin: boolean = false) {
 
   const addReview = async (name: string, text: string) => {
     try {
+      const { translateReview, translateMetadata } = await import('../services/geminiService');
+      
+      let text_es = text;
+      let text_en = text;
+      let text_ca = text;
+      let originalLang = 'es'; // default
+      
+      try {
+        // First get the original language and English translation (or another target)
+        const reviewTrans = await translateReview(text, 'en');
+        if (reviewTrans) {
+          originalLang = reviewTrans.originalLang;
+          text_en = reviewTrans.translatedText;
+          
+          // Now translate to the other languages
+          const otherTrans = await translateMetadata(text, ['es', 'ca']);
+          if (otherTrans.es) text_es = otherTrans.es;
+          if (otherTrans.ca) text_ca = otherTrans.ca;
+        }
+      } catch (e) {
+        console.error("Error translating review:", e);
+      }
+
       await addDoc(collection(db, 'reviews'), {
         name,
         text,
+        text_es,
+        text_en,
+        text_ca,
+        originalLang,
         createdAt: serverTimestamp(),
         isApproved: false // Default to false for moderation
       });

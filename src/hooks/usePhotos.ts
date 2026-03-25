@@ -5,8 +5,6 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 export interface Photo {
   id: string;
   title: string;
-  title_en: string;
-  title_ca: string;
   url: string;
   orientation: 'landscape' | 'portrait' | 'square';
   country: string;
@@ -25,6 +23,8 @@ export interface Photo {
   subtheme_en?: string;
   subtheme_ca?: string;
   tags: string[];
+  tags_en?: string[];
+  tags_ca?: string[];
   isLFI: boolean;
   lfiType: 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week' | 'none';
   lfiDate?: string;
@@ -47,8 +47,6 @@ export interface Photo {
 export interface Journey {
   id: string;
   title: string;
-  title_en?: string;
-  title_ca?: string;
   country: string;
   country_en?: string;
   country_ca?: string;

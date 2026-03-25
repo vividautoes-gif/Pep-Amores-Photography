@@ -108,7 +108,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
               {/* Header */}
               <div className="mb-6 lg:mb-8">
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight uppercase leading-tight">
-                  {lang === 'es' ? photo.title : lang === 'en' ? (photo.title_en || photo.title) : (photo.title_ca || photo.title)}
+                  {photo.title}
                 </h2>
                 <p className="text-sm text-white/60 mt-2 uppercase tracking-widest">Pep Amores</p>
               </div>

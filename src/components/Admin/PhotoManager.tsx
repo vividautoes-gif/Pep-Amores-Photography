@@ -31,49 +31,58 @@ export const PhotoManager: React.FC = () => {
         finalData.tags = (finalData.tags as string).split(',').map(t => t.trim().toLowerCase()).filter(t => t);
       }
       
+      const originalPhoto = photos.find(p => p.id === editingId);
+      const captionChanged = originalPhoto && originalPhoto.caption !== finalData.caption;
+
+      if (captionChanged && !finalData.caption) {
+        finalData.caption_en = '';
+        finalData.caption_ca = '';
+      }
+
       // Translate fields
-      if (finalData.title) {
-        const titleTrans = await translateMetadata(finalData.title, ['es', 'en', 'ca']);
-        if (Object.keys(titleTrans).length > 0) {
-          finalData.title = titleTrans.es || finalData.title;
-          finalData.title_en = titleTrans.en || finalData.title;
-          finalData.title_ca = titleTrans.ca || finalData.title;
-        }
+      const fieldsToTranslate: any = {};
+      if (finalData.caption && captionChanged) fieldsToTranslate.caption = finalData.caption;
+      if (!finalData.country_en || !finalData.country_ca) fieldsToTranslate.country = finalData.country || '';
+      if (!finalData.city_en || !finalData.city_ca) fieldsToTranslate.city = finalData.city || '';
+      if (!finalData.neighborhood_en || !finalData.neighborhood_ca) fieldsToTranslate.neighborhood = finalData.neighborhood || '';
+      fieldsToTranslate.subtheme = finalData.subtheme || '';
+      if (!finalData.tags_en || !finalData.tags_ca) {
+        fieldsToTranslate.tags = Array.isArray(finalData.tags) ? finalData.tags.join(', ') : (finalData.tags || '');
       }
-      if (finalData.caption) {
-        const capTrans = await translateMetadata(finalData.caption, ['es', 'en', 'ca']);
-        if (Object.keys(capTrans).length > 0) {
-          finalData.caption = capTrans.es || finalData.caption;
-          finalData.caption_en = capTrans.en || finalData.caption;
-          finalData.caption_ca = capTrans.ca || finalData.caption;
-        }
-      }
-      
-      const fieldsToTranslate = {
-        country: finalData.country || '',
-        city: finalData.city || '',
-        neighborhood: finalData.neighborhood || '',
-        subtheme: finalData.subtheme || ''
-      };
       const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
       
       if (objTrans.es) {
-        if (objTrans.es.country) finalData.country = objTrans.es.country;
-        if (objTrans.es.city) finalData.city = objTrans.es.city;
-        if (objTrans.es.neighborhood) finalData.neighborhood = objTrans.es.neighborhood;
-        if (objTrans.es.subtheme) finalData.subtheme = objTrans.es.subtheme;
+        if (objTrans.es.caption && captionChanged) finalData.caption = objTrans.es.caption;
+        if (objTrans.es.country) finalData.country = finalData.country || objTrans.es.country;
+        if (objTrans.es.city) finalData.city = finalData.city || objTrans.es.city;
+        if (objTrans.es.neighborhood) finalData.neighborhood = finalData.neighborhood || objTrans.es.neighborhood;
+        if (objTrans.es.subtheme) finalData.subtheme = finalData.subtheme || objTrans.es.subtheme;
+        if (objTrans.es.tags && !finalData.tags) finalData.tags = objTrans.es.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
+      }
+      if (typeof finalData.tags === 'string') {
+        finalData.tags = finalData.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
       if (objTrans.en) {
-        if (objTrans.en.country) finalData.country_en = objTrans.en.country;
-        if (objTrans.en.city) finalData.city_en = objTrans.en.city;
-        if (objTrans.en.neighborhood) finalData.neighborhood_en = objTrans.en.neighborhood;
-        if (objTrans.en.subtheme) finalData.subtheme_en = objTrans.en.subtheme;
+        if (objTrans.en.caption && captionChanged) finalData.caption_en = objTrans.en.caption;
+        if (objTrans.en.country) finalData.country_en = finalData.country_en || objTrans.en.country;
+        if (objTrans.en.city) finalData.city_en = finalData.city_en || objTrans.en.city;
+        if (objTrans.en.neighborhood) finalData.neighborhood_en = finalData.neighborhood_en || objTrans.en.neighborhood;
+        if (objTrans.en.subtheme) finalData.subtheme_en = finalData.subtheme_en || objTrans.en.subtheme;
+        if (objTrans.en.tags && !finalData.tags_en) finalData.tags_en = objTrans.en.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
+      }
+      if (typeof finalData.tags_en === 'string') {
+        finalData.tags_en = finalData.tags_en.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
       if (objTrans.ca) {
-        if (objTrans.ca.country) finalData.country_ca = objTrans.ca.country;
-        if (objTrans.ca.city) finalData.city_ca = objTrans.ca.city;
-        if (objTrans.ca.neighborhood) finalData.neighborhood_ca = objTrans.ca.neighborhood;
-        if (objTrans.ca.subtheme) finalData.subtheme_ca = objTrans.ca.subtheme;
+        if (objTrans.ca.caption && captionChanged) finalData.caption_ca = objTrans.ca.caption;
+        if (objTrans.ca.country) finalData.country_ca = finalData.country_ca || objTrans.ca.country;
+        if (objTrans.ca.city) finalData.city_ca = finalData.city_ca || objTrans.ca.city;
+        if (objTrans.ca.neighborhood) finalData.neighborhood_ca = finalData.neighborhood_ca || objTrans.ca.neighborhood;
+        if (objTrans.ca.subtheme) finalData.subtheme_ca = finalData.subtheme_ca || objTrans.ca.subtheme;
+        if (objTrans.ca.tags && !finalData.tags_ca) finalData.tags_ca = objTrans.ca.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
+      }
+      if (typeof finalData.tags_ca === 'string') {
+        finalData.tags_ca = finalData.tags_ca.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
       
       console.log("Final photo data to save:", finalData);
@@ -129,30 +138,133 @@ export const PhotoManager: React.FC = () => {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Título</label>
-                        <input 
-                          value={editData.title || ''} 
-                          onChange={e => setEditData({...editData, title: e.target.value})} 
-                          className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
-                        />
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Título</label>
+                          <input 
+                            value={editData.title || ''} 
+                            onChange={e => setEditData({...editData, title: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
                       </div>
                       
-                      <div>
-                        <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">País</label>
-                        <input 
-                          value={editData.country || ''} 
-                          onChange={e => setEditData({...editData, country: e.target.value})} 
-                          className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
-                        />
+                      <div className="md:col-span-2">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Descripción</label>
+                          <textarea 
+                            value={editData.caption || ''} 
+                            onChange={e => setEditData({...editData, caption: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none h-24" 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">País (ES)</label>
+                          <input 
+                            value={editData.country || ''} 
+                            onChange={e => setEditData({...editData, country: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">País (EN)</label>
+                          <input 
+                            value={editData.country_en || ''} 
+                            onChange={e => setEditData({...editData, country_en: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">País (CA)</label>
+                          <input 
+                            value={editData.country_ca || ''} 
+                            onChange={e => setEditData({...editData, country_ca: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
                       </div>
                       
-                      <div>
-                        <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Ciudad</label>
-                        <input 
-                          value={editData.city || ''} 
-                          onChange={e => setEditData({...editData, city: e.target.value})} 
-                          className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
-                        />
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Ciudad (ES)</label>
+                          <input 
+                            value={editData.city || ''} 
+                            onChange={e => setEditData({...editData, city: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Ciudad (EN)</label>
+                          <input 
+                            value={editData.city_en || ''} 
+                            onChange={e => setEditData({...editData, city_en: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Ciudad (CA)</label>
+                          <input 
+                            value={editData.city_ca || ''} 
+                            onChange={e => setEditData({...editData, city_ca: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Barrio (ES)</label>
+                          <input 
+                            value={editData.neighborhood || ''} 
+                            onChange={e => setEditData({...editData, neighborhood: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Barrio (EN)</label>
+                          <input 
+                            value={editData.neighborhood_en || ''} 
+                            onChange={e => setEditData({...editData, neighborhood_en: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Barrio (CA)</label>
+                          <input 
+                            value={editData.neighborhood_ca || ''} 
+                            onChange={e => setEditData({...editData, neighborhood_ca: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Subtema (ES)</label>
+                          <input 
+                            value={editData.subtheme || ''} 
+                            onChange={e => setEditData({...editData, subtheme: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Subtema (EN)</label>
+                          <input 
+                            value={editData.subtheme_en || ''} 
+                            onChange={e => setEditData({...editData, subtheme_en: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Subtema (CA)</label>
+                          <input 
+                            value={editData.subtheme_ca || ''} 
+                            onChange={e => setEditData({...editData, subtheme_ca: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
                       </div>
 
                       <div>
@@ -177,13 +289,31 @@ export const PhotoManager: React.FC = () => {
                         </select>
                       </div>
 
-                      <div className="md:col-span-2">
-                        <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Hashtags (separados por comas)</label>
-                        <input 
-                          value={editData.tags as any || ''} 
-                          onChange={e => setEditData({...editData, tags: e.target.value as any})} 
-                          className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
-                        />
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Hashtags (ES)</label>
+                          <input 
+                            value={editData.tags as any || ''} 
+                            onChange={e => setEditData({...editData, tags: e.target.value as any})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Hashtags (EN)</label>
+                          <input 
+                            value={editData.tags_en as any || ''} 
+                            onChange={e => setEditData({...editData, tags_en: e.target.value as any})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Hashtags (CA)</label>
+                          <input 
+                            value={editData.tags_ca as any || ''} 
+                            onChange={e => setEditData({...editData, tags_ca: e.target.value as any})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
                       </div>
 
                       <div className="md:col-span-2 space-y-4 pt-2">
@@ -280,6 +410,12 @@ export const PhotoManager: React.FC = () => {
                           </span>
                         ))}
                       </div>
+
+                      {photo.caption && (
+                        <p className="text-sm text-gray-600 line-clamp-3 mt-4">
+                          {photo.caption}
+                        </p>
+                      )}
 
                       {photo.isLFI && (
                         <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl border border-red-100">

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useReviews } from '../hooks/useReviews';
-import { StaggerTestimonials } from './ui/stagger-testimonials';
-import { FlowButton } from './ui/flow-button';
-import { Strings } from '../data';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { cn } from '../lib/utils';
+import { FlowButton } from './ui/flow-button';
 
 interface ReviewsSectionProps {
   lang: 'es' | 'en' | 'ca';
@@ -39,18 +38,37 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
     }
   };
 
-  const t = Strings[lang];
+  const getLanguageName = (code: string, displayLang: string) => {
+    const names: Record<string, Record<string, string>> = {
+      'es': { 'es': 'Español', 'en': 'Spanish', 'ca': 'Espanyol' },
+      'en': { 'es': 'Inglés', 'en': 'English', 'ca': 'Anglès' },
+      'ca': { 'es': 'Catalán', 'en': 'Catalan', 'ca': 'Català' },
+      'fr': { 'es': 'Francés', 'en': 'French', 'ca': 'Francès' },
+      'de': { 'es': 'Alemán', 'en': 'German', 'ca': 'Alemany' },
+      'it': { 'es': 'Italiano', 'en': 'Italian', 'ca': 'Italià' },
+      'zh': { 'es': 'Chino', 'en': 'Chinese', 'ca': 'Xinès' },
+      'ja': { 'es': 'Japonés', 'en': 'Japanese', 'ca': 'Japonès' },
+    };
+    return names[code]?.[displayLang] || code.toUpperCase();
+  };
+
+  const getTranslatedText = (displayLang: string) => {
+    if (displayLang === 'es') return 'Traducido del';
+    if (displayLang === 'ca') return 'Traduït del';
+    return 'Translated from';
+  };
 
   return (
-    <section className="py-8 bg-white relative overflow-hidden">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-6">
+    <section className="py-16 bg-white relative overflow-hidden" id="reviews">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Section Header */}
+        <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
             {lang === 'es' ? 'Reseñas' : lang === 'en' ? 'Reviews' : 'Ressenyes'}
           </h2>
-          <div className="w-24 h-1 bg-brand-tertiary mx-auto" />
         </div>
 
+        {/* Reviews Body */}
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-brand-primary/40" />
@@ -60,58 +78,92 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
             {error}
           </div>
         ) : reviews.length > 0 ? (
-          <StaggerTestimonials testimonials={reviews} />
+          <div className="relative">
+            <div className={cn(
+              "columns-1 md:columns-2 lg:columns-4 gap-6",
+              showSeeMore ? "max-h-[1200px] md:max-h-[900px] lg:max-h-[800px] overflow-hidden" : ""
+            )}>
+              {reviews.map(r => {
+                const reviewText = lang === 'en' && r.text_en ? r.text_en : lang === 'ca' && r.text_ca ? r.text_ca : r.text_es || r.text;
+                const isTranslated = r.originalLang && r.originalLang !== lang;
+                
+                return (
+                  <div key={r.id} className="break-inside-avoid mb-6 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                    <h4 className="font-medium text-lg mb-3 text-brand-primary">{r.name}</h4>
+                    <p className="text-brand-secondary italic leading-relaxed text-sm mb-4">"{reviewText}"</p>
+                    {isTranslated && (
+                      <div className="text-right mt-2">
+                        <span className="text-[10px] text-brand-secondary/70 uppercase tracking-wider">
+                          {getTranslatedText(lang)} {getLanguageName(r.originalLang, lang)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Gradient Cut Effect */}
+            {showSeeMore && (
+              <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+            )}
+          </div>
         ) : (
           <div className="text-center text-brand-secondary py-12 italic">
             {lang === 'es' ? 'Aún no hay reseñas aprobadas.' : lang === 'en' ? 'No approved reviews yet.' : 'Encara no hi ha ressenyes aprovades.'}
           </div>
         )}
 
+        {/* Separator Line 1 */}
         {showSeeMore && (
-          <div className="flex justify-center mt-12">
-            <FlowButton 
-              onClick={onSeeMore || (() => window.location.hash = '#reviews')}
-              text={lang === 'es' ? 'Ver más reseñas' : lang === 'en' ? 'See more reviews' : 'Veure més ressenyes'}
-            />
-          </div>
+          <>
+            <div className="w-full h-px bg-gray-200 my-8" />
+            
+            {/* See More Button */}
+            <div className="flex justify-center mb-8">
+              <FlowButton 
+                onClick={onSeeMore || (() => window.location.hash = '#reviews')}
+                text={lang === 'es' ? 'Ver más reseñas' : lang === 'en' ? 'See more reviews' : 'Veure més ressenyes'}
+              />
+            </div>
+          </>
         )}
 
-        {/* Submission Form */}
-        <div className="max-w-2xl mx-auto mt-8 pt-8 border-t border-brand-tertiary">
-          <div className="text-center mb-4">
-            <h3 className="text-2xl font-serif italic mb-2">
-              {lang === 'es' ? 'Deja tu reseña' : lang === 'en' ? 'Leave a review' : 'Deixa la teva ressenya'}
+        {/* Separator Line 2 */}
+        <div className="w-full h-px bg-gray-200 my-12" />
+
+        {/* Form Header */}
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-serif italic mb-2">
+              {lang === 'es' ? 'Deja tu reseña' : lang === 'en' ? 'Leave your review' : 'Deixa la teva ressenya'}
             </h3>
-            <p className="text-brand-secondary">
-              {lang === 'es' ? 'Comparte tu experiencia conmigo.' : lang === 'en' ? 'Share your experience with me.' : 'Comparteix la teva experiència amb mi.'}
-            </p>
           </div>
 
+          {/* Form Fields */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
-                {t.labels.name}
+              <label className="text-sm font-medium text-brand-primary">
+                {lang === 'es' ? 'Nombre' : lang === 'en' ? 'Name' : 'Nom'}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none"
-                placeholder={lang === 'es' ? 'Tu nombre' : lang === 'en' ? 'Your name' : 'El teu nom'}
+                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all outline-none"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
-                {lang === 'es' ? 'Reseña' : lang === 'en' ? 'Review' : 'Ressenya'}
+              <label className="text-sm font-medium text-brand-primary">
+                {lang === 'es' ? 'Tu reseña' : lang === 'en' ? 'Your review' : 'La teva ressenya'}
               </label>
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 required
-                rows={4}
-                className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none resize-none"
-                placeholder={lang === 'es' ? 'Escribe aquí tu experiencia...' : lang === 'en' ? 'Write your experience here...' : 'Escriu aquí la teva experiència...'}
+                rows={5}
+                className="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all outline-none resize-none"
               />
             </div>
 
@@ -121,7 +173,7 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex items-center justify-center gap-2 text-green-600 bg-green-50 py-4 rounded-xl"
+                  className="flex items-center justify-center gap-2 text-green-600 bg-green-50 py-4 rounded-lg border border-green-100"
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   <span className="text-sm font-medium">
@@ -133,25 +185,22 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex items-center justify-center gap-2 text-red-600 bg-red-50 py-4 rounded-xl"
+                  className="flex items-center justify-center gap-2 text-red-600 bg-red-50 py-4 rounded-lg border border-red-100"
                 >
                   <AlertCircle className="w-5 h-5" />
                   <span className="text-sm font-medium">{submitError}</span>
                 </motion.div>
               ) : (
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   disabled={submitting}
-                  className="w-full bg-brand-primary text-white py-4 rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-all hover:bg-zinc-800"
+                  className="w-full bg-black text-white py-4 rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-all hover:bg-zinc-800"
                 >
                   {submitting ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <>
-                      <Send className="w-5 h-5" />
-                      <span className="uppercase tracking-widest text-xs font-bold">{lang === 'es' ? 'Enviar reseña' : lang === 'en' ? 'Send review' : 'Enviar ressenya'}</span>
-                    </>
+                    <span>{lang === 'es' ? 'Enviar reseña' : lang === 'en' ? 'Submit review' : 'Enviar ressenya'}</span>
                   )}
                 </motion.button>
               )}

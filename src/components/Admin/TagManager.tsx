@@ -3,6 +3,7 @@ import { db } from '../../firebase';
 import { collection, getDocs, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Photo } from '../../hooks/usePhotos';
 import { Loader2, Hash, Edit2, Save, X } from 'lucide-react';
+import { translateMetadata } from '../../services/geminiService';
 
 export const TagManager: React.FC = () => {
   const [tags, setTags] = useState<string[]>([]);
@@ -31,15 +32,49 @@ export const TagManager: React.FC = () => {
     
     setLoading(true);
     try {
+      const translations = await translateMetadata(newTagName, ['en', 'ca']);
+      const newTagEn = translations.en ? translations.en.toLowerCase().trim() : newTagName.toLowerCase().trim();
+      const newTagCa = translations.ca ? translations.ca.toLowerCase().trim() : newTagName.toLowerCase().trim();
+
       const snapshot = await getDocs(collection(db, 'photos'));
       const batch = writeBatch(db);
       let count = 0;
 
       snapshot.docs.forEach(photoDoc => {
         const data = photoDoc.data() as Photo;
+        let needsUpdate = false;
+        const updateData: any = {};
+
         if (data.tags && data.tags.some(t => t.toLowerCase() === oldTag.toLowerCase())) {
-          const updatedTags = data.tags.map(t => t.toLowerCase() === oldTag.toLowerCase() ? newTagName.toLowerCase().trim() : t);
-          batch.update(photoDoc.ref, { tags: updatedTags });
+          updateData.tags = data.tags.map(t => t.toLowerCase() === oldTag.toLowerCase() ? newTagName.toLowerCase().trim() : t);
+          needsUpdate = true;
+        }
+
+        // We also need to update tags_en and tags_ca if they exist, but we don't know the old English/Catalan tag name.
+        // However, if we are renaming the Spanish tag, we can try to find the corresponding translated tag by index,
+        // or just append the new translated tag and remove the old one if we can identify it.
+        // For simplicity, we'll just update the tags array and let the user manually fix EN/CA if needed,
+        // or we can try to replace the tag at the same index.
+        if (data.tags && data.tags_en && data.tags_ca) {
+          const index = data.tags.findIndex(t => t.toLowerCase() === oldTag.toLowerCase());
+          if (index !== -1) {
+            if (data.tags_en[index]) {
+              const newTagsEn = [...data.tags_en];
+              newTagsEn[index] = newTagEn;
+              updateData.tags_en = newTagsEn;
+              needsUpdate = true;
+            }
+            if (data.tags_ca[index]) {
+              const newTagsCa = [...data.tags_ca];
+              newTagsCa[index] = newTagCa;
+              updateData.tags_ca = newTagsCa;
+              needsUpdate = true;
+            }
+          }
+        }
+
+        if (needsUpdate) {
+          batch.update(photoDoc.ref, updateData);
           count++;
         }
       });

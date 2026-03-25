@@ -37,8 +37,12 @@ export const UploadForm: React.FC = () => {
     isHero: false,
     isJourneyCover: false,
     caption: '',
+    caption_en: '',
+    caption_ca: '',
     journeyId: '',
     subtheme: '',
+    subtheme_en: '',
+    subtheme_ca: '',
     cameraModel: '',
     lens: '',
     focalLength: '',
@@ -197,17 +201,18 @@ export const UploadForm: React.FC = () => {
     try {
       setTranslating(true);
       console.log("Translating metadata for new upload...", formData.title);
-      const translations = await translateMetadata(formData.title, ['es', 'en', 'ca']);
-      const captionTranslations = formData.caption ? await translateMetadata(formData.caption, ['es', 'en', 'ca']) : {};
       
-      const fieldsToTranslate = {
-        country: formData.country,
-        city: formData.city,
-        neighborhood: formData.neighborhood,
-        subtheme: formData.subtheme
-      };
+      const fieldsToTranslate: any = {};
+      if (!formData.country_en || !formData.country_ca) fieldsToTranslate.country = formData.country;
+      if (!formData.city_en || !formData.city_ca) fieldsToTranslate.city = formData.city;
+      if (!formData.neighborhood_en || !formData.neighborhood_ca) fieldsToTranslate.neighborhood = formData.neighborhood;
+      if (!formData.subtheme_en || !formData.subtheme_ca) fieldsToTranslate.subtheme = formData.subtheme;
+      if (formData.caption) fieldsToTranslate.caption = formData.caption;
+      if (!formData.tags_en || !formData.tags_ca) {
+        fieldsToTranslate.tags = formData.tags;
+      }
       const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
-      console.log("Translations received:", { translations, captionTranslations, objectTranslations });
+      console.log("Translations received:", { objectTranslations });
       
       setTranslating(false);
 
@@ -233,26 +238,26 @@ export const UploadForm: React.FC = () => {
             
             const finalData = {
               ...formData,
-              title: translations.es || formData.title,
-              title_en: translations.en || formData.title,
-              title_ca: translations.ca || formData.title,
-              caption: captionTranslations.es || formData.caption,
-              caption_en: captionTranslations.en || formData.caption,
-              caption_ca: captionTranslations.ca || formData.caption,
+              title: formData.title,
+              caption: objectTranslations.es?.caption || formData.caption,
+              caption_en: objectTranslations.en?.caption || formData.caption,
+              caption_ca: objectTranslations.ca?.caption || formData.caption,
               country: objectTranslations.es?.country || formData.country,
-              country_en: objectTranslations.en?.country || formData.country,
-              country_ca: objectTranslations.ca?.country || formData.country,
+              country_en: formData.country_en || objectTranslations.en?.country || formData.country,
+              country_ca: formData.country_ca || objectTranslations.ca?.country || formData.country,
               city: objectTranslations.es?.city || formData.city,
-              city_en: objectTranslations.en?.city || formData.city,
-              city_ca: objectTranslations.ca?.city || formData.city,
+              city_en: formData.city_en || objectTranslations.en?.city || formData.city,
+              city_ca: formData.city_ca || objectTranslations.ca?.city || formData.city,
               neighborhood: objectTranslations.es?.neighborhood || formData.neighborhood,
-              neighborhood_en: objectTranslations.en?.neighborhood || formData.neighborhood,
-              neighborhood_ca: objectTranslations.ca?.neighborhood || formData.neighborhood,
+              neighborhood_en: formData.neighborhood_en || objectTranslations.en?.neighborhood || formData.neighborhood,
+              neighborhood_ca: formData.neighborhood_ca || objectTranslations.ca?.neighborhood || formData.neighborhood,
               subtheme: objectTranslations.es?.subtheme || formData.subtheme,
-              subtheme_en: objectTranslations.en?.subtheme || formData.subtheme,
-              subtheme_ca: objectTranslations.ca?.subtheme || formData.subtheme,
+              subtheme_en: formData.subtheme_en || objectTranslations.en?.subtheme || formData.subtheme,
+              subtheme_ca: formData.subtheme_ca || objectTranslations.ca?.subtheme || formData.subtheme,
               url: downloadURL,
               tags: formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t),
+              tags_en: (formData.tags_en || objectTranslations.en?.tags || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
+              tags_ca: (formData.tags_ca || objectTranslations.ca?.tags || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
               authorUid: auth.currentUser?.uid,
               createdAt: serverTimestamp()
             };
@@ -272,9 +277,9 @@ export const UploadForm: React.FC = () => {
             setUploadStep('');
             setProgress(0);
             setFormData({
-              title: '', country: '', city: '', neighborhood: '', year: new Date().getFullYear(), photoDate: '',
-              tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
-              isLFI: false, lfiType: 'none', lfiDate: '', isHero: false, isJourneyCover: false, caption: '', journeyId: '', subtheme: '',
+              title: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', neighborhood: '', neighborhood_en: '', neighborhood_ca: '', year: new Date().getFullYear(), photoDate: '',
+              tags: '', tags_en: '', tags_ca: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
+              isLFI: false, lfiType: 'none', lfiDate: '', isHero: false, isJourneyCover: false, caption: '', caption_en: '', caption_ca: '', journeyId: '', subtheme: '', subtheme_en: '', subtheme_ca: '',
               cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
             });
             alert("¡Fotografía publicada con éxito!");
@@ -349,47 +354,115 @@ export const UploadForm: React.FC = () => {
 
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="col-span-2 flex justify-between items-center mb-[-1rem]">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Título</h3>
+            </div>
+            
             <div className="col-span-2">
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (ES)</label>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título</label>
               <input 
                 type="text" value={formData.title}
                 onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                placeholder="Ej: El Monje Solitario"
+                placeholder="Ej: The Lonely Monk"
               />
             </div>
             
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
-                País
-                {geocoding && <Loader2 size={12} className="animate-spin text-red-600" />}
-              </label>
-              <input 
-                type="text" value={formData.country}
-                onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                placeholder="Marruecos"
-              />
+            <div className="col-span-2 mt-4">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2">Localización y Metadatos</h3>
+            </div>
+            
+            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
+                  País (ES)
+                  {geocoding && <Loader2 size={12} className="animate-spin text-red-600" />}
+                </label>
+                <input 
+                  type="text" value={formData.country}
+                  onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Marruecos"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (EN)</label>
+                <input 
+                  type="text" value={formData.country_en}
+                  onChange={e => setFormData(prev => ({ ...prev, country_en: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Morocco"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (CA)</label>
+                <input 
+                  type="text" value={formData.country_ca}
+                  onChange={e => setFormData(prev => ({ ...prev, country_ca: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Marroc"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad / Localización</label>
-              <input 
-                type="text" value={formData.city}
-                onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                placeholder="Marrakech"
-              />
+            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (ES)</label>
+                <input 
+                  type="text" value={formData.city}
+                  onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Marrakech"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (EN)</label>
+                <input 
+                  type="text" value={formData.city_en}
+                  onChange={e => setFormData(prev => ({ ...prev, city_en: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Marrakesh"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (CA)</label>
+                <input 
+                  type="text" value={formData.city_ca}
+                  onChange={e => setFormData(prev => ({ ...prev, city_ca: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Marràqueix"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (Opcional)</label>
-              <input 
-                type="text" value={formData.neighborhood}
-                onChange={e => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                placeholder="Medina"
-              />
+            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (ES)</label>
+                <input 
+                  type="text" value={formData.neighborhood}
+                  onChange={e => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Medina"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (EN)</label>
+                <input 
+                  type="text" value={formData.neighborhood_en}
+                  onChange={e => setFormData(prev => ({ ...prev, neighborhood_en: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Medina"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (CA)</label>
+                <input 
+                  type="text" value={formData.neighborhood_ca}
+                  onChange={e => setFormData(prev => ({ ...prev, neighborhood_ca: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Medina"
+                />
+              </div>
             </div>
 
             <div>
@@ -436,27 +509,72 @@ export const UploadForm: React.FC = () => {
               )}
             </div>
 
-            <div className="col-span-2 md:col-span-1">
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (Ej: Chinatown)</label>
-              <input 
-                type="text" value={formData.subtheme}
-                onChange={e => setFormData(prev => ({ ...prev, subtheme: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-              />
+            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (ES)</label>
+                <input 
+                  type="text" value={formData.subtheme}
+                  onChange={e => setFormData(prev => ({ ...prev, subtheme: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Ej: Chinatown"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (EN)</label>
+                <input 
+                  type="text" value={formData.subtheme_en}
+                  onChange={e => setFormData(prev => ({ ...prev, subtheme_en: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Ej: Chinatown"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (CA)</label>
+                <input 
+                  type="text" value={formData.subtheme_ca}
+                  onChange={e => setFormData(prev => ({ ...prev, subtheme_ca: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="Ex: Barri Xinès"
+                />
+              </div>
+            </div>
+
+            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (ES)</label>
+                <input 
+                  type="text" value={formData.tags}
+                  onChange={e => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="portrait, street, market..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (EN)</label>
+                <input 
+                  type="text" value={formData.tags_en}
+                  onChange={e => setFormData(prev => ({ ...prev, tags_en: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="portrait, street, market..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (CA)</label>
+                <input 
+                  type="text" value={formData.tags_ca}
+                  onChange={e => setFormData(prev => ({ ...prev, tags_ca: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="retrat, carrer, mercat..."
+                />
+              </div>
+            </div>
+
+            <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Descripción / Historia</h3>
             </div>
 
             <div className="col-span-2">
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (separados por comas)</label>
-              <input 
-                type="text" value={formData.tags}
-                onChange={e => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                placeholder="portrait, street, market, bw, landscape..."
-              />
-            </div>
-
-            <div className="col-span-2">
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Caption / Historia (ES)</label>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Caption / Historia</label>
               <textarea 
                 value={formData.caption}
                 onChange={e => setFormData(prev => ({ ...prev, caption: e.target.value }))}
