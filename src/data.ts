@@ -129,14 +129,14 @@ export const Strings = {
     }
   },
   ca: { 
-    nav: ["Inici", "Viatges", "Sessions Especiales", "Explorar", "Preferides", "LFI", "Les meves pel·lícules", "Contacte"], 
+    nav: ["Inici", "Viatges", "Sessions Especials", "Explorar", "Preferides", "LFI", "Les meves pel·lícules", "Contacte"], 
     titles: { 
       home: "Prestar Atenció", 
       explore: "Explorar Arxiu", 
       fav: "Preferides", 
       lfi: "Leica Fotografie International", 
       journeys: "Diaris de Viatge", 
-      specialSessions: "Sessions Especiales",
+      specialSessions: "Sessions Especials",
       contact: "Contacte",
       about: "Sobre mi",
       latest: "Últimes 50",

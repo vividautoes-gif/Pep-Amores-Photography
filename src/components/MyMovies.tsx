@@ -73,6 +73,7 @@ const producerUpcoming: Movie[] = [
     type: 'Película',
     role: 'Producer',
     status: 'In Production',
+    image: 'https://i.imgur.com/2lzC9BC.jpg'
   },
   {
     id: 'pu3',
