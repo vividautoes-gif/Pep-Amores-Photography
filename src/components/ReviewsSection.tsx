@@ -42,9 +42,9 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
   const t = Strings[lang];
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section className="py-8 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-6">
           <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
             {lang === 'es' ? 'Reseñas' : lang === 'en' ? 'Reviews' : 'Ressenyes'}
           </h2>
@@ -77,8 +77,8 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
         )}
 
         {/* Submission Form */}
-        <div className="max-w-2xl mx-auto mt-24 pt-24 border-t border-brand-tertiary">
-          <div className="text-center mb-12">
+        <div className="max-w-2xl mx-auto mt-8 pt-8 border-t border-brand-tertiary">
+          <div className="text-center mb-4">
             <h3 className="text-2xl font-serif italic mb-2">
               {lang === 'es' ? 'Deja tu reseña' : lang === 'en' ? 'Leave a review' : 'Deixa la teva ressenya'}
             </h3>

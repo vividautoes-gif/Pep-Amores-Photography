@@ -31,8 +31,8 @@ export function StaggerTestimonials({ testimonials, className }: StaggerTestimon
   if (testimonials.length === 0) return null;
 
   return (
-    <div className={cn("relative w-full max-w-4xl mx-auto px-4 py-12", className)}>
-      <div className="relative overflow-hidden min-h-[300px] flex items-center justify-center">
+    <div className={cn("relative w-full max-w-4xl mx-auto px-4 py-6", className)}>
+      <div className="relative overflow-hidden min-h-[250px] flex items-center justify-center">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentIndex}
@@ -43,12 +43,12 @@ export function StaggerTestimonials({ testimonials, className }: StaggerTestimon
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="w-full flex flex-col items-center text-center"
           >
-            <Quote className="w-12 h-12 text-brand-primary/20 mb-6" />
-            <p className="text-xl md:text-2xl font-serif italic text-foreground leading-relaxed mb-8">
+            <Quote className="w-10 h-10 text-brand-primary/20 mb-4" />
+            <p className="text-xl md:text-2xl font-serif italic text-foreground leading-relaxed mb-4">
               "{testimonials[currentIndex].text}"
             </p>
             <div className="flex flex-col items-center">
-              <div className="w-12 h-px bg-brand-tertiary mb-4" />
+              <div className="w-12 h-px bg-brand-tertiary mb-3" />
               <h4 className="text-lg font-medium tracking-wide uppercase">
                 {testimonials[currentIndex].name}
               </h4>

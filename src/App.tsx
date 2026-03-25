@@ -547,7 +547,7 @@ function Gallery() {
               </div>
 
               {/* Navigation Folders (3D Flip Cards) */}
-              <section id="navigation-folders" className="w-full py-24 bg-neutral-50 border-b border-neutral-200 overflow-hidden">
+              <section id="navigation-folders" className="w-full py-8 bg-neutral-50 border-b border-neutral-200 overflow-hidden">
                 <div className="container mx-auto px-6">
                   <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
@@ -680,7 +680,7 @@ function Gallery() {
               <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
 
               {/* Featured Journeys */}
-              <section className="w-full py-24 bg-white">
+              <section className="w-full py-8 bg-white">
                 <div className="container mx-auto px-6">
                   <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div>
@@ -1142,7 +1142,7 @@ function Gallery() {
                 </div>
               </div>
               
-              <div className="mt-24">
+              <div className="mt-6">
                 <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
               </div>
             </motion.section>
@@ -1150,7 +1150,7 @@ function Gallery() {
 
           {currentSection === 'reviews' && (
             <motion.section key="all-reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
-              <div className="text-center mb-16">
+              <div className="text-center mb-8">
                 <h1 className="text-5xl font-serif italic mb-4">
                   {lang === 'es' ? 'Todas las Reseñas' : lang === 'en' ? 'All Reviews' : 'Totes les Ressenyes'}
                 </h1>
