@@ -23,7 +23,10 @@ export const JourneyManager: React.FC = () => {
 
   const handleEdit = (journey: Journey) => {
     setEditingId(journey.id);
-    setEditData(journey);
+    setEditData({
+      ...journey,
+      subthemes: journey.subthemes.join(', ')
+    } as any);
   };
 
   const handleSave = async (id: string) => {
@@ -32,24 +35,45 @@ export const JourneyManager: React.FC = () => {
       console.log("Saving journey with translation...", editData);
       const finalData = { ...editData };
       
-      if (finalData.intro) {
-        if (!finalData.intro_en || !finalData.intro_ca) {
-          const introTrans = await translateMetadata(finalData.intro, ['es', 'en', 'ca']);
-          if (Object.keys(introTrans).length > 0) {
-            finalData.intro = introTrans.es || finalData.intro;
-            finalData.intro_en = finalData.intro_en || introTrans.en || finalData.intro;
-            finalData.intro_ca = finalData.intro_ca || introTrans.ca || finalData.intro;
-          }
-        }
+      if (typeof (finalData as any).subthemes === 'string') {
+        finalData.subthemes = (finalData as any).subthemes.split(',').map((t: string) => t.trim()).filter((t: string) => t);
       }
-      
-      if (finalData.subthemes && finalData.subthemes.length > 0) {
-        const subthemesText = Array.isArray(finalData.subthemes) ? finalData.subthemes.join(', ') : finalData.subthemes;
-        const subthemesTrans = await translateMetadata(subthemesText, ['es', 'en', 'ca']);
-        if (Object.keys(subthemesTrans).length > 0) {
-          finalData.subthemes = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
-          finalData.subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
-          finalData.subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
+
+      const originalJourney = journeys.find(j => j.id === id);
+      const introChanged = originalJourney && originalJourney.intro !== finalData.intro;
+      const subthemesChanged = originalJourney && JSON.stringify(originalJourney.subthemes) !== JSON.stringify(finalData.subthemes);
+
+      // Translate fields
+      const fieldsToTranslate: any = {};
+      if (finalData.intro && introChanged && (!finalData.intro_en || !finalData.intro_ca)) {
+        fieldsToTranslate.intro = finalData.intro;
+      }
+      if (finalData.subthemes && finalData.subthemes.length > 0 && subthemesChanged && (!finalData.subthemes_en || !finalData.subthemes_ca)) {
+        fieldsToTranslate.subthemes = Array.isArray(finalData.subthemes) ? finalData.subthemes.join(', ') : finalData.subthemes;
+      }
+      if (!finalData.country_en || !finalData.country_ca) fieldsToTranslate.country = finalData.country || '';
+      if (!finalData.city_en || !finalData.city_ca) fieldsToTranslate.city = finalData.city || '';
+
+      if (Object.keys(fieldsToTranslate).length > 0) {
+        const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+        
+        if (objTrans.es) {
+          if (objTrans.es.intro && introChanged) finalData.intro = objTrans.es.intro;
+          if (objTrans.es.country) finalData.country = finalData.country || objTrans.es.country;
+          if (objTrans.es.city) finalData.city = finalData.city || objTrans.es.city;
+          if (objTrans.es.subthemes && subthemesChanged) finalData.subthemes = objTrans.es.subthemes.split(',').map((s: string) => s.trim());
+        }
+        if (objTrans.en) {
+          if (objTrans.en.intro && introChanged && !finalData.intro_en) finalData.intro_en = objTrans.en.intro;
+          if (objTrans.en.country) finalData.country_en = finalData.country_en || objTrans.en.country;
+          if (objTrans.en.city) finalData.city_en = finalData.city_en || objTrans.en.city;
+          if (objTrans.en.subthemes && subthemesChanged && !finalData.subthemes_en) finalData.subthemes_en = objTrans.en.subthemes.split(',').map((s: string) => s.trim());
+        }
+        if (objTrans.ca) {
+          if (objTrans.ca.intro && introChanged && !finalData.intro_ca) finalData.intro_ca = objTrans.ca.intro;
+          if (objTrans.ca.country) finalData.country_ca = finalData.country_ca || objTrans.ca.country;
+          if (objTrans.ca.city) finalData.city_ca = finalData.city_ca || objTrans.ca.city;
+          if (objTrans.ca.subthemes && subthemesChanged && !finalData.subthemes_ca) finalData.subthemes_ca = objTrans.ca.subthemes.split(',').map((s: string) => s.trim());
         }
       }
 
@@ -167,7 +191,7 @@ export const JourneyManager: React.FC = () => {
                 <div className="grid grid-cols-1 gap-4">
                   <input 
                     value={Array.isArray(editData.subthemes) ? editData.subthemes.join(', ') : (editData.subthemes || '')} 
-                    onChange={e => setEditData({...editData, subthemes: e.target.value})}
+                    onChange={e => setEditData({...editData, subthemes: e.target.value as any})}
                     className="w-full p-3 border rounded-xl"
                     placeholder="Subtemas (separados por comas)"
                   />

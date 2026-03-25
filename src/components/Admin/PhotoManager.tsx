@@ -13,6 +13,47 @@ export const PhotoManager: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Photo>>({});
   const [saving, setSaving] = useState(false);
+  const [translating, setTranslating] = useState(false);
+
+  const handleAutoTranslate = async () => {
+    if (translating) return;
+    setTranslating(true);
+    try {
+      const fieldsToTranslate: any = {};
+      if (editData.country && (!editData.country_en || !editData.country_ca)) fieldsToTranslate.country = editData.country;
+      if (editData.city && (!editData.city_en || !editData.city_ca)) fieldsToTranslate.city = editData.city;
+      if (editData.neighborhood && (!editData.neighborhood_en || !editData.neighborhood_ca)) fieldsToTranslate.neighborhood = editData.neighborhood;
+      if (editData.subtheme && (!editData.subtheme_en || !editData.subtheme_ca)) fieldsToTranslate.subtheme = editData.subtheme;
+      if (editData.caption && (!editData.caption_en || !editData.caption_ca)) fieldsToTranslate.caption = editData.caption;
+
+      if (Object.keys(fieldsToTranslate).length === 0) {
+        alert("No hay campos nuevos para traducir.");
+        setTranslating(false);
+        return;
+      }
+
+      const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+      
+      setEditData(prev => ({
+        ...prev,
+        country_en: prev.country_en || objectTranslations.en?.country || prev.country_en,
+        country_ca: prev.country_ca || objectTranslations.ca?.country || prev.country_ca,
+        city_en: prev.city_en || objectTranslations.en?.city || prev.city_en,
+        city_ca: prev.city_ca || objectTranslations.ca?.city || prev.city_ca,
+        neighborhood_en: prev.neighborhood_en || objectTranslations.en?.neighborhood || prev.neighborhood_en,
+        neighborhood_ca: prev.neighborhood_ca || objectTranslations.ca?.neighborhood || prev.neighborhood_ca,
+        subtheme_en: prev.subtheme_en || objectTranslations.en?.subtheme || prev.subtheme_en,
+        subtheme_ca: prev.subtheme_ca || objectTranslations.ca?.subtheme || prev.subtheme_ca,
+        caption_en: prev.caption_en || objectTranslations.en?.caption || prev.caption_en,
+        caption_ca: prev.caption_ca || objectTranslations.ca?.caption || prev.caption_ca,
+      }));
+    } catch (error) {
+      console.error("Translation error:", error);
+      alert("Error al traducir automáticamente.");
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   const handleEdit = (photo: Photo) => {
     setEditingId(photo.id);
@@ -33,22 +74,22 @@ export const PhotoManager: React.FC = () => {
       
       const originalPhoto = photos.find(p => p.id === editingId);
       const captionChanged = originalPhoto && originalPhoto.caption !== finalData.caption;
+      const captionEnChanged = originalPhoto && originalPhoto.caption_en !== finalData.caption_en;
+      const captionCaChanged = originalPhoto && originalPhoto.caption_ca !== finalData.caption_ca;
 
       if (captionChanged && !finalData.caption) {
-        finalData.caption_en = '';
-        finalData.caption_ca = '';
+        if (!captionEnChanged) finalData.caption_en = '';
+        if (!captionCaChanged) finalData.caption_ca = '';
       }
 
       // Translate fields
       const fieldsToTranslate: any = {};
-      if (finalData.caption && captionChanged) fieldsToTranslate.caption = finalData.caption;
+      if (finalData.caption && captionChanged && (!captionEnChanged || !captionCaChanged)) fieldsToTranslate.caption = finalData.caption;
       if (!finalData.country_en || !finalData.country_ca) fieldsToTranslate.country = finalData.country || '';
       if (!finalData.city_en || !finalData.city_ca) fieldsToTranslate.city = finalData.city || '';
       if (!finalData.neighborhood_en || !finalData.neighborhood_ca) fieldsToTranslate.neighborhood = finalData.neighborhood || '';
       fieldsToTranslate.subtheme = finalData.subtheme || '';
-      if (!finalData.tags_en || !finalData.tags_ca) {
-        fieldsToTranslate.tags = Array.isArray(finalData.tags) ? finalData.tags.join(', ') : (finalData.tags || '');
-      }
+      
       const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
       
       if (objTrans.es) {
@@ -59,30 +100,34 @@ export const PhotoManager: React.FC = () => {
         if (objTrans.es.subtheme) finalData.subtheme = finalData.subtheme || objTrans.es.subtheme;
         if (objTrans.es.tags && !finalData.tags) finalData.tags = objTrans.es.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
-      if (typeof finalData.tags === 'string') {
-        finalData.tags = finalData.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
+      if (typeof (finalData as any).tags === 'string') {
+        finalData.tags = (finalData as any).tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
       if (objTrans.en) {
-        if (objTrans.en.caption && captionChanged) finalData.caption_en = objTrans.en.caption;
+        if (objTrans.en.caption && captionChanged && !captionEnChanged) finalData.caption_en = objTrans.en.caption;
         if (objTrans.en.country) finalData.country_en = finalData.country_en || objTrans.en.country;
         if (objTrans.en.city) finalData.city_en = finalData.city_en || objTrans.en.city;
         if (objTrans.en.neighborhood) finalData.neighborhood_en = finalData.neighborhood_en || objTrans.en.neighborhood;
         if (objTrans.en.subtheme) finalData.subtheme_en = finalData.subtheme_en || objTrans.en.subtheme;
-        if (objTrans.en.tags && !finalData.tags_en) finalData.tags_en = objTrans.en.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
-      if (typeof finalData.tags_en === 'string') {
-        finalData.tags_en = finalData.tags_en.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
+      if (!finalData.tags_en) {
+        finalData.tags_en = Array.isArray(finalData.tags) ? [...finalData.tags] : [];
+      }
+      if (typeof (finalData as any).tags_en === 'string') {
+        finalData.tags_en = (finalData as any).tags_en.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
       if (objTrans.ca) {
-        if (objTrans.ca.caption && captionChanged) finalData.caption_ca = objTrans.ca.caption;
+        if (objTrans.ca.caption && captionChanged && !captionCaChanged) finalData.caption_ca = objTrans.ca.caption;
         if (objTrans.ca.country) finalData.country_ca = finalData.country_ca || objTrans.ca.country;
         if (objTrans.ca.city) finalData.city_ca = finalData.city_ca || objTrans.ca.city;
         if (objTrans.ca.neighborhood) finalData.neighborhood_ca = finalData.neighborhood_ca || objTrans.ca.neighborhood;
         if (objTrans.ca.subtheme) finalData.subtheme_ca = finalData.subtheme_ca || objTrans.ca.subtheme;
-        if (objTrans.ca.tags && !finalData.tags_ca) finalData.tags_ca = objTrans.ca.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
-      if (typeof finalData.tags_ca === 'string') {
-        finalData.tags_ca = finalData.tags_ca.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
+      if (!finalData.tags_ca) {
+        finalData.tags_ca = Array.isArray(finalData.tags) ? [...finalData.tags] : [];
+      }
+      if (typeof (finalData as any).tags_ca === 'string') {
+        finalData.tags_ca = (finalData as any).tags_ca.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
       
       console.log("Final photo data to save:", finalData);
@@ -136,6 +181,27 @@ export const PhotoManager: React.FC = () => {
               <div className="flex-1 p-6 lg:p-8">
                 {editingId === photo.id ? (
                   <div className="space-y-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h4 className="text-xs font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-1">Metadatos y Descripción</h4>
+                      <button
+                        type="button"
+                        onClick={handleAutoTranslate}
+                        disabled={translating}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 text-black text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-neutral-200 transition-all disabled:opacity-50"
+                      >
+                        {translating ? (
+                          <>
+                            <Loader2 size={12} className="animate-spin" />
+                            Traduciendo...
+                          </>
+                        ) : (
+                          <>
+                            <Globe size={12} />
+                            Traducir automáticamente
+                          </>
+                        )}
+                      </button>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
                         <div>
@@ -148,12 +214,28 @@ export const PhotoManager: React.FC = () => {
                         </div>
                       </div>
                       
-                      <div className="md:col-span-2">
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Descripción</label>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Descripción (ES)</label>
                           <textarea 
                             value={editData.caption || ''} 
                             onChange={e => setEditData({...editData, caption: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none h-24" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Descripción (EN)</label>
+                          <textarea 
+                            value={editData.caption_en || ''} 
+                            onChange={e => setEditData({...editData, caption_en: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none h-24" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Descripción (CA)</label>
+                          <textarea 
+                            value={editData.caption_ca || ''} 
+                            onChange={e => setEditData({...editData, caption_ca: e.target.value})} 
                             className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none h-24" 
                           />
                         </div>

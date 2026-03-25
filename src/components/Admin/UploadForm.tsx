@@ -23,11 +23,19 @@ export const UploadForm: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     country: '',
+    country_en: '',
+    country_ca: '',
     city: '',
+    city_en: '',
+    city_ca: '',
     neighborhood: '',
+    neighborhood_en: '',
+    neighborhood_ca: '',
     year: new Date().getFullYear(),
     photoDate: '',
     tags: '',
+    tags_en: '',
+    tags_ca: '',
     orientation: 'landscape' as 'landscape' | 'portrait' | 'square',
     isFavorite: false,
     favoriteScore: 50,
@@ -188,6 +196,46 @@ export const UploadForm: React.FC = () => {
     }
   };
 
+  const handleAutoTranslate = async () => {
+    if (translating) return;
+    setTranslating(true);
+    try {
+      const fieldsToTranslate: any = {};
+      if (formData.country && (!formData.country_en || !formData.country_ca)) fieldsToTranslate.country = formData.country;
+      if (formData.city && (!formData.city_en || !formData.city_ca)) fieldsToTranslate.city = formData.city;
+      if (formData.neighborhood && (!formData.neighborhood_en || !formData.neighborhood_ca)) fieldsToTranslate.neighborhood = formData.neighborhood;
+      if (formData.subtheme && (!formData.subtheme_en || !formData.subtheme_ca)) fieldsToTranslate.subtheme = formData.subtheme;
+      if (formData.caption && (!formData.caption_en || !formData.caption_ca)) fieldsToTranslate.caption = formData.caption;
+
+      if (Object.keys(fieldsToTranslate).length === 0) {
+        alert("No hay campos nuevos para traducir.");
+        setTranslating(false);
+        return;
+      }
+
+      const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+      
+      setFormData(prev => ({
+        ...prev,
+        country_en: prev.country_en || objectTranslations.en?.country || prev.country_en,
+        country_ca: prev.country_ca || objectTranslations.ca?.country || prev.country_ca,
+        city_en: prev.city_en || objectTranslations.en?.city || prev.city_en,
+        city_ca: prev.city_ca || objectTranslations.ca?.city || prev.city_ca,
+        neighborhood_en: prev.neighborhood_en || objectTranslations.en?.neighborhood || prev.neighborhood_en,
+        neighborhood_ca: prev.neighborhood_ca || objectTranslations.ca?.neighborhood || prev.neighborhood_ca,
+        subtheme_en: prev.subtheme_en || objectTranslations.en?.subtheme || prev.subtheme_en,
+        subtheme_ca: prev.subtheme_ca || objectTranslations.ca?.subtheme || prev.subtheme_ca,
+        caption_en: prev.caption_en || objectTranslations.en?.caption || prev.caption_en,
+        caption_ca: prev.caption_ca || objectTranslations.ca?.caption || prev.caption_ca,
+      }));
+    } catch (error) {
+      console.error("Translation error:", error);
+      alert("Error al traducir automáticamente.");
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !auth.currentUser) {
@@ -207,10 +255,8 @@ export const UploadForm: React.FC = () => {
       if (!formData.city_en || !formData.city_ca) fieldsToTranslate.city = formData.city;
       if (!formData.neighborhood_en || !formData.neighborhood_ca) fieldsToTranslate.neighborhood = formData.neighborhood;
       if (!formData.subtheme_en || !formData.subtheme_ca) fieldsToTranslate.subtheme = formData.subtheme;
-      if (formData.caption) fieldsToTranslate.caption = formData.caption;
-      if (!formData.tags_en || !formData.tags_ca) {
-        fieldsToTranslate.tags = formData.tags;
-      }
+      if (formData.caption && (!formData.caption_en || !formData.caption_ca)) fieldsToTranslate.caption = formData.caption;
+      
       const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
       console.log("Translations received:", { objectTranslations });
       
@@ -240,8 +286,8 @@ export const UploadForm: React.FC = () => {
               ...formData,
               title: formData.title,
               caption: objectTranslations.es?.caption || formData.caption,
-              caption_en: objectTranslations.en?.caption || formData.caption,
-              caption_ca: objectTranslations.ca?.caption || formData.caption,
+              caption_en: formData.caption_en || objectTranslations.en?.caption || formData.caption,
+              caption_ca: formData.caption_ca || objectTranslations.ca?.caption || formData.caption,
               country: objectTranslations.es?.country || formData.country,
               country_en: formData.country_en || objectTranslations.en?.country || formData.country,
               country_ca: formData.country_ca || objectTranslations.ca?.country || formData.country,
@@ -256,8 +302,8 @@ export const UploadForm: React.FC = () => {
               subtheme_ca: formData.subtheme_ca || objectTranslations.ca?.subtheme || formData.subtheme,
               url: downloadURL,
               tags: formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t),
-              tags_en: (formData.tags_en || objectTranslations.en?.tags || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
-              tags_ca: (formData.tags_ca || objectTranslations.ca?.tags || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
+              tags_en: (formData.tags_en || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
+              tags_ca: (formData.tags_ca || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
               authorUid: auth.currentUser?.uid,
               createdAt: serverTimestamp()
             };
@@ -368,8 +414,26 @@ export const UploadForm: React.FC = () => {
               />
             </div>
             
-            <div className="col-span-2 mt-4">
-              <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2">Localización y Metadatos</h3>
+            <div className="col-span-2 mt-4 flex justify-between items-center border-b border-gray-200 pb-2">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-black">Localización y Metadatos</h3>
+              <button
+                type="button"
+                onClick={handleAutoTranslate}
+                disabled={translating}
+                className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 text-black text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-neutral-200 transition-all disabled:opacity-50"
+              >
+                {translating ? (
+                  <>
+                    <Loader2 size={12} className="animate-spin" />
+                    Traduciendo...
+                  </>
+                ) : (
+                  <>
+                    <Globe size={12} />
+                    Traducir automáticamente
+                  </>
+                )}
+              </button>
             </div>
             
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -569,25 +633,63 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4">
-              <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Descripción / Historia</h3>
+            <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4 border-b border-gray-200 pb-2">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-black">Descripción / Historia</h3>
+              <button
+                type="button"
+                onClick={handleAutoTranslate}
+                disabled={translating}
+                className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 text-black text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-neutral-200 transition-all disabled:opacity-50"
+              >
+                {translating ? (
+                  <>
+                    <Loader2 size={12} className="animate-spin" />
+                    Traduciendo...
+                  </>
+                ) : (
+                  <>
+                    <Globe size={12} />
+                    Traducir automáticamente
+                  </>
+                )}
+              </button>
             </div>
 
-            <div className="col-span-2">
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Caption / Historia</label>
-              <textarea 
-                value={formData.caption}
-                onChange={e => setFormData(prev => ({ ...prev, caption: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 resize-none"
-                placeholder="Cuenta la historia detrás de la foto..."
-              />
+            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Descripción (ES)</label>
+                <textarea 
+                  value={formData.caption}
+                  onChange={e => setFormData(prev => ({ ...prev, caption: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 resize-none"
+                  placeholder="Cuenta la historia detrás de la foto..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Descripción (EN)</label>
+                <textarea 
+                  value={formData.caption_en}
+                  onChange={e => setFormData(prev => ({ ...prev, caption_en: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 resize-none"
+                  placeholder="Tell the story behind the photo..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Descripción (CA)</label>
+                <textarea 
+                  value={formData.caption_ca}
+                  onChange={e => setFormData(prev => ({ ...prev, caption_ca: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 resize-none"
+                  placeholder="Explica la història darrere de la foto..."
+                />
+              </div>
             </div>
 
             {/* EXIF Data Section */}
             <div className="col-span-2 mt-8">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black mb-4 border-b border-gray-200 pb-2">Datos EXIF (Cámara)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Cámara</label>
                   <input 
                     type="text" value={formData.cameraModel}
