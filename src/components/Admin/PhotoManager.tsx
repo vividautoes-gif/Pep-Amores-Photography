@@ -470,7 +470,7 @@ export const PhotoManager: React.FC = () => {
                           <div className="flex items-center gap-3 mt-1 text-gray-400">
                             <div className="flex items-center gap-1 text-xs">
                               <MapPin size={12} />
-                              {photo.city}, {photo.country}
+                              {photo.neighborhood ? `${photo.neighborhood}, ` : ''}{photo.city}, {photo.country}
                             </div>
                             <div className="flex items-center gap-1 text-xs">
                               <Calendar size={12} />

@@ -177,9 +177,19 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                             {lang === 'es' ? 'Localización' : lang === 'en' ? 'Location' : 'Localització'}
                           </span>
                           <span className="text-sm font-medium text-white/90">
-                            {lang === 'es' ? (photo.city ? `${photo.city}, ` : '') + photo.country :
-                             lang === 'en' ? ((photo.city_en || photo.city) ? `${photo.city_en || photo.city}, ` : '') + (photo.country_en || photo.country) :
-                             ((photo.city_ca || photo.city) ? `${photo.city_ca || photo.city}, ` : '') + (photo.country_ca || photo.country)}
+                            {lang === 'es' ? (
+                              (photo.neighborhood ? `${photo.neighborhood}, ` : '') +
+                              (photo.city ? `${photo.city}, ` : '') + 
+                              photo.country
+                            ) : lang === 'en' ? (
+                              ((photo.neighborhood_en || photo.neighborhood) ? `${photo.neighborhood_en || photo.neighborhood}, ` : '') +
+                              ((photo.city_en || photo.city) ? `${photo.city_en || photo.city}, ` : '') + 
+                              (photo.country_en || photo.country)
+                            ) : (
+                              ((photo.neighborhood_ca || photo.neighborhood) ? `${photo.neighborhood_ca || photo.neighborhood}, ` : '') +
+                              ((photo.city_ca || photo.city) ? `${photo.city_ca || photo.city}, ` : '') + 
+                              (photo.country_ca || photo.country)
+                            )}
                           </span>
                         </motion.div>
                         <motion.div variants={itemVariants} className="flex flex-col gap-1">
