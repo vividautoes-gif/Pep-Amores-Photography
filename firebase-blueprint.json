@@ -42,6 +42,7 @@
         "intro_en": { "type": "string" },
         "intro_ca": { "type": "string" },
         "coverUrl": { "type": "string" },
+        "hoverImages": { "type": "array", "items": { "type": "string" }, "description": "Array of 3 additional image URLs for the hover effect" },
         "subthemes": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "string", "format": "date-time" }
       },

@@ -569,8 +569,15 @@ function Gallery() {
                       { 
                         id: 'journeys', 
                         title: s.nav[1], 
-                        desc: lang === 'es' ? 'Colecciones' : lang === 'ca' ? 'Col·leccions' : 'Collections',
+                        desc: lang === 'es' ? 'Viajes' : lang === 'en' ? 'Journeys' : 'Viatges',
                         images: getCollectionImages('journeys', journeysOnly.slice(0, 4).map(j => ({ src: j.coverUrl || (DB.length > 0 ? DB[0].url : ''), alt: j.title }))),
+                        count: journeysOnly.length
+                      },
+                      { 
+                        id: 'collections', 
+                        title: lang === 'es' ? 'COLECCIONES' : lang === 'en' ? 'COLLECTIONS' : 'COL·LECCIONS', 
+                        desc: lang === 'es' ? 'Colecciones' : lang === 'en' ? 'Collections' : 'Col·leccions',
+                        images: getCollectionImages('collections', journeysOnly.slice(0, 4).map(j => ({ src: j.coverUrl || (DB.length > 0 ? DB[0].url : ''), alt: j.title }))),
                         count: journeysOnly.length
                       },
                       { 
@@ -602,6 +609,13 @@ function Gallery() {
                         count: Math.min(DB.length, 50)
                       },
                       { 
+                        id: 'recent', 
+                        title: lang === 'es' ? 'RECIENTES' : lang === 'en' ? 'RECENT' : 'RECENTS', 
+                        desc: lang === 'es' ? 'Recientes' : lang === 'ca' ? 'Recents' : 'Recent',
+                        images: getCollectionImages('recent', DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
+                        count: DB.length
+                      },
+                      { 
                         id: 'lfi', 
                         title: s.nav[5], 
                         desc: 'Leica Gallery',
@@ -622,7 +636,11 @@ function Gallery() {
                           <div key={item.id} className="flex flex-col items-center">
                             <div className="flex justify-center items-center py-8">
                               <div 
-                                onClick={() => setCurrentSection(item.id)}
+                                onClick={() => {
+                                  if (item.id === 'collections') setCurrentSection('journeys');
+                                  else if (item.id === 'recent') setCurrentSection('latest');
+                                  else setCurrentSection(item.id);
+                                }}
                                 className="relative cursor-pointer group"
                                 style={{ width: 220, height: 280 }}
                               >
@@ -641,7 +659,11 @@ function Gallery() {
                               <h3 className="font-serif italic text-2xl mb-2">{item.title}</h3>
                               <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{item.desc}</p>
                               <FlowButton 
-                                onClick={() => setCurrentSection(item.id)}
+                                onClick={() => {
+                                  if (item.id === 'collections') setCurrentSection('journeys');
+                                  else if (item.id === 'recent') setCurrentSection('latest');
+                                  else setCurrentSection(item.id);
+                                }}
                                 text={lang === 'es' ? 'Ver sección' : lang === 'en' ? 'View section' : 'Veure secció'}
                               />
                             </div>
@@ -669,14 +691,22 @@ function Gallery() {
                             cardWidth={220}
                             cardHeight={280}
                             spacing={{ x: 30, y: 30 }}
-                            onCardClick={() => setCurrentSection(item.id)}
+                            onCardClick={() => {
+                              if (item.id === 'collections') setCurrentSection('journeys');
+                              else if (item.id === 'recent') setCurrentSection('latest');
+                              else setCurrentSection(item.id);
+                            }}
                             photoCount={item.count}
                           />
                           <div className="mt-6 text-center z-10">
                             <h3 className="font-serif italic text-2xl mb-2">{item.title}</h3>
                             <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{item.desc}</p>
                             <FlowButton 
-                              onClick={() => setCurrentSection(item.id)}
+                              onClick={() => {
+                                if (item.id === 'collections') setCurrentSection('journeys');
+                                else if (item.id === 'recent') setCurrentSection('latest');
+                                else setCurrentSection(item.id);
+                              }}
                               text={lang === 'es' ? 'Ver sección' : lang === 'en' ? 'View section' : 'Veure secció'}
                             />
                           </div>
@@ -754,7 +784,21 @@ function Gallery() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
                 {journeysOnly.map(journey => {
                   const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
-                  let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
+                  let stackImages: { src: string, alt: string }[] = [];
+                  
+                  if (journey.coverUrl) {
+                    stackImages.push({ src: journey.coverUrl, alt: journey.title });
+                    if (journey.hoverImages) {
+                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: journey.title })));
+                    }
+                  }
+
+                  if (stackImages.length < 4) {
+                    const additional = journeyPhotos
+                      .filter(p => p.url !== journey.coverUrl && !journey.hoverImages?.includes(p.url))
+                      .map(p => ({ src: p.url, alt: p.title }));
+                    stackImages = [...stackImages, ...additional].slice(0, 4);
+                  }
                   
                   if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
                     const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
@@ -799,7 +843,21 @@ function Gallery() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
                 {specialSessionsOnly.map(journey => {
                   const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
-                  let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
+                  let stackImages: { src: string, alt: string }[] = [];
+                  
+                  if (journey.coverUrl) {
+                    stackImages.push({ src: journey.coverUrl, alt: journey.title });
+                    if (journey.hoverImages) {
+                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: journey.title })));
+                    }
+                  }
+
+                  if (stackImages.length < 4) {
+                    const additional = journeyPhotos
+                      .filter(p => p.url !== journey.coverUrl && !journey.hoverImages?.includes(p.url))
+                      .map(p => ({ src: p.url, alt: p.title }));
+                    stackImages = [...stackImages, ...additional].slice(0, 4);
+                  }
                   
                   if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
                     const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));

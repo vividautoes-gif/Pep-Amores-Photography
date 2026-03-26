@@ -18,18 +18,29 @@ interface HomeCollection {
 }
 
 const COLLECTIONS = [
-  { id: 'journeys', label: 'Viajes / Journeys' },
-  { id: 'special-sessions', label: 'Sesiones Especiales / Special Sessions' },
-  { id: 'explore', label: 'Explorar / Explore' },
-  { id: 'favorites', label: 'Favoritas / Favorites' },
-  { id: 'latest', label: 'Últimas 50 / Latest 50' },
+  { id: 'journeys', label: 'Viajes' },
+  { id: 'collections', label: 'COLECCIONES' },
+  { id: 'special-sessions', label: 'SESIONES ESPECIALES' },
+  { id: 'explore', label: 'ARCHIVO COMPLETO' },
+  { id: 'favorites', label: 'Favoritas' },
+  { id: 'latest', label: 'Últimas 50' },
+  { id: 'recent', label: 'RECIENTES' },
   { id: 'lfi', label: 'LFI' },
 ];
 
+interface Journey {
+  id: string;
+  title: string;
+  coverUrl?: string;
+  hoverImages?: string[];
+}
+
 export const HomeCollectionsManager: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [journeys, setJourneys] = useState<Journey[]>([]);
   const [homeCollections, setHomeCollections] = useState<Record<string, string[]>>({});
-  const [selectedCollection, setSelectedCollection] = useState<string>(COLLECTIONS[0].id);
+  const [selectedType, setSelectedType] = useState<'home' | 'journeys'>('home');
+  const [selectedId, setSelectedId] = useState<string>(COLLECTIONS[0].id);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -37,6 +48,10 @@ export const HomeCollectionsManager: React.FC = () => {
   useEffect(() => {
     const unsubPhotos = onSnapshot(collection(db, 'photos'), (snap) => {
       setPhotos(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Photo)));
+    });
+
+    const unsubJourneys = onSnapshot(collection(db, 'journeys'), (snap) => {
+      setJourneys(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Journey)));
     });
 
     const unsubHome = onSnapshot(collection(db, 'home_collections'), (snap) => {
@@ -49,11 +64,25 @@ export const HomeCollectionsManager: React.FC = () => {
 
     return () => {
       unsubPhotos();
+      unsubJourneys();
       unsubHome();
     };
   }, []);
 
-  const currentSelection = homeCollections[selectedCollection] || [];
+  const getCurrentSelection = () => {
+    if (selectedType === 'home') {
+      return homeCollections[selectedId] || [];
+    } else {
+      const journey = journeys.find(j => j.id === selectedId);
+      if (!journey) return [];
+      const selection = [];
+      if (journey.coverUrl) selection.push(journey.coverUrl);
+      if (journey.hoverImages) selection.push(...journey.hoverImages);
+      return selection.slice(0, 4);
+    }
+  };
+
+  const currentSelection = getCurrentSelection();
 
   const handleTogglePhoto = (url: string) => {
     const newSelection = [...currentSelection];
@@ -65,30 +94,51 @@ export const HomeCollectionsManager: React.FC = () => {
       if (newSelection.length < 4) {
         newSelection.push(url);
       } else {
-        // Replace the last one if we already have 4? Or just do nothing.
-        // Let's do nothing to be safe, user must deselect first.
         return;
       }
     }
 
-    setHomeCollections(prev => ({
-      ...prev,
-      [selectedCollection]: newSelection
-    }));
+    if (selectedType === 'home') {
+      setHomeCollections(prev => ({
+        ...prev,
+        [selectedId]: newSelection
+      }));
+    } else {
+      setJourneys(prev => prev.map(j => {
+        if (j.id === selectedId) {
+          return {
+            ...j,
+            coverUrl: newSelection[0] || '',
+            hoverImages: newSelection.slice(1)
+          };
+        }
+        return j;
+      }));
+    }
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await setDoc(doc(db, 'home_collections', selectedCollection), {
-        collectionId: selectedCollection,
-        imageUrls: currentSelection,
-        updatedAt: serverTimestamp()
-      });
+      if (selectedType === 'home') {
+        await setDoc(doc(db, 'home_collections', selectedId), {
+          collectionId: selectedId,
+          imageUrls: currentSelection,
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        const journey = journeys.find(j => j.id === selectedId);
+        if (journey) {
+          await setDoc(doc(db, 'journeys', selectedId), {
+            coverUrl: currentSelection[0] || '',
+            hoverImages: currentSelection.slice(1)
+          }, { merge: true });
+        }
+      }
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2000);
     } catch (error) {
-      console.error("Error saving home collection:", error);
+      console.error("Error saving selection:", error);
       alert("Error al guardar la selección.");
     } finally {
       setIsSaving(false);
@@ -106,21 +156,59 @@ export const HomeCollectionsManager: React.FC = () => {
         <h2 className="text-2xl font-serif italic mb-2">Portadas de Colecciones (Home)</h2>
         <p className="text-sm text-zinc-500 mb-8">Selecciona exactamente 4 imágenes para cada colección. La primera será la portada principal y las otras 3 aparecerán detrás al pasar el ratón.</p>
 
+        <div className="flex gap-4 mb-8 border-b border-neutral-100 pb-4">
+          <button 
+            onClick={() => { setSelectedType('home'); setSelectedId(COLLECTIONS[0].id); }}
+            className={cn(
+              "text-sm font-bold uppercase tracking-widest pb-2 transition-all border-b-2",
+              selectedType === 'home' ? "border-black text-black" : "border-transparent text-zinc-400 hover:text-zinc-600"
+            )}
+          >
+            Colecciones Home
+          </button>
+          <button 
+            onClick={() => { setSelectedType('journeys'); setSelectedId(journeys[0]?.id || ''); }}
+            className={cn(
+              "text-sm font-bold uppercase tracking-widest pb-2 transition-all border-b-2",
+              selectedType === 'journeys' ? "border-black text-black" : "border-transparent text-zinc-400 hover:text-zinc-600"
+            )}
+          >
+            Álbumes (Viajes)
+          </button>
+        </div>
+
         <div className="flex flex-wrap gap-2 mb-8">
-          {COLLECTIONS.map(c => (
-            <button
-              key={c.id}
-              onClick={() => setSelectedCollection(c.id)}
-              className={cn(
-                "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all",
-                selectedCollection === c.id 
-                  ? "bg-black text-white shadow-lg" 
-                  : "bg-neutral-100 text-zinc-500 hover:bg-neutral-200"
-              )}
-            >
-              {c.label} ({homeCollections[c.id]?.length || 0}/4)
-            </button>
-          ))}
+          {selectedType === 'home' ? (
+            COLLECTIONS.map(c => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedId(c.id)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all",
+                  selectedId === c.id 
+                    ? "bg-black text-white shadow-lg" 
+                    : "bg-neutral-100 text-zinc-500 hover:bg-neutral-200"
+                )}
+              >
+                {c.label} ({homeCollections[c.id]?.length || 0}/4)
+              </button>
+            ))
+          ) : (
+            journeys.map(j => (
+              <button
+                key={j.id}
+                onClick={() => setSelectedId(j.id)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all",
+                  selectedId === j.id 
+                    ? "bg-black text-white shadow-lg" 
+                    : "bg-neutral-100 text-zinc-500 hover:bg-neutral-200"
+                )}
+              >
+                {j.title} ({ (j.coverUrl ? 1 : 0) + (j.hoverImages?.length || 0) }/4)
+              </button>
+            ))
+          )}
         </div>
 
         <div className="flex items-center justify-between mb-6">

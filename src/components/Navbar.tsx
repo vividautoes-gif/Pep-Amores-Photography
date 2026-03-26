@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
         <div className="flex items-center gap-4">
           <button 
             onClick={handleOpenMenu}
-            className="p-2 -ml-2 text-neutral-500 hover:text-[#B45309] transition-colors relative w-10 h-10 flex items-center justify-center lg:hidden"
+            className="p-2 -ml-2 text-neutral-500 hover:text-[#B45309] transition-colors relative w-10 h-10 flex items-center justify-center xl:hidden"
             aria-label="Menu"
           >
             <AnimatePresence mode="wait">
@@ -133,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
           </button>
         </div>
 
-        <nav className="hidden lg:block">
+        <nav className="hidden xl:block">
           <Tabs 
             tabs={links} 
             activeTab={currentSection} 

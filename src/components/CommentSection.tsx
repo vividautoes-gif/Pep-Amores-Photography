@@ -120,7 +120,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ targetId, target
         </div>
       </form>
 
-      <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4">
         {comments.length === 0 ? (
           <p className={`text-xs ${mutedTextColor} italic text-center py-4`}>
             {lang === 'es' ? 'No hay comentarios aún.' : lang === 'en' ? 'No comments yet.' : 'No hi ha comentaris encara.'}

@@ -28,6 +28,7 @@ service cloud.firestore {
     //   - country, city: string
     //   - intro, intro_en, intro_ca: string
     //   - coverUrl: string
+    //   - hoverImages: list of strings
     //   - subthemes: list of strings
     //   - isSpecial: bool
     //   - createdAt: timestamp

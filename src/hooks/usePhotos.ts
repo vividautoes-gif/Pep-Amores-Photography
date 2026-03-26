@@ -57,6 +57,7 @@ export interface Journey {
   intro_en?: string;
   intro_ca?: string;
   coverUrl?: string;
+  hoverImages?: string[];
   subthemes: string[];
   subthemes_en?: string[];
   subthemes_ca?: string[];

@@ -310,7 +310,7 @@ export const MyMovies: React.FC<MyMoviesProps> = ({ lang }) => {
   const t = {
     es: {
       title: "Las Películas de Pep Amores",
-      desc: "Además de ser emprendedor y fotógrafo. Pep ha participado en la producción de numerosas películas y cortometrajes, ha actuado en varias producciones y ha co-creado guiones. Su filmografía abarca desde documentales hasta películas de televisión y cortometrajes.",
+      desc: "Además de ser emprendedor y fotógrafo, Pep ha participado en la producción de numerosas películas y cortometrajes, ha actuado en varias producciones y ha co-creado guiones. Su filmografía abarca desde documentales hasta películas de televisión y cortometrajes.",
       roles: ["Productor", "Actor", "Guionista"],
       imdbBtn: "Ver perfil en IMDb",
       knownFor: "Conocido por",
@@ -325,7 +325,7 @@ export const MyMovies: React.FC<MyMoviesProps> = ({ lang }) => {
     },
     en: {
       title: "Pep Amores' Movies",
-      desc: "In addition to being an entrepreneur and photographer. Pep has participated in the production of numerous films and short films, has acted in several productions, and has co-created scripts. His filmography ranges from documentaries to television movies and short films.",
+      desc: "In addition to being an entrepreneur and photographer, Pep has participated in the production of numerous films and short films, has acted in several productions, and has co-created scripts. His filmography ranges from documentaries to television movies and short films.",
       roles: ["Producer", "Actor", "Writer"],
       imdbBtn: "View IMDb profile",
       knownFor: "Known for",
@@ -340,7 +340,7 @@ export const MyMovies: React.FC<MyMoviesProps> = ({ lang }) => {
     },
     ca: {
       title: "Les Pel·lícules de Pep Amores",
-      desc: "A més de ser emprenedor i fotògraf. Pep ha participat en la producció de nombroses pel·lícules i curtmetratges, ha actuat en diverses produccions i ha co-creat guions. La seva filmografia abasta des de documentals fins a pel·lícules de televisió i curtmetratges.",
+      desc: "A més de ser emprenedor i fotògraf, Pep ha participat en la producció de nombroses pel·lícules i curtmetratges, ha actuat en diverses produccions i ha co-creat guions. La seva filmografia abasta des de documentals fins a pel·lícules de televisió i curtmetratges.",
       roles: ["Productor", "Actor", "Guionista"],
       imdbBtn: "Veure perfil a IMDb",
       knownFor: "Conegut per",
