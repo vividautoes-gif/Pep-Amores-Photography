@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils"
 
 interface Tab {
   id: string
-  label: string
+  label: React.ReactNode
 }
 
 interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -49,11 +49,25 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
     useEffect(() => {
       const activeElement = tabRefs.current[activeIndex]
       if (activeElement) {
-        const { offsetLeft, offsetWidth } = activeElement
-        setActiveStyle({
-          left: `${offsetLeft}px`,
-          width: `${offsetWidth}px`,
+        const updateStyle = () => {
+          const { offsetLeft, offsetWidth } = activeElement
+          setActiveStyle({
+            left: `${offsetLeft}px`,
+            width: `${offsetWidth}px`,
+          })
+        }
+        
+        updateStyle()
+        
+        const resizeObserver = new ResizeObserver(() => {
+          updateStyle()
         })
+        
+        resizeObserver.observe(activeElement)
+        
+        return () => {
+          resizeObserver.disconnect()
+        }
       }
     }, [activeIndex])
 
@@ -86,7 +100,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
           />
 
           {/* Tabs */}
-          <div className="relative flex space-x-[8px] items-center">
+          <div className="relative flex space-x-0 md:space-x-0 lg:space-x-1 xl:space-x-[8px] items-center justify-start overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {tabs.map((tab, index) => (
               <div
                 key={tab.id}
@@ -94,7 +108,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
                   tabRefs.current[index] = el;
                 }}
                 className={cn(
-                  "px-4 py-2 cursor-pointer transition-colors duration-300 h-[34px] flex items-center rounded-[8px]",
+                  "px-1 md:px-1 lg:px-2 xl:px-4 py-2 cursor-pointer transition-colors duration-300 h-[34px] flex items-center rounded-[8px] shrink-0",
                   index === activeIndex 
                     ? "text-[#B45309]" 
                     : "text-neutral-600 hover:text-[#B45309] hover:bg-[#B45309]/10"
@@ -104,7 +118,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
                   onTabChange?.(tab.id)
                 }}
               >
-                <div className="text-[11px] font-bold uppercase tracking-widest whitespace-nowrap flex items-center justify-center h-full">
+                <div className="text-[9px] md:text-[7.5px] lg:text-[9px] xl:text-[11px] font-bold uppercase tracking-normal md:tracking-wide xl:tracking-widest whitespace-nowrap flex items-center justify-center h-full">
                   {tab.label}
                 </div>
               </div>

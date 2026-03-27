@@ -64,7 +64,17 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
   const links = [
     { label: s.nav[0], id: 'home' },
     { label: s.nav[1], id: 'journeys' },
-    { label: s.nav[2], id: 'special-sessions' },
+    { 
+      label: (
+        <>
+          <span className="md:hidden lg:inline">{s.nav[2]}</span>
+          <span className="hidden md:inline lg:hidden">
+            {lang === 'es' ? 'SESIONES ESP.' : lang === 'en' ? 'SPECIAL SESS.' : 'SESSIONS ESP.'}
+          </span>
+        </>
+      ), 
+      id: 'special-sessions' 
+    },
     { label: s.nav[3], id: 'explore' },
     { label: s.nav[4], id: 'favorites' },
     { label: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', id: 'latest' },
@@ -79,12 +89,12 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] bg-white/70 backdrop-blur-md border-b border-black/5 z-40 flex items-center justify-between px-6 md:px-12 text-black"
+        className="fixed top-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] bg-white/70 backdrop-blur-md border-b border-black/5 z-40 flex items-center justify-between px-4 md:px-2 lg:px-6 xl:px-12 text-black"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-1 lg:gap-4">
           <button 
             onClick={handleOpenMenu}
-            className="p-2 -ml-2 text-neutral-500 hover:text-[#B45309] transition-colors relative w-10 h-10 flex items-center justify-center xl:hidden"
+            className="p-2 -ml-2 text-neutral-500 hover:text-[#B45309] transition-colors relative w-10 h-10 flex items-center justify-center md:hidden"
             aria-label="Menu"
           >
             <AnimatePresence mode="wait">
@@ -124,16 +134,16 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
           </button>
           <button 
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-2 md:gap-1.5 lg:gap-3 group"
           >
-            <div className="w-10 h-10 bg-brand-accent rounded-full flex items-center justify-center text-white transition-transform group-hover:rotate-12">
-              <Camera size={20} />
+            <div className="w-10 h-10 md:w-7 md:h-7 lg:w-9 lg:h-9 xl:w-10 xl:h-10 bg-brand-accent rounded-full flex items-center justify-center text-white transition-transform group-hover:rotate-12 shrink-0">
+              <Camera className="w-5 h-5 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
             </div>
-            <span className="text-lg md:text-xl font-extrabold tracking-tighter uppercase block transition-colors group-hover:text-[#B45309]">Pep Amores</span>
+            <span className="text-lg md:text-[11px] lg:text-sm xl:text-xl font-extrabold tracking-tighter uppercase block transition-colors group-hover:text-[#B45309] whitespace-nowrap">Pep Amores</span>
           </button>
         </div>
 
-        <nav className="hidden xl:block">
+        <nav className="hidden md:block flex-1 max-w-full overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1 lg:px-4">
           <Tabs 
             tabs={links} 
             activeTab={currentSection} 
@@ -141,25 +151,25 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
           />
         </nav>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 md:gap-1.5 lg:gap-3 xl:gap-4 items-center shrink-0">
           {(['es', 'en', 'ca'] as const).map((l) => (
             <button
               key={l}
               onClick={() => setLang(l)}
               className={cn(
-                "flex flex-col items-center gap-1.5 transition-opacity duration-200 transform-gpu group",
+                "flex flex-col items-center gap-1.5 md:gap-1 lg:gap-1.5 transition-opacity duration-200 transform-gpu group",
                 lang === l ? "opacity-100" : "opacity-40 hover:opacity-100"
               )}
             >
-              <span className={cn("text-[10px] font-black uppercase tracking-tighter leading-none transition-colors", lang === l ? "text-[#B45309]" : "text-neutral-400 group-hover:text-[#B45309]")}>{l}</span>
+              <span className={cn("text-[10px] md:text-[8px] lg:text-[9px] xl:text-[10px] font-black uppercase tracking-tighter leading-none transition-colors", lang === l ? "text-[#B45309]" : "text-neutral-400 group-hover:text-[#B45309]")}>{l}</span>
               {l === 'es' && (
-                <svg viewBox="0 0 6 4" className="w-4 h-3 rounded-[2px] overflow-hidden">
+                <svg viewBox="0 0 6 4" className="w-4 h-3 md:w-3 md:h-2 lg:w-3.5 lg:h-2.5 xl:w-4 xl:h-3 rounded-[2px] overflow-hidden">
                   <rect width="6" height="4" fill="#c60b1e"/>
                   <rect width="6" height="2" y="1" fill="#ffc400"/>
                 </svg>
               )}
               {l === 'en' && (
-                <svg viewBox="0 0 60 30" className="w-4 h-3 rounded-[2px] overflow-hidden">
+                <svg viewBox="0 0 60 30" className="w-4 h-3 md:w-3 md:h-2 lg:w-3.5 lg:h-2.5 xl:w-4 xl:h-3 rounded-[2px] overflow-hidden">
                   <rect width="60" height="30" fill="#012169"/>
                   <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
                   <path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" strokeWidth="4"/>
@@ -168,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
                 </svg>
               )}
               {l === 'ca' && (
-                <svg viewBox="0 0 9 9" className="w-4 h-3 rounded-[2px] overflow-hidden">
+                <svg viewBox="0 0 9 9" className="w-4 h-3 md:w-3 md:h-2 lg:w-3.5 lg:h-2.5 xl:w-4 xl:h-3 rounded-[2px] overflow-hidden">
                   <rect width="9" height="9" fill="#ffc400"/>
                   <rect width="9" height="1" y="1" fill="#c60b1e"/>
                   <rect width="9" height="1" y="3" fill="#c60b1e"/>

@@ -34,8 +34,6 @@ export const UploadForm: React.FC = () => {
     year: new Date().getFullYear(),
     photoDate: '',
     tags: '',
-    tags_en: '',
-    tags_ca: '',
     orientation: 'landscape' as 'landscape' | 'portrait' | 'square',
     isFavorite: false,
     favoriteScore: 50,
@@ -201,12 +199,11 @@ export const UploadForm: React.FC = () => {
     setTranslating(true);
     try {
       const fieldsToTranslate: any = {};
-      if (formData.country && (!formData.country_en || !formData.country_ca)) fieldsToTranslate.country = formData.country;
-      if (formData.city && (!formData.city_en || !formData.city_ca)) fieldsToTranslate.city = formData.city;
-      if (formData.neighborhood && (!formData.neighborhood_en || !formData.neighborhood_ca)) fieldsToTranslate.neighborhood = formData.neighborhood;
-      if (formData.subtheme && (!formData.subtheme_en || !formData.subtheme_ca)) fieldsToTranslate.subtheme = formData.subtheme;
-      if (formData.caption && (!formData.caption_en || !formData.caption_ca)) fieldsToTranslate.caption = formData.caption;
-      if (formData.tags && (!formData.tags_en || !formData.tags_ca)) fieldsToTranslate.tags = formData.tags;
+      if (formData.country) fieldsToTranslate.country = formData.country;
+      if (formData.city) fieldsToTranslate.city = formData.city;
+      if (formData.neighborhood) fieldsToTranslate.neighborhood = formData.neighborhood;
+      if (formData.subtheme) fieldsToTranslate.subtheme = formData.subtheme;
+      if (formData.caption) fieldsToTranslate.caption = formData.caption;
 
       if (Object.keys(fieldsToTranslate).length === 0) {
         alert("No hay campos nuevos para traducir. Asegúrate de haber rellenado los campos en español.");
@@ -218,18 +215,16 @@ export const UploadForm: React.FC = () => {
       
       setFormData(prev => ({
         ...prev,
-        country_en: prev.country_en || objectTranslations.en?.country || prev.country_en,
-        country_ca: prev.country_ca || objectTranslations.ca?.country || prev.country_ca,
-        city_en: prev.city_en || objectTranslations.en?.city || prev.city_en,
-        city_ca: prev.city_ca || objectTranslations.ca?.city || prev.city_ca,
-        neighborhood_en: prev.neighborhood_en || objectTranslations.en?.neighborhood || prev.neighborhood_en,
-        neighborhood_ca: prev.neighborhood_ca || objectTranslations.ca?.neighborhood || prev.neighborhood_ca,
-        subtheme_en: prev.subtheme_en || objectTranslations.en?.subtheme || prev.subtheme_en,
-        subtheme_ca: prev.subtheme_ca || objectTranslations.ca?.subtheme || prev.subtheme_ca,
-        caption_en: prev.caption_en || objectTranslations.en?.caption || prev.caption_en,
-        caption_ca: prev.caption_ca || objectTranslations.ca?.caption || prev.caption_ca,
-        tags_en: prev.tags_en || objectTranslations.en?.tags || prev.tags_en,
-        tags_ca: prev.tags_ca || objectTranslations.ca?.tags || prev.tags_ca,
+        country_en: objectTranslations.en?.country || prev.country_en,
+        country_ca: objectTranslations.ca?.country || prev.country_ca,
+        city_en: objectTranslations.en?.city || prev.city_en,
+        city_ca: objectTranslations.ca?.city || prev.city_ca,
+        neighborhood_en: objectTranslations.en?.neighborhood || prev.neighborhood_en,
+        neighborhood_ca: objectTranslations.ca?.neighborhood || prev.neighborhood_ca,
+        subtheme_en: objectTranslations.en?.subtheme || prev.subtheme_en,
+        subtheme_ca: objectTranslations.ca?.subtheme || prev.subtheme_ca,
+        caption_en: objectTranslations.en?.caption || prev.caption_en,
+        caption_ca: objectTranslations.ca?.caption || prev.caption_ca,
       }));
     } catch (error) {
       console.error("Translation error:", error);
@@ -305,8 +300,6 @@ export const UploadForm: React.FC = () => {
               subtheme_ca: formData.subtheme_ca || objectTranslations.ca?.subtheme || formData.subtheme,
               url: downloadURL,
               tags: formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t),
-              tags_en: (formData.tags_en || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
-              tags_ca: (formData.tags_ca || formData.tags).split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t),
               authorUid: auth.currentUser?.uid,
               createdAt: serverTimestamp()
             };
@@ -327,7 +320,7 @@ export const UploadForm: React.FC = () => {
             setProgress(0);
             setFormData({
               title: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', neighborhood: '', neighborhood_en: '', neighborhood_ca: '', year: new Date().getFullYear(), photoDate: '',
-              tags: '', tags_en: '', tags_ca: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
+              tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
               isLFI: false, lfiType: 'none', lfiDate: '', isHero: false, isJourneyCover: false, caption: '', caption_en: '', caption_ca: '', journeyId: '', subtheme: '', subtheme_en: '', subtheme_ca: '',
               cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''
             });
@@ -409,11 +402,12 @@ export const UploadForm: React.FC = () => {
             
             <div className="col-span-2">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título</label>
-              <input 
-                type="text" value={formData.title}
+              <textarea 
+                value={formData.title}
                 onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                 placeholder="Ej: The Lonely Monk"
+                rows={2}
               />
             </div>
             
@@ -427,29 +421,32 @@ export const UploadForm: React.FC = () => {
                   País (ES)
                   {geocoding && <Loader2 size={12} className="animate-spin text-red-600" />}
                 </label>
-                <input 
-                  type="text" value={formData.country}
+                <textarea 
+                  value={formData.country}
                   onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Marruecos"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (EN)</label>
-                <input 
-                  type="text" value={formData.country_en}
+                <textarea 
+                  value={formData.country_en}
                   onChange={e => setFormData(prev => ({ ...prev, country_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Morocco"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (CA)</label>
-                <input 
-                  type="text" value={formData.country_ca}
+                <textarea 
+                  value={formData.country_ca}
                   onChange={e => setFormData(prev => ({ ...prev, country_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Marroc"
+                  rows={2}
                 />
               </div>
             </div>
@@ -457,29 +454,32 @@ export const UploadForm: React.FC = () => {
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (ES)</label>
-                <input 
-                  type="text" value={formData.city}
+                <textarea 
+                  value={formData.city}
                   onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Marrakech"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (EN)</label>
-                <input 
-                  type="text" value={formData.city_en}
+                <textarea 
+                  value={formData.city_en}
                   onChange={e => setFormData(prev => ({ ...prev, city_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Marrakesh"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (CA)</label>
-                <input 
-                  type="text" value={formData.city_ca}
+                <textarea 
+                  value={formData.city_ca}
                   onChange={e => setFormData(prev => ({ ...prev, city_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Marràqueix"
+                  rows={2}
                 />
               </div>
             </div>
@@ -487,29 +487,32 @@ export const UploadForm: React.FC = () => {
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (ES)</label>
-                <input 
-                  type="text" value={formData.neighborhood}
+                <textarea 
+                  value={formData.neighborhood}
                   onChange={e => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Medina"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (EN)</label>
-                <input 
-                  type="text" value={formData.neighborhood_en}
+                <textarea 
+                  value={formData.neighborhood_en}
                   onChange={e => setFormData(prev => ({ ...prev, neighborhood_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Medina"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (CA)</label>
-                <input 
-                  type="text" value={formData.neighborhood_ca}
+                <textarea 
+                  value={formData.neighborhood_ca}
                   onChange={e => setFormData(prev => ({ ...prev, neighborhood_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Medina"
+                  rows={2}
                 />
               </div>
             </div>
@@ -561,61 +564,45 @@ export const UploadForm: React.FC = () => {
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (ES)</label>
-                <input 
-                  type="text" value={formData.subtheme}
+                <textarea 
+                  value={formData.subtheme}
                   onChange={e => setFormData(prev => ({ ...prev, subtheme: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Ej: Chinatown"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (EN)</label>
-                <input 
-                  type="text" value={formData.subtheme_en}
+                <textarea 
+                  value={formData.subtheme_en}
                   onChange={e => setFormData(prev => ({ ...prev, subtheme_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Ej: Chinatown"
+                  rows={2}
                 />
               </div>
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (CA)</label>
-                <input 
-                  type="text" value={formData.subtheme_ca}
+                <textarea 
+                  value={formData.subtheme_ca}
                   onChange={e => setFormData(prev => ({ ...prev, subtheme_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
                   placeholder="Ex: Barri Xinès"
+                  rows={2}
                 />
               </div>
             </div>
 
-            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (ES)</label>
-                <input 
-                  type="text" value={formData.tags}
-                  onChange={e => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                  placeholder="portrait, street, market..."
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (EN)</label>
-                <input 
-                  type="text" value={formData.tags_en}
-                  onChange={e => setFormData(prev => ({ ...prev, tags_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                  placeholder="portrait, street, market..."
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (CA)</label>
-                <input 
-                  type="text" value={formData.tags_ca}
-                  onChange={e => setFormData(prev => ({ ...prev, tags_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-                  placeholder="retrat, carrer, mercat..."
-                />
-              </div>
+            <div className="col-span-2">
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (Internacional)</label>
+              <textarea 
+                value={formData.tags}
+                onChange={e => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+                placeholder="portrait, street, market... (separados por comas)"
+                rows={2}
+              />
             </div>
 
             <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4 border-b border-gray-200 pb-2">

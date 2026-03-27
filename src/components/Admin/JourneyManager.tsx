@@ -40,11 +40,15 @@ export const JourneyManager: React.FC = () => {
       }
 
       const originalJourney = journeys.find(j => j.id === id);
+      const titleChanged = originalJourney && originalJourney.title !== finalData.title;
       const introChanged = originalJourney && originalJourney.intro !== finalData.intro;
       const subthemesChanged = originalJourney && JSON.stringify(originalJourney.subthemes) !== JSON.stringify(finalData.subthemes);
 
       // Translate fields
       const fieldsToTranslate: any = {};
+      if (finalData.title && titleChanged && (!finalData.title_en || !finalData.title_ca)) {
+        fieldsToTranslate.title = finalData.title;
+      }
       if (finalData.intro && introChanged && (!finalData.intro_en || !finalData.intro_ca)) {
         fieldsToTranslate.intro = finalData.intro;
       }
@@ -58,18 +62,21 @@ export const JourneyManager: React.FC = () => {
         const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
         
         if (objTrans.es) {
+          if (objTrans.es.title && titleChanged) finalData.title = objTrans.es.title;
           if (objTrans.es.intro && introChanged) finalData.intro = objTrans.es.intro;
           if (objTrans.es.country) finalData.country = finalData.country || objTrans.es.country;
           if (objTrans.es.city) finalData.city = finalData.city || objTrans.es.city;
           if (objTrans.es.subthemes && subthemesChanged) finalData.subthemes = objTrans.es.subthemes.split(',').map((s: string) => s.trim());
         }
         if (objTrans.en) {
+          if (objTrans.en.title && titleChanged && !finalData.title_en) finalData.title_en = objTrans.en.title;
           if (objTrans.en.intro && introChanged && !finalData.intro_en) finalData.intro_en = objTrans.en.intro;
           if (objTrans.en.country) finalData.country_en = finalData.country_en || objTrans.en.country;
           if (objTrans.en.city) finalData.city_en = finalData.city_en || objTrans.en.city;
           if (objTrans.en.subthemes && subthemesChanged && !finalData.subthemes_en) finalData.subthemes_en = objTrans.en.subthemes.split(',').map((s: string) => s.trim());
         }
         if (objTrans.ca) {
+          if (objTrans.ca.title && titleChanged && !finalData.title_ca) finalData.title_ca = objTrans.ca.title;
           if (objTrans.ca.intro && introChanged && !finalData.intro_ca) finalData.intro_ca = objTrans.ca.intro;
           if (objTrans.ca.country) finalData.country_ca = finalData.country_ca || objTrans.ca.country;
           if (objTrans.ca.city) finalData.city_ca = finalData.city_ca || objTrans.ca.city;
@@ -120,12 +127,27 @@ export const JourneyManager: React.FC = () => {
           <div key={journey.id} className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-100">
             {editingId === journey.id ? (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <input 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <textarea 
                     value={editData.title || ''} 
                     onChange={e => setEditData({...editData, title: e.target.value})}
-                    className="w-full p-3 border rounded-xl"
-                    placeholder="Título del viaje"
+                    className="w-full p-3 border rounded-xl resize-none"
+                    placeholder="Título (ES)"
+                    rows={2}
+                  />
+                  <textarea 
+                    value={editData.title_en || ''} 
+                    onChange={e => setEditData({...editData, title_en: e.target.value})}
+                    className="w-full p-3 border rounded-xl resize-none"
+                    placeholder="Título (EN)"
+                    rows={2}
+                  />
+                  <textarea 
+                    value={editData.title_ca || ''} 
+                    onChange={e => setEditData({...editData, title_ca: e.target.value})}
+                    className="w-full p-3 border rounded-xl resize-none"
+                    placeholder="Título (CA)"
+                    rows={2}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

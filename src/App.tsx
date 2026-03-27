@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, X, Send, MapPin, ChevronRight, Camera, AlertTriangle, Star, Award, Clock, User, MessageSquare, BarChart3, Lock, Image as ImageIcon, Aperture } from 'lucide-react';
+import { Search, X, Send, MapPin, ChevronRight, ArrowLeft, Camera, AlertTriangle, Star, Award, Clock, User, MessageSquare, BarChart3, Lock, Image as ImageIcon, Aperture } from 'lucide-react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
@@ -779,7 +779,7 @@ function Gallery() {
                           />
                           <div className="mt-6 text-center z-10">
                             <h3 className="font-serif italic text-2xl mb-2">
-                              {journey.title}
+                              {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
                             </h3>
                             <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                               {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
@@ -809,9 +809,9 @@ function Gallery() {
                   let stackImages: { src: string, alt: string }[] = [];
                   
                   if (journey.coverUrl) {
-                    stackImages.push({ src: journey.coverUrl, alt: journey.title });
+                    stackImages.push({ src: journey.coverUrl, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) });
                     if (journey.hoverImages) {
-                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: journey.title })));
+                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) })));
                     }
                   }
 
@@ -840,7 +840,7 @@ function Gallery() {
                       />
                       <div className="mt-6 text-center z-10">
                         <h3 className="font-serif italic text-2xl mb-2">
-                          {journey.title}
+                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
                         </h3>
                         <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                           {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
@@ -868,9 +868,9 @@ function Gallery() {
                   let stackImages: { src: string, alt: string }[] = [];
                   
                   if (journey.coverUrl) {
-                    stackImages.push({ src: journey.coverUrl, alt: journey.title });
+                    stackImages.push({ src: journey.coverUrl, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) });
                     if (journey.hoverImages) {
-                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: journey.title })));
+                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) })));
                     }
                   }
 
@@ -899,7 +899,7 @@ function Gallery() {
                       />
                       <div className="mt-6 text-center z-10">
                         <h3 className="font-serif italic text-2xl mb-2">
-                          {journey.title}
+                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
                         </h3>
                         <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
                           {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
@@ -926,7 +926,7 @@ function Gallery() {
               </button>
               <div className="max-w-4xl mx-auto mb-16 text-center">
                 <h1 className="text-6xl font-serif italic mb-6">
-                  {selectedJourney.title}
+                  {lang === 'es' ? selectedJourney.title : lang === 'en' ? (selectedJourney.title_en || selectedJourney.title) : (selectedJourney.title_ca || selectedJourney.title)}
                 </h1>
                 <p className="text-lg text-brand-secondary font-light leading-relaxed mb-8">
                   {lang === 'es' ? selectedJourney.intro : lang === 'en' ? (selectedJourney.intro_en || selectedJourney.intro) : (selectedJourney.intro_ca || selectedJourney.intro)}
@@ -1240,18 +1240,17 @@ function Gallery() {
 
           {currentSection === 'reviews' && (
             <motion.section key="all-reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
-              <div className="text-center mb-8">
-                <h1 className="text-5xl font-serif italic mb-4">
-                  {lang === 'es' ? 'Todas las Reseñas' : lang === 'en' ? 'All Reviews' : 'Totes les Ressenyes'}
-                </h1>
+              <ReviewsSection lang={lang} showSeeMore={false} />
+              
+              <div className="flex justify-center mt-4 mb-12">
                 <button 
                   onClick={() => setCurrentSection('home')}
-                  className="text-xs font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors"
+                  className="group flex items-center gap-3 px-8 py-4 bg-white border border-neutral-200 text-brand-primary text-xs font-bold uppercase tracking-widest rounded-full hover:bg-neutral-50 transition-all shadow-sm hover:shadow-md"
                 >
+                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                   {lang === 'es' ? 'Volver al inicio' : lang === 'en' ? 'Back to home' : 'Tornar a l\'inici'}
                 </button>
               </div>
-              <ReviewsSection lang={lang} showSeeMore={false} />
             </motion.section>
           )}
 

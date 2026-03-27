@@ -8,6 +8,8 @@ export const JourneyForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
+    title_en: '',
+    title_ca: '',
     country: '',
     country_en: '',
     country_ca: '',
@@ -30,6 +32,8 @@ export const JourneyForm: React.FC = () => {
     try {
       console.log("Creating journey with translation...", formData.title);
       let title_es = formData.title;
+      let title_en = formData.title_en || formData.title;
+      let title_ca = formData.title_ca || formData.title;
       let intro_es = formData.intro;
       let intro_en = formData.intro_en || formData.intro;
       let intro_ca = formData.intro_ca || formData.intro;
@@ -61,6 +65,8 @@ export const JourneyForm: React.FC = () => {
       const finalData = {
         ...formData,
         title: title_es,
+        title_en,
+        title_ca,
         intro: intro_es,
         intro_en,
         intro_ca,
@@ -78,7 +84,7 @@ export const JourneyForm: React.FC = () => {
       };
       console.log("Final journey data to add:", finalData);
       await addDoc(collection(db, path), finalData);
-      setFormData({ title: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', intro: '', intro_en: '', intro_ca: '', subthemes: '', coverUrl: '', isSpecial: false });
+      setFormData({ title: '', title_en: '', title_ca: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', intro: '', intro_en: '', intro_ca: '', subthemes: '', coverUrl: '', isSpecial: false });
       alert("Viaje creado con éxito");
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
@@ -90,18 +96,84 @@ export const JourneyForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6 bg-white p-8 rounded-3xl shadow-sm">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-serif text-black">Añadir Nuevo Viaje</h2>
+        <button
+          type="button"
+          onClick={async () => {
+            setLoading(true);
+            try {
+              const updates: any = {};
+              if (formData.title) {
+                const titleTrans = await translateMetadata(formData.title, ['en', 'ca']);
+                updates.title_en = titleTrans.en || formData.title_en;
+                updates.title_ca = titleTrans.ca || formData.title_ca;
+              }
+              if (formData.intro) {
+                const introTrans = await translateMetadata(formData.intro, ['en', 'ca']);
+                updates.intro_en = introTrans.en || formData.intro_en;
+                updates.intro_ca = introTrans.ca || formData.intro_ca;
+              }
+              if (formData.country) {
+                const countryTrans = await translateMetadata(formData.country, ['en', 'ca']);
+                updates.country_en = countryTrans.en || formData.country_en;
+                updates.country_ca = countryTrans.ca || formData.country_ca;
+              }
+              if (formData.city) {
+                const cityTrans = await translateMetadata(formData.city, ['en', 'ca']);
+                updates.city_en = cityTrans.en || formData.city_en;
+                updates.city_ca = cityTrans.ca || formData.city_ca;
+              }
+              setFormData(prev => ({ ...prev, ...updates }));
+            } catch (e) {
+              console.error(e);
+              alert("Error al traducir");
+            }
+            setLoading(false);
+          }}
+          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full text-sm hover:bg-zinc-800 transition-colors"
+          disabled={loading}
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+          Traducir todo automáticamente
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="col-span-2 flex justify-between items-center mb-[-1rem]">
           <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Títulos</h3>
         </div>
-        <div className="col-span-2">
-          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título</label>
-          <input 
-            type="text" required value={formData.title}
-            onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-            placeholder="Ej: Japón: El Imperio del Sol Naciente"
-          />
+        <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (ES)</label>
+            <textarea 
+              required value={formData.title}
+              onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+              placeholder="Ej: Japón: El Imperio del Sol Naciente"
+              rows={2}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (EN)</label>
+            <textarea 
+              value={formData.title_en}
+              onChange={e => setFormData(prev => ({ ...prev, title_en: e.target.value }))}
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+              placeholder="Ej: Japan: The Land of the Rising Sun"
+              rows={2}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (CA)</label>
+            <textarea 
+              value={formData.title_ca}
+              onChange={e => setFormData(prev => ({ ...prev, title_ca: e.target.value }))}
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+              placeholder="Ej: Japó: L'Imperi del Sol Naixent"
+              rows={2}
+            />
+          </div>
         </div>
         
         <div className="col-span-2 mt-4">
@@ -187,28 +259,6 @@ export const JourneyForm: React.FC = () => {
         </div>
         <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4">
           <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Introducción</h3>
-          <button 
-            type="button"
-            onClick={async () => {
-              if (!formData.intro) return;
-              setLoading(true);
-              try {
-                const translations = await translateMetadata(formData.intro, ['en', 'ca']);
-                setFormData(prev => ({
-                  ...prev,
-                  intro_en: translations.en || prev.intro_en,
-                  intro_ca: translations.ca || prev.intro_ca
-                }));
-              } catch (e) {
-                console.error(e);
-              }
-              setLoading(false);
-            }}
-            className="ml-4 text-[10px] bg-black text-white px-3 py-1 rounded-full whitespace-nowrap hover:bg-zinc-800 transition-colors"
-            disabled={loading || !formData.intro}
-          >
-            {loading ? 'Traduciendo...' : 'Auto-Traducir'}
-          </button>
         </div>
         <div className="col-span-2">
           <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Introducción (ES)</label>

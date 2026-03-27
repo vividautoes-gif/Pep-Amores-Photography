@@ -47,6 +47,8 @@ export interface Photo {
 export interface Journey {
   id: string;
   title: string;
+  title_en?: string;
+  title_ca?: string;
   country: string;
   country_en?: string;
   country_ca?: string;
