@@ -22,6 +22,8 @@ export const UploadForm: React.FC = () => {
 
   const [formData, setFormData] = useState({
     title: '',
+    title_en: '',
+    title_ca: '',
     country: '',
     country_en: '',
     country_ca: '',
@@ -201,6 +203,12 @@ export const UploadForm: React.FC = () => {
       const updates: any = {};
       const promises: Promise<void>[] = [];
 
+      if (formData.title) {
+        promises.push(translateMetadata(formData.title, ['en', 'ca']).then(res => {
+          updates.title_en = res.en || formData.title_en;
+          updates.title_ca = res.ca || formData.title_ca;
+        }));
+      }
       if (formData.country) {
         promises.push(translateMetadata(formData.country, ['en', 'ca']).then(res => {
           updates.country_en = res.en || formData.country_en;
@@ -244,9 +252,10 @@ export const UploadForm: React.FC = () => {
         ...prev,
         ...updates
       }));
-    } catch (error) {
+      alert("¡Textos traducidos con éxito!");
+    } catch (error: any) {
       console.error("Translation error:", error);
-      alert("Error al traducir automáticamente.");
+      alert("Error al traducir automáticamente: " + (error.message || "Revisa la consola para más detalles."));
     } finally {
       setTranslating(false);
     }
@@ -267,6 +276,7 @@ export const UploadForm: React.FC = () => {
       console.log("Translating metadata for new upload...", formData.title);
       
       const fieldsToTranslate: any = {};
+      if (!formData.title_en || !formData.title_ca) fieldsToTranslate.title = formData.title;
       if (!formData.country_en || !formData.country_ca) fieldsToTranslate.country = formData.country;
       if (!formData.city_en || !formData.city_ca) fieldsToTranslate.city = formData.city;
       if (!formData.neighborhood_en || !formData.neighborhood_ca) fieldsToTranslate.neighborhood = formData.neighborhood;
@@ -300,7 +310,9 @@ export const UploadForm: React.FC = () => {
             
             const finalData = {
               ...formData,
-              title: formData.title,
+              title: objectTranslations.es?.title || formData.title,
+              title_en: formData.title_en || objectTranslations.en?.title || formData.title,
+              title_ca: formData.title_ca || objectTranslations.ca?.title || formData.title,
               caption: objectTranslations.es?.caption || formData.caption,
               caption_en: formData.caption_en || objectTranslations.en?.caption || formData.caption,
               caption_ca: formData.caption_ca || objectTranslations.ca?.caption || formData.caption,
@@ -413,13 +425,13 @@ export const UploadForm: React.FC = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-2 flex justify-between items-center mb-[-1rem]">
-              <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Título</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="col-span-3 flex justify-between items-center mb-[-1rem]">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Títulos</h3>
             </div>
             
-            <div className="col-span-2">
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título</label>
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (ES)</label>
               <textarea 
                 value={formData.title}
                 onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
@@ -428,12 +440,32 @@ export const UploadForm: React.FC = () => {
                 rows={2}
               />
             </div>
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (EN)</label>
+              <textarea 
+                value={formData.title_en}
+                onChange={e => setFormData(prev => ({ ...prev, title_en: e.target.value }))}
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+                placeholder="Ej: The Lonely Monk"
+                rows={2}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Título (CA)</label>
+              <textarea 
+                value={formData.title_ca}
+                onChange={e => setFormData(prev => ({ ...prev, title_ca: e.target.value }))}
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+                placeholder="Ej: El Monjo Solitari"
+                rows={2}
+              />
+            </div>
             
-            <div className="col-span-2 mt-4 flex justify-between items-center border-b border-gray-200 pb-2">
+            <div className="col-span-3 mt-4 flex justify-between items-center border-b border-gray-200 pb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Localización y Metadatos</h3>
             </div>
             
-            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
                   País (ES)
@@ -469,7 +501,7 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (ES)</label>
                 <textarea 
@@ -502,7 +534,7 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Barrio (ES)</label>
                 <textarea 
@@ -553,7 +585,7 @@ export const UploadForm: React.FC = () => {
               />
             </div>
 
-            <div className="col-span-2">
+            <div className="col-span-3">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
                 Viaje (Journey)
                 {journeysLoading && <Loader2 size={12} className="animate-spin" />}
@@ -579,7 +611,7 @@ export const UploadForm: React.FC = () => {
               )}
             </div>
 
-            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtema (ES)</label>
                 <textarea 
@@ -612,7 +644,7 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-span-2">
+            <div className="col-span-3">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (Internacional)</label>
               <textarea 
                 value={formData.tags}
@@ -623,11 +655,11 @@ export const UploadForm: React.FC = () => {
               />
             </div>
 
-            <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4 border-b border-gray-200 pb-2">
+            <div className="col-span-3 flex justify-between items-center mb-[-1rem] mt-4 border-b border-gray-200 pb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Descripción / Historia</h3>
             </div>
 
-            <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Descripción (ES)</label>
                 <textarea 
@@ -658,7 +690,7 @@ export const UploadForm: React.FC = () => {
             </div>
 
             {/* EXIF Data Section */}
-            <div className="col-span-2 mt-8">
+            <div className="col-span-3 mt-8">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black mb-4 border-b border-gray-200 pb-2">Datos EXIF (Cámara)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">

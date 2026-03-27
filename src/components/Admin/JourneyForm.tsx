@@ -143,11 +143,13 @@ export const JourneyForm: React.FC = () => {
                 ...prev,
                 ...updates
               }));
-            } catch (e) {
+              alert("¡Textos traducidos con éxito!");
+            } catch (e: any) {
               console.error(e);
-              alert("Error al traducir automáticamente.");
+              alert("Error al traducir automáticamente: " + (e.message || "Revisa la consola para más detalles."));
+            } finally {
+              setLoading(false);
             }
-            setLoading(false);
           }}
           className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full text-sm hover:bg-zinc-800 transition-colors"
           disabled={loading}

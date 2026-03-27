@@ -1,13 +1,24 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const apiKey = process.env.GEMINI_API_KEY || '';
+const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
 if (!apiKey) {
   console.warn("GEMINI_API_KEY is missing. Translations will not work.");
 }
 const ai = new GoogleGenAI({ apiKey });
 
+const parseJsonResponse = (text: string) => {
+  let cleanText = text.trim();
+  if (cleanText.startsWith('```json')) {
+    cleanText = cleanText.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+  } else if (cleanText.startsWith('```')) {
+    cleanText = cleanText.replace(/^```\n?/, '').replace(/\n?```$/, '');
+  }
+  return JSON.parse(cleanText);
+};
+
 export const translateMetadata = async (text: string, targetLangs: string[]) => {
   if (!text || targetLangs.length === 0) return {};
+  if (!apiKey) throw new Error("API Key de Gemini no configurada.");
 
   console.log(`Translating metadata: "${text}" to ${targetLangs.join(', ')}`);
 
@@ -34,17 +45,18 @@ export const translateMetadata = async (text: string, targetLangs: string[]) => 
       }
     });
 
-    const result = JSON.parse(response.text || '{}');
+    const result = parseJsonResponse(response.text || '{}');
     console.log("Translation result:", result);
     return result;
   } catch (error) {
     console.error("Translation error:", error);
-    return {};
+    throw error;
   }
 };
 
 export const translateReview = async (text: string, targetLang: string) => {
   if (!text || !targetLang) return null;
+  if (!apiKey) throw new Error("API Key de Gemini no configurada.");
 
   console.log(`Translating review: "${text}" to ${targetLang}`);
 
@@ -72,12 +84,12 @@ export const translateReview = async (text: string, targetLang: string) => {
       }
     });
 
-    const result = JSON.parse(response.text || '{}');
+    const result = parseJsonResponse(response.text || '{}');
     console.log("Review translation result:", result);
     return result as { originalLang: string, translatedText: string };
   } catch (error) {
     console.error("Review translation error:", error);
-    return null;
+    throw error;
   }
 };
 
@@ -91,6 +103,7 @@ export const translateObject = async (data: Record<string, string>, targetLangs:
   
   const keysToTranslate = Object.keys(dataToTranslate);
   if (keysToTranslate.length === 0 || targetLangs.length === 0) return {};
+  if (!apiKey) throw new Error("API Key de Gemini no configurada.");
 
   console.log("Translating object:", dataToTranslate, "to", targetLangs);
 
@@ -125,11 +138,11 @@ export const translateObject = async (data: Record<string, string>, targetLangs:
       }
     });
 
-    const result = JSON.parse(response.text || '{}');
+    const result = parseJsonResponse(response.text || '{}');
     console.log("Object translation result:", result);
     return result;
   } catch (error) {
     console.error("Translation error:", error);
-    return {};
+    throw error;
   }
 };
