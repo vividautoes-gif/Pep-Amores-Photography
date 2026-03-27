@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, Send, MapPin, ChevronRight, Camera, AlertTriangle, Star, Award, Clock, User, MessageSquare, BarChart3, Lock, Image as ImageIcon, Aperture } from 'lucide-react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
 import { Lightbox } from './components/Lightbox';
@@ -322,7 +322,27 @@ function Gallery() {
     return combined;
   }, [DB, isMobile]);
 
-  const [currentSection, setCurrentSection] = useState('home');
+  const { section } = useParams();
+  const navigate = useNavigate();
+  
+  const validSections = ['home', 'journeys', 'special-sessions', 'explore', 'favorites', 'latest', 'lfi', 'my-movies', 'about', 'contact', 'reviews'];
+  const currentSection = (section && validSections.includes(section)) ? section : 'home';
+
+  // Redirect to home if invalid section
+  useEffect(() => {
+    if (section && !validSections.includes(section)) {
+      navigate('/', { replace: true });
+    }
+  }, [section, navigate]);
+
+  const setCurrentSection = (newSection: string) => {
+    if (newSection === 'home') {
+      navigate('/');
+    } else {
+      navigate(`/${newSection}`);
+    }
+    window.scrollTo(0, 0);
+  };
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -717,7 +737,9 @@ function Gallery() {
                 </div>
               </section>
 
-              <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
+              <div className="container mx-auto px-6">
+                <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
+              </div>
 
               {/* Featured Journeys */}
               <section className="w-full py-8 bg-white">
@@ -1293,7 +1315,7 @@ function Gallery() {
 
       <Lightbox lang={lang} photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} onNext={handleNext} onPrev={handlePrev} />
 
-      <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); window.scrollTo(0,0); }} lang={lang} />
+      <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} lang={lang} />
       <CookieBanner lang={lang} />
     </div>
   );
@@ -1525,6 +1547,7 @@ export default function App() {
         <Routes>
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/pep-panel" element={<PepPanel />} />
+          <Route path="/:section" element={<Gallery />} />
           <Route path="/" element={<Gallery />} />
           <Route path="*" element={<Gallery />} />
         </Routes>

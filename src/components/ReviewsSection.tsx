@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useReviews } from '../hooks/useReviews';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, Globe } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { FlowButton } from './ui/flow-button';
 
@@ -18,6 +18,25 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [limit, setLimit] = useState(12);
+
+  useEffect(() => {
+    const updateLimit = () => {
+      if (window.innerWidth < 768) {
+        setLimit(8);
+      } else if (window.innerWidth < 1024) {
+        setLimit(10);
+      } else {
+        setLimit(12);
+      }
+    };
+    updateLimit();
+    window.addEventListener('resize', updateLimit);
+    return () => window.removeEventListener('resize', updateLimit);
+  }, []);
+
+  const displayedReviews = showSeeMore ? reviews.slice(0, limit) : reviews;
+  const hasMore = reviews.length > limit;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,55 +97,61 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
             {error}
           </div>
         ) : reviews.length > 0 ? (
-          <div className="relative">
-            <div className={cn(
-              "columns-1 md:columns-2 lg:columns-4 gap-6",
-              showSeeMore ? "max-h-[1200px] md:max-h-[900px] lg:max-h-[800px] overflow-hidden" : ""
-            )}>
-              {reviews.map(r => {
-                const reviewText = lang === 'en' && r.text_en ? r.text_en : lang === 'ca' && r.text_ca ? r.text_ca : r.text_es || r.text;
-                const isTranslated = r.originalLang && r.originalLang !== lang;
-                
-                return (
-                  <div key={r.id} className="break-inside-avoid mb-6 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                    <h4 className="font-medium text-lg mb-3 text-brand-primary">{r.name}</h4>
-                    <p className="text-brand-secondary italic leading-relaxed text-sm mb-4">"{reviewText}"</p>
-                    {isTranslated && (
-                      <div className="text-right mt-2">
-                        <span className="text-[10px] text-brand-secondary/70 uppercase tracking-wider">
-                          {getTranslatedText(lang)} {getLanguageName(r.originalLang, lang)}
+          <div className="max-w-5xl mx-auto">
+            <div className="relative">
+              <div className="space-y-6 mb-12">
+                {displayedReviews.map((r, index) => {
+                  const reviewText = lang === 'en' && r.text_en ? r.text_en : lang === 'ca' && r.text_ca ? r.text_ca : r.text_es || r.text;
+                  const isTranslated = r.originalLang && r.originalLang !== lang;
+                  const isLast = index === displayedReviews.length - 1 && showSeeMore && hasMore;
+                  
+                  return (
+                    <div 
+                      key={r.id} 
+                      className={cn(
+                        "relative bg-white p-6 rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-white/50 transition-all hover:shadow-[0_15px_50px_rgba(0,0,0,0.06)]",
+                        isLast && "mb-12"
+                      )}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <span className="font-serif italic text-lg text-brand-primary">
+                          {r.name}
                         </span>
+                        <p className="text-brand-secondary text-sm leading-relaxed font-light">
+                          {reviewText}
+                        </p>
+                        {isTranslated && (
+                          <div className="flex items-center gap-1.5 mt-2 opacity-40">
+                            <Globe size={12} />
+                            <span className="text-[10px] uppercase tracking-widest font-bold">
+                              {getTranslatedText(lang)} {getLanguageName(r.originalLang, lang)}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                      
+                      {isLast && (
+                        <div className="absolute -bottom-4 left-0 w-full h-32 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-10 rounded-b-[2rem]" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
             
-            {/* Gradient Cut Effect */}
             {showSeeMore && (
-              <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+              <div className="flex justify-center mt-8">
+                <FlowButton 
+                  onClick={onSeeMore || (() => window.location.hash = '#reviews')}
+                  text={lang === 'es' ? 'Ver más reseñas' : lang === 'en' ? 'See more reviews' : 'Veure més ressenyes'}
+                />
+              </div>
             )}
           </div>
         ) : (
           <div className="text-center text-brand-secondary py-12 italic">
             {lang === 'es' ? 'Aún no hay reseñas aprobadas.' : lang === 'en' ? 'No approved reviews yet.' : 'Encara no hi ha ressenyes aprovades.'}
           </div>
-        )}
-
-        {/* Separator Line 1 */}
-        {showSeeMore && (
-          <>
-            <div className="w-full h-px bg-gray-200 my-8" />
-            
-            {/* See More Button */}
-            <div className="flex justify-center mb-8">
-              <FlowButton 
-                onClick={onSeeMore || (() => window.location.hash = '#reviews')}
-                text={lang === 'es' ? 'Ver más reseñas' : lang === 'en' ? 'See more reviews' : 'Veure més ressenyes'}
-              />
-            </div>
-          </>
         )}
 
         {/* Separator Line 2 */}

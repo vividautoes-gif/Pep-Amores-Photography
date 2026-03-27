@@ -206,9 +206,10 @@ export const UploadForm: React.FC = () => {
       if (formData.neighborhood && (!formData.neighborhood_en || !formData.neighborhood_ca)) fieldsToTranslate.neighborhood = formData.neighborhood;
       if (formData.subtheme && (!formData.subtheme_en || !formData.subtheme_ca)) fieldsToTranslate.subtheme = formData.subtheme;
       if (formData.caption && (!formData.caption_en || !formData.caption_ca)) fieldsToTranslate.caption = formData.caption;
+      if (formData.tags && (!formData.tags_en || !formData.tags_ca)) fieldsToTranslate.tags = formData.tags;
 
       if (Object.keys(fieldsToTranslate).length === 0) {
-        alert("No hay campos nuevos para traducir.");
+        alert("No hay campos nuevos para traducir. Asegúrate de haber rellenado los campos en español.");
         setTranslating(false);
         return;
       }
@@ -227,6 +228,8 @@ export const UploadForm: React.FC = () => {
         subtheme_ca: prev.subtheme_ca || objectTranslations.ca?.subtheme || prev.subtheme_ca,
         caption_en: prev.caption_en || objectTranslations.en?.caption || prev.caption_en,
         caption_ca: prev.caption_ca || objectTranslations.ca?.caption || prev.caption_ca,
+        tags_en: prev.tags_en || objectTranslations.en?.tags || prev.tags_en,
+        tags_ca: prev.tags_ca || objectTranslations.ca?.tags || prev.tags_ca,
       }));
     } catch (error) {
       console.error("Translation error:", error);
@@ -416,24 +419,6 @@ export const UploadForm: React.FC = () => {
             
             <div className="col-span-2 mt-4 flex justify-between items-center border-b border-gray-200 pb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Localización y Metadatos</h3>
-              <button
-                type="button"
-                onClick={handleAutoTranslate}
-                disabled={translating}
-                className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 text-black text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-neutral-200 transition-all disabled:opacity-50"
-              >
-                {translating ? (
-                  <>
-                    <Loader2 size={12} className="animate-spin" />
-                    Traduciendo...
-                  </>
-                ) : (
-                  <>
-                    <Globe size={12} />
-                    Traducir automáticamente
-                  </>
-                )}
-              </button>
             </div>
             
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -635,24 +620,6 @@ export const UploadForm: React.FC = () => {
 
             <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4 border-b border-gray-200 pb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Descripción / Historia</h3>
-              <button
-                type="button"
-                onClick={handleAutoTranslate}
-                disabled={translating}
-                className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 text-black text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-neutral-200 transition-all disabled:opacity-50"
-              >
-                {translating ? (
-                  <>
-                    <Loader2 size={12} className="animate-spin" />
-                    Traduciendo...
-                  </>
-                ) : (
-                  <>
-                    <Globe size={12} />
-                    Traducir automáticamente
-                  </>
-                )}
-              </button>
             </div>
 
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -821,6 +788,28 @@ export const UploadForm: React.FC = () => {
                   <span className="text-sm font-medium">Usar como Portada del Viaje</span>
                 </label>
               )}
+            </div>
+
+            {/* Single Translation Button */}
+            <div className="pt-4">
+              <button
+                type="button"
+                onClick={handleAutoTranslate}
+                disabled={translating}
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-neutral-100 text-black text-xs font-bold uppercase tracking-widest rounded-2xl hover:bg-neutral-200 transition-all disabled:opacity-50 border border-neutral-200"
+              >
+                {translating ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Traduciendo todo con IA...
+                  </>
+                ) : (
+                  <>
+                    <Globe size={16} />
+                    Traducir todo automáticamente
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
