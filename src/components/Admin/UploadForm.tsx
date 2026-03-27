@@ -198,33 +198,51 @@ export const UploadForm: React.FC = () => {
     if (translating) return;
     setTranslating(true);
     try {
-      const fieldsToTranslate: any = {};
-      if (formData.country) fieldsToTranslate.country = formData.country;
-      if (formData.city) fieldsToTranslate.city = formData.city;
-      if (formData.neighborhood) fieldsToTranslate.neighborhood = formData.neighborhood;
-      if (formData.subtheme) fieldsToTranslate.subtheme = formData.subtheme;
-      if (formData.caption) fieldsToTranslate.caption = formData.caption;
+      const updates: any = {};
+      const promises: Promise<void>[] = [];
 
-      if (Object.keys(fieldsToTranslate).length === 0) {
+      if (formData.country) {
+        promises.push(translateMetadata(formData.country, ['en', 'ca']).then(res => {
+          updates.country_en = res.en || formData.country_en;
+          updates.country_ca = res.ca || formData.country_ca;
+        }));
+      }
+      if (formData.city) {
+        promises.push(translateMetadata(formData.city, ['en', 'ca']).then(res => {
+          updates.city_en = res.en || formData.city_en;
+          updates.city_ca = res.ca || formData.city_ca;
+        }));
+      }
+      if (formData.neighborhood) {
+        promises.push(translateMetadata(formData.neighborhood, ['en', 'ca']).then(res => {
+          updates.neighborhood_en = res.en || formData.neighborhood_en;
+          updates.neighborhood_ca = res.ca || formData.neighborhood_ca;
+        }));
+      }
+      if (formData.subtheme) {
+        promises.push(translateMetadata(formData.subtheme, ['en', 'ca']).then(res => {
+          updates.subtheme_en = res.en || formData.subtheme_en;
+          updates.subtheme_ca = res.ca || formData.subtheme_ca;
+        }));
+      }
+      if (formData.caption) {
+        promises.push(translateMetadata(formData.caption, ['en', 'ca']).then(res => {
+          updates.caption_en = res.en || formData.caption_en;
+          updates.caption_ca = res.ca || formData.caption_ca;
+        }));
+      }
+
+      if (promises.length === 0) {
         alert("No hay campos nuevos para traducir. Asegúrate de haber rellenado los campos en español.");
         setTranslating(false);
         return;
       }
 
-      const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
+      await Promise.all(promises);
       
       setFormData(prev => ({
         ...prev,
-        country_en: objectTranslations.en?.country || prev.country_en,
-        country_ca: objectTranslations.ca?.country || prev.country_ca,
-        city_en: objectTranslations.en?.city || prev.city_en,
-        city_ca: objectTranslations.ca?.city || prev.city_ca,
-        neighborhood_en: objectTranslations.en?.neighborhood || prev.neighborhood_en,
-        neighborhood_ca: objectTranslations.ca?.neighborhood || prev.neighborhood_ca,
-        subtheme_en: objectTranslations.en?.subtheme || prev.subtheme_en,
-        subtheme_ca: objectTranslations.ca?.subtheme || prev.subtheme_ca,
-        caption_en: objectTranslations.en?.caption || prev.caption_en,
-        caption_ca: objectTranslations.ca?.caption || prev.caption_ca,
+        ...updates
       }));
     } catch (error) {
       console.error("Translation error:", error);
@@ -342,12 +360,12 @@ export const UploadForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto">
+      <div className="flex flex-col gap-8">
         <div className="space-y-4">
           <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Imagen</label>
           <div 
-            className={`relative aspect-[4/3] rounded-3xl border-2 border-dashed transition-all overflow-hidden flex items-center justify-center ${preview ? 'border-transparent' : isDragging ? 'border-black bg-black/5' : 'border-gray-300 hover:border-black bg-white/50'}`}
+            className={`relative aspect-[4/3] max-h-[500px] rounded-3xl border-2 border-dashed transition-all overflow-hidden flex items-center justify-center ${preview ? 'border-transparent' : isDragging ? 'border-black bg-black/5' : 'border-gray-300 hover:border-black bg-white/50'}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}

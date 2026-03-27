@@ -20,6 +20,8 @@ export const JourneyForm: React.FC = () => {
     intro_en: '',
     intro_ca: '',
     subthemes: '',
+    subthemes_en: '',
+    subthemes_ca: '',
     coverUrl: '',
     isSpecial: false
   });
@@ -49,17 +51,9 @@ export const JourneyForm: React.FC = () => {
 
       const subthemesList = formData.subthemes.split(',').map(s => s.trim()).filter(s => s);
       if (subthemesList.length > 0) {
-        const subthemesText = subthemesList.join(', ');
-        const subthemesTrans = await translateMetadata(subthemesText, ['es', 'en', 'ca']);
-        if (Object.keys(subthemesTrans).length > 0) {
-          subthemes_es = (subthemesTrans.es || subthemesText).split(',').map((s: string) => s.trim());
-          subthemes_en = (subthemesTrans.en || subthemesText).split(',').map((s: string) => s.trim());
-          subthemes_ca = (subthemesTrans.ca || subthemesText).split(',').map((s: string) => s.trim());
-        } else {
-          subthemes_es = subthemesList;
-          subthemes_en = subthemesList;
-          subthemes_ca = subthemesList;
-        }
+        subthemes_es = subthemesList;
+        subthemes_en = formData.subthemes_en ? formData.subthemes_en.split(',').map(s => s.trim()).filter(s => s) : subthemesList;
+        subthemes_ca = formData.subthemes_ca ? formData.subthemes_ca.split(',').map(s => s.trim()).filter(s => s) : subthemesList;
       }
 
       const finalData = {
@@ -84,7 +78,7 @@ export const JourneyForm: React.FC = () => {
       };
       console.log("Final journey data to add:", finalData);
       await addDoc(collection(db, path), finalData);
-      setFormData({ title: '', title_en: '', title_ca: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', intro: '', intro_en: '', intro_ca: '', subthemes: '', coverUrl: '', isSpecial: false });
+      setFormData({ title: '', title_en: '', title_ca: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', intro: '', intro_en: '', intro_ca: '', subthemes: '', subthemes_en: '', subthemes_ca: '', coverUrl: '', isSpecial: false });
       alert("Viaje creado con éxito");
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
@@ -104,30 +98,54 @@ export const JourneyForm: React.FC = () => {
             setLoading(true);
             try {
               const updates: any = {};
+              const promises: Promise<void>[] = [];
+
               if (formData.title) {
-                const titleTrans = await translateMetadata(formData.title, ['en', 'ca']);
-                updates.title_en = titleTrans.en || formData.title_en;
-                updates.title_ca = titleTrans.ca || formData.title_ca;
+                promises.push(translateMetadata(formData.title, ['en', 'ca']).then(res => {
+                  updates.title_en = res.en || formData.title_en;
+                  updates.title_ca = res.ca || formData.title_ca;
+                }));
               }
               if (formData.intro) {
-                const introTrans = await translateMetadata(formData.intro, ['en', 'ca']);
-                updates.intro_en = introTrans.en || formData.intro_en;
-                updates.intro_ca = introTrans.ca || formData.intro_ca;
+                promises.push(translateMetadata(formData.intro, ['en', 'ca']).then(res => {
+                  updates.intro_en = res.en || formData.intro_en;
+                  updates.intro_ca = res.ca || formData.intro_ca;
+                }));
               }
               if (formData.country) {
-                const countryTrans = await translateMetadata(formData.country, ['en', 'ca']);
-                updates.country_en = countryTrans.en || formData.country_en;
-                updates.country_ca = countryTrans.ca || formData.country_ca;
+                promises.push(translateMetadata(formData.country, ['en', 'ca']).then(res => {
+                  updates.country_en = res.en || formData.country_en;
+                  updates.country_ca = res.ca || formData.country_ca;
+                }));
               }
               if (formData.city) {
-                const cityTrans = await translateMetadata(formData.city, ['en', 'ca']);
-                updates.city_en = cityTrans.en || formData.city_en;
-                updates.city_ca = cityTrans.ca || formData.city_ca;
+                promises.push(translateMetadata(formData.city, ['en', 'ca']).then(res => {
+                  updates.city_en = res.en || formData.city_en;
+                  updates.city_ca = res.ca || formData.city_ca;
+                }));
               }
-              setFormData(prev => ({ ...prev, ...updates }));
+              if (formData.subthemes) {
+                promises.push(translateMetadata(formData.subthemes, ['en', 'ca']).then(res => {
+                  updates.subthemes_en = res.en || formData.subthemes_en;
+                  updates.subthemes_ca = res.ca || formData.subthemes_ca;
+                }));
+              }
+
+              if (promises.length === 0) {
+                alert("No hay campos para traducir.");
+                setLoading(false);
+                return;
+              }
+
+              await Promise.all(promises);
+              
+              setFormData(prev => ({
+                ...prev,
+                ...updates
+              }));
             } catch (e) {
               console.error(e);
-              alert("Error al traducir");
+              alert("Error al traducir automáticamente.");
             }
             setLoading(false);
           }}
@@ -180,66 +198,72 @@ export const JourneyForm: React.FC = () => {
           <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2">Localización y Metadatos</h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (ES)</label>
-            <input 
-              type="text" required value={formData.country}
+            <textarea 
+              required value={formData.country}
               onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
-              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
               placeholder="Japón"
+              rows={2}
             />
           </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (EN)</label>
-            <input 
-              type="text" value={formData.country_en || ''}
+            <textarea 
+              value={formData.country_en || ''}
               onChange={e => setFormData(prev => ({ ...prev, country_en: e.target.value }))}
-              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
               placeholder="Japan"
+              rows={2}
             />
           </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (CA)</label>
-            <input 
-              type="text" value={formData.country_ca || ''}
+            <textarea 
+              value={formData.country_ca || ''}
               onChange={e => setFormData(prev => ({ ...prev, country_ca: e.target.value }))}
-              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
               placeholder="Japó"
+              rows={2}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (ES)</label>
-            <input 
-              type="text" value={formData.city}
+            <textarea 
+              value={formData.city}
               onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
-              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
               placeholder="Tokio"
+              rows={2}
             />
           </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (EN)</label>
-            <input 
-              type="text" value={formData.city_en || ''}
+            <textarea 
+              value={formData.city_en || ''}
               onChange={e => setFormData(prev => ({ ...prev, city_en: e.target.value }))}
-              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
               placeholder="Tokyo"
+              rows={2}
             />
           </div>
           <div>
             <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Ciudad (CA)</label>
-            <input 
-              type="text" value={formData.city_ca || ''}
+            <textarea 
+              value={formData.city_ca || ''}
               onChange={e => setFormData(prev => ({ ...prev, city_ca: e.target.value }))}
-              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
               placeholder="Tòquio"
+              rows={2}
             />
           </div>
         </div>
-        <div>
+        <div className="col-span-2">
           <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">URL de Portada (Opcional)</label>
           <input 
             type="text" value={formData.coverUrl}
@@ -248,14 +272,37 @@ export const JourneyForm: React.FC = () => {
             placeholder="https://..."
           />
         </div>
-        <div className="col-span-2">
-          <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtemas (separados por comas)</label>
-          <input 
-            type="text" value={formData.subthemes}
-            onChange={e => setFormData(prev => ({ ...prev, subthemes: e.target.value }))}
-            className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-            placeholder="Chinatown, Mercados, Street Portraits..."
-          />
+        <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtemas (ES)</label>
+            <textarea 
+              value={formData.subthemes}
+              onChange={e => setFormData(prev => ({ ...prev, subthemes: e.target.value }))}
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+              placeholder="Chinatown, Mercados..."
+              rows={2}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtemas (EN)</label>
+            <textarea 
+              value={formData.subthemes_en}
+              onChange={e => setFormData(prev => ({ ...prev, subthemes_en: e.target.value }))}
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+              placeholder="Chinatown, Markets..."
+              rows={2}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Subtemas (CA)</label>
+            <textarea 
+              value={formData.subthemes_ca}
+              onChange={e => setFormData(prev => ({ ...prev, subthemes_ca: e.target.value }))}
+              className="w-full bg-neutral-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all resize-none"
+              placeholder="Chinatown, Mercats..."
+              rows={2}
+            />
+          </div>
         </div>
         <div className="col-span-2 flex justify-between items-center mb-[-1rem] mt-4">
           <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Introducción</h3>

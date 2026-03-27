@@ -82,10 +82,17 @@ export const translateReview = async (text: string, targetLang: string) => {
 };
 
 export const translateObject = async (data: Record<string, string>, targetLangs: string[]) => {
-  const keysToTranslate = Object.keys(data).filter(k => data[k] && data[k].trim() !== '');
+  const dataToTranslate: Record<string, string> = {};
+  for (const key of Object.keys(data)) {
+    if (data[key] && data[key].trim() !== '') {
+      dataToTranslate[key] = data[key];
+    }
+  }
+  
+  const keysToTranslate = Object.keys(dataToTranslate);
   if (keysToTranslate.length === 0 || targetLangs.length === 0) return {};
 
-  console.log("Translating object:", data, "to", targetLangs);
+  console.log("Translating object:", dataToTranslate, "to", targetLangs);
 
   try {
     const response = await ai.models.generateContent({
@@ -93,7 +100,7 @@ export const translateObject = async (data: Record<string, string>, targetLangs:
       contents: `Translate the values of the following JSON object to these languages: ${targetLangs.join(', ')}.
       
       JSON to translate:
-      ${JSON.stringify(data, null, 2)}
+      ${JSON.stringify(dataToTranslate, null, 2)}
       
       IMPORTANT:
       1. Return ONLY a valid JSON object.
