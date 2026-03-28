@@ -1,51 +1,41 @@
-import { GoogleGenAI, Type } from "@google/genai";
+// Free translation service using Google Translate's unofficial API
+// No API key required.
 
-const apiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
-if (!apiKey) {
-  console.warn("GEMINI_API_KEY is missing. Translations will not work.");
-}
-const ai = new GoogleGenAI({ apiKey });
-
-const parseJsonResponse = (text: string) => {
-  let cleanText = text.trim();
-  if (cleanText.startsWith('```json')) {
-    cleanText = cleanText.replace(/^```json\n?/, '').replace(/\n?```$/, '');
-  } else if (cleanText.startsWith('```')) {
-    cleanText = cleanText.replace(/^```\n?/, '').replace(/\n?```$/, '');
+const translateText = async (text: string, sourceLang: string, targetLang: string): Promise<string> => {
+  if (!text) return '';
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    let translated = '';
+    if (data && data[0]) {
+      data[0].forEach((segment: any) => {
+        if (segment[0]) translated += segment[0];
+      });
+    }
+    return translated;
+  } catch (error) {
+    console.error("Translation error:", error);
+    throw new Error("Error en el servicio de traducción gratuito.");
   }
-  return JSON.parse(cleanText);
 };
 
 export const translateMetadata = async (text: string, targetLangs: string[]) => {
   if (!text || targetLangs.length === 0) return {};
-  if (!apiKey) throw new Error("API Key de Gemini no configurada.");
 
   console.log(`Translating metadata: "${text}" to ${targetLangs.join(', ')}`);
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Translate the following photography metadata text to these languages: ${targetLangs.join(', ')}. 
-      The input text is: "${text}"
-      
-      IMPORTANT: 
-      1. Return ONLY a valid JSON object.
-      2. Use the language codes (${targetLangs.join(', ')}) as keys.
-      3. Provide the translation for EVERY key, even if the input is already in that language.
-      4. If the text is a proper noun that doesn't change, keep it as is for that language.`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: targetLangs.reduce((acc: any, lang) => {
-            acc[lang] = { type: Type.STRING };
-            return acc;
-          }, {})
-        }
-      }
-    });
-
-    const result = parseJsonResponse(response.text || '{}');
+    const result: Record<string, string> = {};
+    // We assume the source language is Spanish ('es') for metadata in the backoffice
+    for (const lang of targetLangs) {
+      result[lang] = await translateText(text, 'es', lang);
+    }
+    
     console.log("Translation result:", result);
     return result;
   } catch (error) {
@@ -56,37 +46,23 @@ export const translateMetadata = async (text: string, targetLangs: string[]) => 
 
 export const translateReview = async (text: string, targetLang: string) => {
   if (!text || !targetLang) return null;
-  if (!apiKey) throw new Error("API Key de Gemini no configurada.");
 
   console.log(`Translating review: "${text}" to ${targetLang}`);
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Translate the following review text to the language code: ${targetLang}. 
-      The input text is: "${text}"
-      
-      IMPORTANT: 
-      1. Return ONLY a valid JSON object.
-      2. Identify the original language of the input text and return its language code (e.g., 'es', 'en', 'ca', 'fr', 'zh', etc.) in the 'originalLang' field.
-      3. Return the translated text in the 'translatedText' field.
-      4. If the original language is the same as the target language, 'translatedText' should be the same as the input text.`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            originalLang: { type: Type.STRING },
-            translatedText: { type: Type.STRING }
-          },
-          required: ["originalLang", "translatedText"]
-        }
-      }
-    });
-
-    const result = parseJsonResponse(response.text || '{}');
+    // For reviews, we let Google auto-detect the source language by using 'auto'
+    const translatedText = await translateText(text, 'auto', targetLang);
+    
+    // The unofficial API doesn't reliably return the detected source language in a simple format,
+    // so we'll just return 'auto' as the originalLang for simplicity, or try to extract it if possible.
+    // For now, we'll just return 'auto'.
+    const result = {
+      originalLang: 'auto', 
+      translatedText
+    };
+    
     console.log("Review translation result:", result);
-    return result as { originalLang: string, translatedText: string };
+    return result;
   } catch (error) {
     console.error("Review translation error:", error);
     throw error;
@@ -103,42 +79,20 @@ export const translateObject = async (data: Record<string, string>, targetLangs:
   
   const keysToTranslate = Object.keys(dataToTranslate);
   if (keysToTranslate.length === 0 || targetLangs.length === 0) return {};
-  if (!apiKey) throw new Error("API Key de Gemini no configurada.");
 
   console.log("Translating object:", dataToTranslate, "to", targetLangs);
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Translate the values of the following JSON object to these languages: ${targetLangs.join(', ')}.
-      
-      JSON to translate:
-      ${JSON.stringify(dataToTranslate, null, 2)}
-      
-      IMPORTANT:
-      1. Return ONLY a valid JSON object.
-      2. The top-level keys MUST be the language codes: ${targetLangs.join(', ')}.
-      3. Each language key must contain an object with the same keys as the input, but with translated values.
-      4. Provide translations for ALL languages and ALL keys.`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: targetLangs.reduce((acc: any, lang) => {
-            acc[lang] = {
-              type: Type.OBJECT,
-              properties: keysToTranslate.reduce((propAcc: any, key) => {
-                propAcc[key] = { type: Type.STRING };
-                return propAcc;
-              }, {})
-            };
-            return acc;
-          }, {})
-        }
+    const result: Record<string, Record<string, string>> = {};
+    
+    for (const lang of targetLangs) {
+      result[lang] = {};
+      for (const key of keysToTranslate) {
+        // Assume source is Spanish ('es')
+        result[lang][key] = await translateText(dataToTranslate[key], 'es', lang);
       }
-    });
+    }
 
-    const result = parseJsonResponse(response.text || '{}');
     console.log("Object translation result:", result);
     return result;
   } catch (error) {
@@ -146,3 +100,4 @@ export const translateObject = async (data: Record<string, string>, targetLangs:
     throw error;
   }
 };
+
