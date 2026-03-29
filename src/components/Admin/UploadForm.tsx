@@ -203,12 +203,6 @@ export const UploadForm: React.FC = () => {
       const updates: any = {};
       const promises: Promise<void>[] = [];
 
-      if (formData.title) {
-        promises.push(translateMetadata(formData.title, ['en', 'ca']).then(res => {
-          updates.title_en = res.en || formData.title_en;
-          updates.title_ca = res.ca || formData.title_ca;
-        }));
-      }
       if (formData.country) {
         promises.push(translateMetadata(formData.country, ['en', 'ca']).then(res => {
           updates.country_en = res.en || formData.country_en;
@@ -276,7 +270,6 @@ export const UploadForm: React.FC = () => {
       console.log("Translating metadata for new upload...", formData.title);
       
       const fieldsToTranslate: any = {};
-      if (!formData.title_en || !formData.title_ca) fieldsToTranslate.title = formData.title;
       if (!formData.country_en || !formData.country_ca) fieldsToTranslate.country = formData.country;
       if (!formData.city_en || !formData.city_ca) fieldsToTranslate.city = formData.city;
       if (!formData.neighborhood_en || !formData.neighborhood_ca) fieldsToTranslate.neighborhood = formData.neighborhood;
@@ -310,9 +303,9 @@ export const UploadForm: React.FC = () => {
             
             const finalData = {
               ...formData,
-              title: objectTranslations.es?.title || formData.title,
-              title_en: formData.title_en || objectTranslations.en?.title || formData.title,
-              title_ca: formData.title_ca || objectTranslations.ca?.title || formData.title,
+              title: formData.title,
+              title_en: formData.title_en || formData.title,
+              title_ca: formData.title_ca || formData.title,
               caption: objectTranslations.es?.caption || formData.caption,
               caption_en: formData.caption_en || objectTranslations.en?.caption || formData.caption,
               caption_ca: formData.caption_ca || objectTranslations.ca?.caption || formData.caption,
@@ -349,7 +342,7 @@ export const UploadForm: React.FC = () => {
             setUploadStep('');
             setProgress(0);
             setFormData({
-              title: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', neighborhood: '', neighborhood_en: '', neighborhood_ca: '', year: new Date().getFullYear(), photoDate: '',
+              title: '', title_en: '', title_ca: '', country: '', country_en: '', country_ca: '', city: '', city_en: '', city_ca: '', neighborhood: '', neighborhood_en: '', neighborhood_ca: '', year: new Date().getFullYear(), photoDate: '',
               tags: '', orientation: 'landscape', isFavorite: false, favoriteScore: 50,
               isLFI: false, lfiType: 'none', lfiDate: '', isHero: false, isJourneyCover: false, caption: '', caption_en: '', caption_ca: '', journeyId: '', subtheme: '', subtheme_en: '', subtheme_ca: '',
               cameraModel: '', lens: '', focalLength: '', exposureTime: '', aperture: '', iso: ''

@@ -31,8 +31,8 @@ const knownFor: Movie[] = [
   },
   {
     id: 'kf2',
-    title: 'JOSB - Un somni in crescendo',
-    year: 'En producción',
+    title: 'Simfonies',
+    year: 'Post-producció',
     type: 'Película',
     role: 'Executive Producer / Producer / Writer',
     image: 'https://i.imgur.com/JBC3Og1.jpg'
@@ -65,6 +65,7 @@ const producerUpcoming: Movie[] = [
     type: 'Cortometraje (Short)',
     role: 'Executive Producer',
     status: 'Pre-production',
+    image: 'https://i.imgur.com/w7qgsEC.jpg'
   },
   {
     id: 'pu2',
@@ -77,11 +78,11 @@ const producerUpcoming: Movie[] = [
   },
   {
     id: 'pu3',
-    title: 'JOSB - Un somni in crescendo',
-    year: 'Desconocida',
+    title: 'Simfonies',
+    year: 'Post-producció',
     type: 'Película',
     role: 'Executive Producer, Producer',
-    status: 'In Production',
+    status: 'Post-producció',
     image: 'https://i.imgur.com/JBC3Og1.jpg'
   }
 ];
@@ -173,7 +174,7 @@ const producerPrevious: Movie[] = [
   },
   {
     id: 'pp9',
-    title: 'The Wild Ones (Los salvajes)',
+    title: 'Els nens salvatges',
     year: 2012,
     type: 'Película',
     role: 'Associate Producer',
@@ -195,7 +196,7 @@ const producerPrevious: Movie[] = [
   },
   {
     id: 'pp11',
-    title: 'The Great Vazquez (El gran Vázquez)',
+    title: 'El gran Vázquez',
     year: 2010,
     type: 'Película',
     role: 'Associate Producer',
@@ -203,6 +204,18 @@ const producerPrevious: Movie[] = [
     imdbLink: 'https://www.imdb.com/title/tt1525915/',
     description: 'Comedia biográfica sobre Manuel Vázquez, el mejor dibujante de cómics de la España de los años 60. Dirigida por Óscar Aibar, protagonizada por Santiago Segura. Nominada al Goya al mejor actor secundario. Presentada en el Festival de San Sebastián 2010.',
     image: 'https://i.imgur.com/W5z97sw.jpg'
+  }
+];
+
+const actorUpcoming: Movie[] = [
+  {
+    id: 'au1',
+    title: 'Muros Invisibles',
+    year: 'Desconocida',
+    type: 'Cortometraje (Short)',
+    role: 'Actor',
+    status: 'Pre-production',
+    image: 'https://i.imgur.com/w7qgsEC.jpg'
   }
 ];
 
@@ -242,7 +255,7 @@ const actorPrevious: Movie[] = [
   },
   {
     id: 'ap4',
-    title: 'The Wild Ones (Los salvajes)',
+    title: 'Els nens salvatges',
     year: 2012,
     type: 'Película',
     role: 'Actor',
@@ -267,11 +280,11 @@ const actorPrevious: Movie[] = [
 const writerUpcoming: Movie[] = [
   {
     id: 'wu1',
-    title: 'JOSB - Un somni in crescendo',
-    year: 'Desconocida',
+    title: 'Simfonies',
+    year: 'Post-producció',
     type: 'Película',
     role: 'Writer',
-    status: 'In Production',
+    status: 'Post-producció',
     image: 'https://i.imgur.com/JBC3Og1.jpg'
   }
 ];
@@ -534,9 +547,21 @@ export const MyMovies: React.FC<MyMoviesProps> = ({ lang }) => {
       <section className="mb-20">
         <div className="flex items-center gap-3 mb-8 border-b border-neutral-100 pb-4">
           <h2 className="text-2xl font-bold text-neutral-900">{t.actor}</h2>
-          <Badge className="bg-neutral-100 text-neutral-600">5</Badge>
+          <Badge className="bg-neutral-100 text-neutral-600">6</Badge>
         </div>
 
+        {/* Upcoming */}
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-6 px-4">
+            <h3 className="text-lg font-semibold text-neutral-800">{t.upcoming}</h3>
+            <Badge className="bg-blue-50 text-blue-600">1</Badge>
+          </div>
+          <div className="flex flex-col gap-2">
+            {actorUpcoming.map(m => renderMovieRow(m, true))}
+          </div>
+        </div>
+
+        {/* Previous */}
         <div>
           <div className="flex items-center gap-3 mb-6 px-4">
             <h3 className="text-lg font-semibold text-neutral-800">{t.previous}</h3>

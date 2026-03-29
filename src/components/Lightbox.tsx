@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ChevronLeft, ChevronRight, Camera, Maximize, MessageSquare } from 'lucide-react';
-import { Photo } from '../hooks/usePhotos';
+import { Photo, Journey } from '../hooks/usePhotos';
 import { formatDate } from '../lib/utils';
 import { CommentSection } from './CommentSection';
 
 interface LightboxProps {
   photo: Photo | null;
+  journey?: Journey | null;
+  onNavigateToJourney?: (journeyId: string) => void;
   onClose: () => void;
   onNext?: () => void;
   onPrev?: () => void;
   lang: string;
 }
 
-export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPrev, lang }) => {
+export const Lightbox: React.FC<LightboxProps> = ({ photo, journey, onNavigateToJourney, onClose, onNext, onPrev, lang }) => {
   const [activeTab, setActiveTab] = useState<'INFO' | 'TECH'>('INFO');
 
   useEffect(() => {
@@ -208,6 +210,21 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, onClose, onNext, onPr
                            (photo.caption_ca || photo.caption || 'Sense descripció')}
                         </span>
                       </motion.div>
+
+                      {/* Journey Section */}
+                      {journey && (
+                        <motion.div variants={itemVariants} className="flex flex-col gap-2 mt-2">
+                          <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                            {lang === 'es' ? 'Viaje' : lang === 'en' ? 'Journey' : 'Viatge'}
+                          </span>
+                          <button 
+                            onClick={() => onNavigateToJourney && onNavigateToJourney(journey.id)}
+                            className="text-sm font-medium text-brand-primary hover:text-brand-accent transition-colors text-left underline underline-offset-4 decoration-white/20 hover:decoration-brand-accent"
+                          >
+                            {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                          </button>
+                        </motion.div>
+                      )}
 
                       {photo.isLFI && (
                         <motion.div variants={itemVariants} className="flex flex-col mt-4 gap-3">

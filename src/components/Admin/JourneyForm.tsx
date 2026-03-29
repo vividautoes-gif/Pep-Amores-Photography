@@ -100,12 +100,6 @@ export const JourneyForm: React.FC = () => {
               const updates: any = {};
               const promises: Promise<void>[] = [];
 
-              if (formData.title) {
-                promises.push(translateMetadata(formData.title, ['en', 'ca']).then(res => {
-                  updates.title_en = res.en || formData.title_en;
-                  updates.title_ca = res.ca || formData.title_ca;
-                }));
-              }
               if (formData.intro) {
                 promises.push(translateMetadata(formData.intro, ['en', 'ca']).then(res => {
                   updates.intro_en = res.en || formData.intro_en;

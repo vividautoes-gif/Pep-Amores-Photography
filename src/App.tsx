@@ -1312,7 +1312,23 @@ function Gallery() {
         </AnimatePresence>
       </main>
 
-      <Lightbox lang={lang} photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} onNext={handleNext} onPrev={handlePrev} />
+      <Lightbox 
+        lang={lang} 
+        photo={selectedPhoto} 
+        journey={selectedPhoto?.journeyId ? JDB.find(j => j.id === selectedPhoto.journeyId) : null}
+        onNavigateToJourney={(journeyId) => {
+          const journey = JDB.find(j => j.id === journeyId);
+          if (journey) {
+            setSelectedPhoto(null);
+            setSelectedJourney(journey);
+            navigate(`/${journey.isSpecial ? 'special-sessions' : 'journeys'}`);
+            window.scrollTo(0, 0);
+          }
+        }}
+        onClose={() => setSelectedPhoto(null)} 
+        onNext={handleNext} 
+        onPrev={handlePrev} 
+      />
 
       <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} lang={lang} />
       <CookieBanner lang={lang} />
