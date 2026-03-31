@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, Send, MapPin, ChevronRight, ArrowLeft, Camera, AlertTriangle, Star, Award, Clock, User, MessageSquare, BarChart3, Lock, Image as ImageIcon, Aperture } from 'lucide-react';
-import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { PhotoCard } from './components/PhotoCard';
 import { Lightbox } from './components/Lightbox';
@@ -252,6 +252,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
 function Gallery() {
   console.log("Rendering Gallery...");
+  const location = useLocation();
+
   const { photos: rawPhotos, loading: photosLoading, error: photosError } = usePhotos();
   const { journeys: rawJourneys, loading: journeysLoading } = useJourneys();
   
@@ -363,6 +365,11 @@ function Gallery() {
   }, []);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoType | null>(null);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname, selectedJourney]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
@@ -434,7 +441,7 @@ function Gallery() {
 
   const currentPhotoList = useMemo(() => {
     if (currentSection === 'home' || currentSection === 'explore') return filteredPhotos;
-    if (currentSection === 'favorites') return DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 40);
+    if (currentSection === 'favorites') return DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0));
     if (currentSection === 'latest') return DB.slice(0, 50);
     if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter))
       .sort((a, b) => {
@@ -1053,7 +1060,7 @@ function Gallery() {
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 40).map(photo => (
+                  {DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).map(photo => (
                     <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>
