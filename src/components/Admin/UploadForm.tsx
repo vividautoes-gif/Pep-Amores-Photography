@@ -102,19 +102,29 @@ export const UploadForm: React.FC = () => {
         const lonRef = tags['GPSLongitudeRef']?.value?.[0] || 'E';
 
         const convertToDecimal = (gpsArray: any[], ref: string) => {
-          if (!gpsArray || gpsArray.length < 3) return null;
-          let decimal = gpsArray[0] + gpsArray[1] / 60 + gpsArray[2] / 3600;
+          if (!Array.isArray(gpsArray) || gpsArray.length < 3) return null;
+          const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
+          let decimal = toNum(gpsArray[0]) + toNum(gpsArray[1]) / 60 + toNum(gpsArray[2]) / 3600;
           if (ref === 'S' || ref === 'W') decimal = -decimal;
           return decimal;
         };
 
-        const latDec = convertToDecimal(latitude, latRef);
-        const lonDec = convertToDecimal(longitude, lonRef);
+        let latDec = typeof tags['GPSLatitude'].description === 'number' 
+          ? tags['GPSLatitude'].description 
+          : convertToDecimal(latitude, latRef);
+          
+        let lonDec = typeof tags['GPSLongitude'].description === 'number' 
+          ? tags['GPSLongitude'].description 
+          : convertToDecimal(longitude, lonRef);
+
+        // Ensure negative signs for S and W if using description directly
+        if (typeof tags['GPSLatitude'].description === 'number' && latRef === 'S' && latDec !== null && latDec > 0) latDec = -latDec;
+        if (typeof tags['GPSLongitude'].description === 'number' && lonRef === 'W' && lonDec !== null && lonDec > 0) lonDec = -lonDec;
 
         if (latDec !== null && lonDec !== null) {
           setGeocoding(true);
           try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1`, {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&email=eduard.kun115@gmail.com`, {
               headers: { 'Accept-Language': 'es' }
             });
             const data = await response.json();
