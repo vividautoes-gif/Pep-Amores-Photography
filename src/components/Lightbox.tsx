@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronLeft, ChevronRight, Camera, Maximize, MessageSquare } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Camera, Maximize, MessageSquare, ArrowRight } from 'lucide-react';
 import { Photo, Journey } from '../hooks/usePhotos';
 import { formatDate } from '../lib/utils';
 import { CommentSection } from './CommentSection';
@@ -219,9 +219,10 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, journey, onNavigateTo
                           </span>
                           <button 
                             onClick={() => onNavigateToJourney && onNavigateToJourney(journey.id)}
-                            className="text-sm font-medium text-brand-primary hover:text-brand-accent transition-colors text-left underline underline-offset-4 decoration-white/20 hover:decoration-brand-accent"
+                            className="group flex items-center gap-1 text-sm font-medium text-[#B45309] hover:text-[#92400e] transition-colors text-left underline underline-offset-4 decoration-[#B45309]"
                           >
-                            {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                            <span>{lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}</span>
+                            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                           </button>
                         </motion.div>
                       )}
