@@ -109,28 +109,37 @@ export const UploadForm: React.FC = () => {
           return decimal;
         };
 
-        let latDec = typeof tags['GPSLatitude'].description === 'number' 
-          ? tags['GPSLatitude'].description 
-          : convertToDecimal(latitude, latRef);
-          
-        let lonDec = typeof tags['GPSLongitude'].description === 'number' 
-          ? tags['GPSLongitude'].description 
-          : convertToDecimal(longitude, lonRef);
+        let latDec: number | null = null;
+        let lonDec: number | null = null;
+
+        if (tags['GPSLatitude']?.description !== undefined) {
+          latDec = Number(tags['GPSLatitude'].description);
+        } else {
+          latDec = convertToDecimal(latitude, latRef);
+        }
+
+        if (tags['GPSLongitude']?.description !== undefined) {
+          lonDec = Number(tags['GPSLongitude'].description);
+        } else {
+          lonDec = convertToDecimal(longitude, lonRef);
+        }
 
         // Ensure negative signs for S and W if using description directly
-        if (typeof tags['GPSLatitude'].description === 'number' && latRef === 'S' && latDec !== null && latDec > 0) latDec = -latDec;
-        if (typeof tags['GPSLongitude'].description === 'number' && lonRef === 'W' && lonDec !== null && lonDec > 0) lonDec = -lonDec;
+        if (tags['GPSLatitude']?.description !== undefined && latRef === 'S' && latDec !== null && latDec > 0) latDec = -latDec;
+        if (tags['GPSLongitude']?.description !== undefined && lonRef === 'W' && lonDec !== null && lonDec > 0) lonDec = -lonDec;
 
-        if (latDec !== null && lonDec !== null) {
+        if (latDec !== null && lonDec !== null && !isNaN(latDec) && !isNaN(lonDec)) {
+          console.log(`Geocoding coordinates: ${latDec}, ${lonDec}`);
           setGeocoding(true);
           try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&email=eduard.kun115@gmail.com`, {
               headers: { 'Accept-Language': 'es' }
             });
             const data = await response.json();
+            console.log("Geocoding response:", data);
             if (data.address) {
-              extractedCity = data.address.city || data.address.town || data.address.village || '';
-              extractedNeighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential || '';
+              extractedCity = data.address.city || data.address.town || data.address.village || data.address.county || '';
+              extractedNeighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential || data.address.city_district || '';
               extractedCountry = data.address.country || '';
             }
           } catch (geoError) {
@@ -138,6 +147,8 @@ export const UploadForm: React.FC = () => {
           } finally {
             setGeocoding(false);
           }
+        } else {
+          console.warn("Could not parse valid GPS coordinates from EXIF", { latitude, longitude, latDec, lonDec });
         }
       }
 
