@@ -399,11 +399,22 @@ export const PhotoManager: React.FC = () => {
                       </div>
 
                       <div className="md:col-span-2 space-y-4 pt-2">
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-6 flex-wrap">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={editData.isFavorite} onChange={e => setEditData({...editData, isFavorite: e.target.checked})} className="rounded text-black focus:ring-black" />
                             <span className="text-xs font-medium uppercase tracking-wider">Favorita</span>
                           </label>
+                          {editData.isFavorite && (
+                            <div className="flex items-center gap-2">
+                              <label className="text-[10px] font-mono uppercase text-gray-400">Puntuación:</label>
+                              <input 
+                                type="number" 
+                                value={editData.favoriteScore || 50} 
+                                onChange={e => setEditData({...editData, favoriteScore: parseInt(e.target.value) || 0})} 
+                                className="w-20 p-1 bg-neutral-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-black outline-none" 
+                              />
+                            </div>
+                          )}
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={editData.isHero} onChange={e => setEditData({...editData, isHero: e.target.checked})} className="rounded text-black focus:ring-black" />
                             <span className="text-xs font-medium uppercase tracking-wider">Hero</span>
