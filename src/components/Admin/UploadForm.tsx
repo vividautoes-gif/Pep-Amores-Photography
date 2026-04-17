@@ -439,10 +439,12 @@ export const UploadForm: React.FC = () => {
         </div>
 
         <div className="space-y-8">
-          <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
-            <div className="md:col-span-3 flex justify-between items-center mb-2">
+          {/* Títulos Section */}
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Títulos</h3>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <div className="flex flex-col gap-2">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Título (ES)</label>
@@ -475,11 +477,15 @@ export const UploadForm: React.FC = () => {
               />
             </div>
             
-            <div className="md:col-span-3 mt-4 flex justify-between items-center border-b border-gray-200 pb-2">
+          </div>
+
+          {/* Localización y Metadatos Section */}
+          <div className="flex flex-col gap-6 mt-6">
+            <div className="flex justify-between items-center mb-2 border-b border-gray-200 pb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Localización y Metadatos</h3>
             </div>
             
-            <div className="md:col-span-3 flex flex-col md:grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
                   País (ES)
@@ -515,7 +521,7 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="md:col-span-3 flex flex-col md:grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Ciudad (ES)</label>
                 <textarea 
@@ -548,7 +554,7 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="md:col-span-3 flex flex-col md:grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Barrio (ES)</label>
                 <textarea 
@@ -581,25 +587,27 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Fecha de la Foto</label>
-              <input 
-                type="date" value={formData.photoDate}
-                onChange={e => setFormData(prev => ({ ...prev, photoDate: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Fecha de la Foto</label>
+                <input 
+                  type="date" value={formData.photoDate}
+                  onChange={e => setFormData(prev => ({ ...prev, photoDate: e.target.value }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Año</label>
+                <input 
+                  type="number" value={formData.year}
+                  onChange={e => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Año</label>
-              <input 
-                type="number" value={formData.year}
-                onChange={e => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all"
-              />
-            </div>
-
-            <div className="md:col-span-3">
+            <div className="col-span-1 md:col-span-3">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
                 Viaje (Journey)
                 {journeysLoading && <Loader2 size={12} className="animate-spin" />}
@@ -625,7 +633,7 @@ export const UploadForm: React.FC = () => {
               )}
             </div>
 
-            <div className="md:col-span-3 flex flex-col md:grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Subtema (ES)</label>
                 <textarea 
@@ -658,7 +666,7 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="md:col-span-3">
+            <div className="col-span-1 md:col-span-3">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Hashtags (Internacional)</label>
               <textarea 
                 value={formData.tags}
@@ -669,11 +677,14 @@ export const UploadForm: React.FC = () => {
               />
             </div>
 
-            <div className="md:col-span-3 flex justify-between items-center mb-2 mt-4 border-b border-gray-200 pb-2">
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-between items-center mb-2 mt-4 border-b border-gray-200 pb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Descripción / Historia</h3>
             </div>
 
-            <div className="md:col-span-3 flex flex-col md:grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Descripción (ES)</label>
                 <textarea 
@@ -703,8 +714,10 @@ export const UploadForm: React.FC = () => {
               </div>
             </div>
 
-            {/* EXIF Data Section */}
-            <div className="md:col-span-3 mt-8">
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="mt-8">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black mb-4 border-b border-gray-200 pb-2">Datos EXIF (Cámara)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
@@ -883,6 +896,7 @@ export const UploadForm: React.FC = () => {
           </button>
         </div>
       </div>
-    </form>
+    </div>
+  </form>
   );
 };
