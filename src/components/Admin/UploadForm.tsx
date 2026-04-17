@@ -444,32 +444,32 @@ export const UploadForm: React.FC = () => {
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-2 w-full">Títulos</h3>
             </div>
-            <div className="flex flex-col md:flex-row gap-6 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
             
-            <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="flex flex-col gap-2 w-full">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Título (ES)</label>
               <textarea 
                 value={formData.title}
                 onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                 placeholder="Ej: The Lonely Monk"
               />
             </div>
-            <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="flex flex-col gap-2 w-full">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Título (EN)</label>
               <textarea 
                 value={formData.title_en}
                 onChange={e => setFormData(prev => ({ ...prev, title_en: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                 placeholder="Ej: The Lonely Monk"
               />
             </div>
-            <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="flex flex-col gap-2 w-full">
               <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Título (CA)</label>
               <textarea 
                 value={formData.title_ca}
                 onChange={e => setFormData(prev => ({ ...prev, title_ca: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                 placeholder="Ej: El Monjo Solitari"
               />
             </div>
@@ -482,8 +482,8 @@ export const UploadForm: React.FC = () => {
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Localización y Metadatos</h3>
             </div>
             
-            <div className="flex flex-col md:flex-row gap-6 w-full">
-              <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
                   País (ES)
                   {geocoding && <Loader2 size={12} className="animate-spin text-red-600" />}
@@ -491,101 +491,101 @@ export const UploadForm: React.FC = () => {
                 <textarea 
                   value={formData.country}
                   onChange={e => setFormData(prev => ({ ...prev, country: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Marruecos"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (EN)</label>
                 <textarea 
                   value={formData.country_en}
                   onChange={e => setFormData(prev => ({ ...prev, country_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Morocco"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">País (CA)</label>
                 <textarea 
                   value={formData.country_ca}
                   onChange={e => setFormData(prev => ({ ...prev, country_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Marroc"
                   
                 />
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6 w-full">
-              <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Ciudad (ES)</label>
                 <textarea 
                   value={formData.city}
                   onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Marrakech"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Ciudad (EN)</label>
                 <textarea 
                   value={formData.city_en}
                   onChange={e => setFormData(prev => ({ ...prev, city_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Marrakesh"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Ciudad (CA)</label>
                 <textarea 
                   value={formData.city_ca}
                   onChange={e => setFormData(prev => ({ ...prev, city_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Marràqueix"
                   
                 />
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6 w-full">
-              <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Barrio (ES)</label>
                 <textarea 
                   value={formData.neighborhood}
                   onChange={e => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Medina"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Barrio (EN)</label>
                 <textarea 
                   value={formData.neighborhood_en}
                   onChange={e => setFormData(prev => ({ ...prev, neighborhood_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Medina"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Barrio (CA)</label>
                 <textarea 
                   value={formData.neighborhood_ca}
                   onChange={e => setFormData(prev => ({ ...prev, neighborhood_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Medina"
                   
                 />
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6 w-full">
-              <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Fecha de la Foto</label>
                 <input 
                   type="date" value={formData.photoDate}
@@ -594,7 +594,7 @@ export const UploadForm: React.FC = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Año</label>
                 <input 
                   type="number" value={formData.year}
@@ -630,33 +630,33 @@ export const UploadForm: React.FC = () => {
               )}
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6 w-full">
-              <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Subtema (ES)</label>
                 <textarea 
                   value={formData.subtheme}
                   onChange={e => setFormData(prev => ({ ...prev, subtheme: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Ej: Chinatown"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Subtema (EN)</label>
                 <textarea 
                   value={formData.subtheme_en}
                   onChange={e => setFormData(prev => ({ ...prev, subtheme_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Ej: Chinatown"
                   
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Subtema (CA)</label>
                 <textarea 
                   value={formData.subtheme_ca}
                   onChange={e => setFormData(prev => ({ ...prev, subtheme_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                   placeholder="Ex: Barri Xinès"
                   
                 />
@@ -668,7 +668,7 @@ export const UploadForm: React.FC = () => {
               <textarea 
                 value={formData.tags}
                 onChange={e => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]"
+                className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all min-h-[100px]" rows={3}
                 placeholder="portrait, street, market... (separados por comas)"
                 
               />
@@ -681,31 +681,31 @@ export const UploadForm: React.FC = () => {
               <h3 className="text-sm font-mono uppercase tracking-widest text-black">Descripción / Historia</h3>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6 w-full">
-              <div className="flex flex-col gap-2 w-full flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Descripción (ES)</label>
                 <textarea 
                   value={formData.caption}
                   onChange={e => setFormData(prev => ({ ...prev, caption: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 min-h-[100px]" rows={3}
                   placeholder="Cuenta la historia detrás de la foto..."
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Descripción (EN)</label>
                 <textarea 
                   value={formData.caption_en}
                   onChange={e => setFormData(prev => ({ ...prev, caption_en: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 min-h-[100px]" rows={3}
                   placeholder="Tell the story behind the photo..."
                 />
               </div>
-              <div className="flex flex-col gap-2 w-full flex-1">
+              <div className="flex flex-col gap-2 w-full">
                 <label className="block text-xs font-mono uppercase tracking-widest text-gray-400">Descripción (CA)</label>
                 <textarea 
                   value={formData.caption_ca}
                   onChange={e => setFormData(prev => ({ ...prev, caption_ca: e.target.value }))}
-                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 min-h-[100px]"
+                  className="w-full bg-white border-none rounded-2xl p-4 focus:ring-2 focus:ring-black outline-none transition-all h-32 min-h-[100px]" rows={3}
                   placeholder="Explica la història darrere de la foto..."
                 />
               </div>
@@ -716,7 +716,7 @@ export const UploadForm: React.FC = () => {
           <div className="flex flex-col gap-6">
             <div className="mt-8">
               <h3 className="text-sm font-mono uppercase tracking-widest text-black mb-4 border-b border-gray-200 pb-2">Datos EXIF (Cámara)</h3>
-              <div className="flex flex-col md:flex-row md:flex-wrap gap-6 w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
                 <div className="flex flex-col gap-2 w-full">
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Cámara</label>
                   <input 
@@ -735,7 +735,7 @@ export const UploadForm: React.FC = () => {
                     placeholder="Ej: Vario-Elmarit-SL 24-90 f/2.8-4 Asph"
                   />
                 </div>
-                <div className="flex flex-col gap-2 w-full md:w-[calc(50%-12px)]">
+                <div className="flex flex-col gap-2 w-full">
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Distancia Focal</label>
                   <input 
                     type="text" value={formData.focalLength}
@@ -744,7 +744,7 @@ export const UploadForm: React.FC = () => {
                     placeholder="Ej: 89"
                   />
                 </div>
-                <div className="flex flex-col gap-2 w-full md:w-[calc(50%-12px)]">
+                <div className="flex flex-col gap-2 w-full">
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Tiempo de Exposición</label>
                   <input 
                     type="text" value={formData.exposureTime}
@@ -753,7 +753,7 @@ export const UploadForm: React.FC = () => {
                     placeholder="Ej: 1/50"
                   />
                 </div>
-                <div className="flex flex-col gap-2 w-full md:w-[calc(50%-12px)]">
+                <div className="flex flex-col gap-2 w-full">
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Apertura</label>
                   <input 
                     type="text" value={formData.aperture}
@@ -762,7 +762,7 @@ export const UploadForm: React.FC = () => {
                     placeholder="Ej: 4.5"
                   />
                 </div>
-                <div className="flex flex-col gap-2 w-full md:w-[calc(50%-12px)]">
+                <div className="flex flex-col gap-2 w-full">
                   <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">ISO</label>
                   <input 
                     type="text" value={formData.iso}
