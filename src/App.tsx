@@ -1371,7 +1371,7 @@ const PepPanel = () => {
         return;
       }
       
-      const hardcodedAdmins = ['eduard.kun115@gmail.com', 'pep.amores@gmail.com'];
+      const hardcodedAdmins = ['eduard.kun115@gmail.com', 'pep.amores@gmail.com', 'pepamores@gmail.com'];
       if (hardcodedAdmins.includes(auth.currentUser.email)) {
         setIsAuthorized(true);
         return;

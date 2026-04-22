@@ -60,9 +60,10 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && (
-        (request.auth.token.email == "eduard.kun115@gmail.com" && request.auth.token.email_verified == true) ||
-        (request.auth.token.email == "pep.amores@gmail.com" && request.auth.token.email_verified == true) ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        request.auth.token.email == "eduard.kun115@gmail.com" ||
+        request.auth.token.email == "pep.amores@gmail.com" ||
+        request.auth.token.email == "pepamores@gmail.com" ||
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
       );
     }
     
@@ -71,18 +72,9 @@ service cloud.firestore {
     }
 
     function isValidPhoto(data) {
-      return data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
-             data.url is string && data.url.matches("^https://.*") &&
+      return data.title is string && data.title.size() > 0 &&
+             data.url is string && data.url.matches("^https?://.*") &&
              data.orientation in ['landscape', 'portrait', 'square'] &&
-             data.country is string &&
-             data.year is number &&
-             data.tags is list &&
-             (!('cameraModel' in data) || data.cameraModel is string) &&
-             (!('lens' in data) || data.lens is string) &&
-             (!('focalLength' in data) || data.focalLength is string) &&
-             (!('exposureTime' in data) || data.exposureTime is string) &&
-             (!('aperture' in data) || data.aperture is string) &&
-             (!('iso' in data) || data.iso is string) &&
              data.authorUid == request.auth.uid;
     }
 

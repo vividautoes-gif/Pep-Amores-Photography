@@ -132,8 +132,8 @@ export const UploadForm: React.FC = () => {
           console.log(`Geocoding coordinates: ${latDec}, ${lonDec}`);
           setGeocoding(true);
           try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&email=eduard.kun115@gmail.com`, {
-              headers: { 'Accept-Language': 'es' }
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&accept-language=es&email=eduard.kun115@gmail.com`, {
+              headers: { 'Accept-Language': 'es-ES,es;q=0.9' }
             });
             const data = await response.json();
             console.log("Geocoding response:", data);

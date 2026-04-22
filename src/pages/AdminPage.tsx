@@ -48,7 +48,7 @@ export const AdminPage: React.FC = () => {
         return;
       }
       
-      const hardcodedAdmins = ['eduard.kun115@gmail.com', 'pep.amores@gmail.com'];
+      const hardcodedAdmins = ['eduard.kun115@gmail.com', 'pep.amores@gmail.com', 'pepamores@gmail.com'];
       if (hardcodedAdmins.includes(user.email)) {
         setIsAuthorized(true);
         return;
