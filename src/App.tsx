@@ -374,6 +374,7 @@ function Gallery() {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
   const [lfiFilter, setLfiFilter] = useState<'all' | 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week'>('all');
+  const [favoritePeriodFilter, setFavoritePeriodFilter] = useState<'all' | '12m' | '24m'>('all');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [isSending, setIsSending] = useState(false);
 
@@ -441,7 +442,27 @@ function Gallery() {
 
   const currentPhotoList = useMemo(() => {
     if (currentSection === 'home' || currentSection === 'explore') return filteredPhotos;
-    if (currentSection === 'favorites') return DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0));
+    if (currentSection === 'favorites') {
+      let favs = DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0));
+      if (favoritePeriodFilter !== 'all') {
+        const months = favoritePeriodFilter === '12m' ? 12 : 24;
+        const cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth() - months);
+        favs = favs.filter(p => {
+          let d;
+          if (p.photoDate) {
+            d = new Date(p.photoDate);
+          } else if (p.year) {
+            d = new Date(p.year, 0, 1);
+          } else {
+            return true;
+          }
+          if (isNaN(d.getTime())) return true;
+          return d >= cutoff;
+        });
+      }
+      return favs;
+    }
     if (currentSection === 'latest') return DB.slice(0, 50);
     if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter))
       .sort((a, b) => {
@@ -458,7 +479,7 @@ function Gallery() {
       });
     if ((currentSection === 'journeys' || currentSection === 'special-sessions') && selectedJourney) return DB.filter(p => p.journeyId === selectedJourney.id);
     return DB;
-  }, [currentSection, filteredPhotos, DB, selectedJourney, lfiFilter]);
+  }, [currentSection, filteredPhotos, DB, selectedJourney, lfiFilter, favoritePeriodFilter]);
 
   if (photosLoading || journeysLoading || homeCollectionsLoading) {
     return (
@@ -1043,7 +1064,27 @@ function Gallery() {
           {currentSection === 'favorites' && (
             <motion.section key="favorites" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
-                <h1 className="text-5xl font-serif italic mb-8">{s.titles.fav}</h1>
+                <h1 className="text-5xl font-serif italic mb-6">{s.titles.fav}</h1>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <button 
+                    onClick={() => setFavoritePeriodFilter('all')}
+                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === 'all' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
+                  >
+                    {lang === 'es' ? 'Todas' : lang === 'ca' ? 'Totes' : 'All'}
+                  </button>
+                  <button 
+                    onClick={() => setFavoritePeriodFilter('12m')}
+                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === '12m' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
+                  >
+                    {lang === 'es' ? 'Últimos 12 meses' : lang === 'ca' ? 'Últims 12 mesos' : 'Last 12 months'}
+                  </button>
+                  <button 
+                    onClick={() => setFavoritePeriodFilter('24m')}
+                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === '24m' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
+                  >
+                    {lang === 'es' ? 'Últimos 24 meses' : lang === 'ca' ? 'Últims 24 mesos' : 'Last 24 months'}
+                  </button>
+                </div>
               </div>
               {loading && DB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
@@ -1060,8 +1101,8 @@ function Gallery() {
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).map(photo => (
-                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                  {currentPhotoList.map((photo: any) => (
+                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find((p: any) => p.id === id) || null)} />
                   ))}
                 </div>
               )}
