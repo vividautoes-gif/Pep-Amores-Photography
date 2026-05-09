@@ -1065,7 +1065,7 @@ function Gallery() {
             <motion.section key="favorites" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
                 <h1 className="text-5xl font-serif italic mb-6">{s.titles.fav}</h1>
-                <div className="flex flex-wrap justify-center gap-4">
+                <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-2">
                   <button 
                     onClick={() => setFavoritePeriodFilter('all')}
                     className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === 'all' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
