@@ -76,7 +76,7 @@ export const UploadForm: React.FC = () => {
 
     // Extraer EXIF automáticamente
     try {
-      const tags = await ExifReader.load(selectedFile);
+      const tags = await ExifReader.load(selectedFile, { expanded: true });
       
       const cameraModel = tags['Model']?.description || '';
       const cameraMake = tags['Make']?.description || '';
@@ -191,8 +191,8 @@ export const UploadForm: React.FC = () => {
           return null;
         };
 
-        let latDec = parseCoordinate(tags['GPSLatitude'], tags['GPSLatitudeRef'], true);
-        let lonDec = parseCoordinate(tags['GPSLongitude'], tags['GPSLongitudeRef'], false);
+        let latDec = tags.gps?.Latitude !== undefined ? tags.gps.Latitude : parseCoordinate(tags['GPSLatitude'], tags['GPSLatitudeRef'], true);
+        let lonDec = tags.gps?.Longitude !== undefined ? tags.gps.Longitude : parseCoordinate(tags['GPSLongitude'], tags['GPSLongitudeRef'], false);
 
         // Fallback to XMP Apple tags if EXIF is missing or malformed
         if (latDec === null && tags['Latitude']) {
