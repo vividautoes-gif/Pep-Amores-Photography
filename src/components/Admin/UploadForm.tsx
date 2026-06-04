@@ -63,6 +63,17 @@ export const UploadForm: React.FC = () => {
     setFile(selectedFile);
     setPreview(URL.createObjectURL(selectedFile));
 
+    // Reset localized fields to avoid state leaking between dropped photos
+    setFormData(prev => ({
+      ...prev,
+      title_en: '', title_ca: '',
+      caption_en: '', caption_ca: '',
+      country_en: '', country_ca: '',
+      city_en: '', city_ca: '',
+      neighborhood_en: '', neighborhood_ca: '',
+      subtheme_en: '', subtheme_ca: ''
+    }));
+
     // Extraer EXIF automáticamente
     try {
       const tags = await ExifReader.load(selectedFile);
@@ -98,10 +109,15 @@ export const UploadForm: React.FC = () => {
       if (tags['GPSLatitude'] && tags['GPSLongitude']) {
         const latitude = tags['GPSLatitude'].value as any;
         const longitude = tags['GPSLongitude'].value as any;
-        const latRefStr = (tags['GPSLatitudeRef']?.description || tags['GPSLatitudeRef']?.value?.[0] || 'N').toString().toUpperCase();
-        const lonRefStr = (tags['GPSLongitudeRef']?.description || tags['GPSLongitudeRef']?.value?.[0] || 'E').toString().toUpperCase();
-        const latRefIsS = latRefStr.startsWith('S');
-        const lonRefIsW = lonRefStr.startsWith('W');
+        
+        const latRefVal = tags['GPSLatitudeRef']?.value?.[0]?.toString().toUpperCase();
+        const latRefDesc = tags['GPSLatitudeRef']?.description?.toString().toUpperCase();
+        const latRefIsS = latRefVal === 'S' || latRefDesc?.startsWith('S') || latRefDesc?.includes('SOUTH') || (latRefDesc && latRefDesc.indexOf('SUR') >= 0) || false;
+
+        const lonRefVal = tags['GPSLongitudeRef']?.value?.[0]?.toString().toUpperCase();
+        const lonRefDesc = tags['GPSLongitudeRef']?.description?.toString().toUpperCase();
+        const lonRefIsW = lonRefVal === 'W' || lonRefDesc?.startsWith('W') || lonRefDesc?.startsWith('O') || lonRefDesc?.includes('WEST') || (lonRefDesc && lonRefDesc.indexOf('OESTE') >= 0) || false;
+
 
         const parseCoordinate = (tag: any, refIsNegative: boolean) => {
           if (!tag) return null;
