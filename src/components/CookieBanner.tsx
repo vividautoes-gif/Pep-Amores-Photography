@@ -33,28 +33,51 @@ export const CookieBanner: React.FC<CookieBannerProps> = ({ lang }) => {
         
         // Try to get location and save session
         try {
-          const geoResponse = await fetch('https://ipapi.co/json/');
-          const geoData = await geoResponse.json();
+          let country = 'Unknown';
+          let city = 'Unknown';
+          let region = 'Unknown';
           
-          if (geoData && !geoData.error) {
-            const sessionsRef = collection(db, 'sessions');
-            await addDoc(sessionsRef, {
-              country: geoData.country_name || 'Unknown',
-              city: geoData.city || 'Unknown',
-              region: geoData.region || 'Unknown',
-              device: window.innerWidth < 768 ? 'Mobile' : 'Desktop',
-              browser: navigator.userAgent.split(') ')[1]?.split(' ')[0] || 'Unknown',
-              timestamp: serverTimestamp()
-            });
+          try {
+            const geoResponse = await fetch('https://ipapi.co/json/');
+            const geoData = await geoResponse.json();
+            
+            if (geoData && !geoData.error) {
+              country = geoData.country_name || 'Unknown';
+              city = geoData.city || 'Unknown';
+              region = geoData.region || 'Unknown';
+            } else {
+              throw new Error("ipapi response error");
+            }
+          } catch (e) {
+            // Fallback API if ipapi.co fails (e.g., adblocker, rate limits)
+            const geoResponse2 = await fetch('https://get.geojs.io/v1/ip/geo.json');
+            const geoData2 = await geoResponse2.json();
+            if (geoData2) {
+              country = geoData2.country || 'Unknown';
+              city = geoData2.city || 'Unknown';
+              region = geoData2.region || 'Unknown';
+            }
           }
+          
+          const sessionsRef = collection(db, 'sessions');
+          await addDoc(sessionsRef, {
+            country: country,
+            city: city,
+            region: region,
+            device: window.innerWidth < 768 ? 'Mobile' : 'Desktop',
+            browser: navigator.userAgent.split(') ')[1]?.split(' ')[0] || 'Unknown',
+            timestamp: serverTimestamp()
+          });
         } catch (geoError) {
           console.error('Error fetching location:', geoError);
-          // Still save a basic session if geo fails
+          // Still save a basic session if geo fails Completely
           const sessionsRef = collection(db, 'sessions');
           await addDoc(sessionsRef, {
             country: 'Unknown',
             city: 'Unknown',
+            region: 'Unknown',
             device: window.innerWidth < 768 ? 'Mobile' : 'Desktop',
+            browser: navigator.userAgent.split(') ')[1]?.split(' ')[0] || 'Unknown',
             timestamp: serverTimestamp()
           });
         }

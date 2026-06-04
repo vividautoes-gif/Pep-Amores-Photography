@@ -374,7 +374,7 @@ function Gallery() {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
   const [lfiFilter, setLfiFilter] = useState<'all' | 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week'>('all');
-  const [favoritePeriodFilter, setFavoritePeriodFilter] = useState<'all' | '12m' | '24m'>('all');
+  const [favoritePeriodFilter, setFavoritePeriodFilter] = useState<'all' | '6m' | '12m' | '24m'>('all');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [isSending, setIsSending] = useState(false);
 
@@ -445,7 +445,7 @@ function Gallery() {
     if (currentSection === 'favorites') {
       let favs = DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0));
       if (favoritePeriodFilter !== 'all') {
-        const months = favoritePeriodFilter === '12m' ? 12 : 24;
+        const months = favoritePeriodFilter === '6m' ? 6 : favoritePeriodFilter === '12m' ? 12 : 24;
         const cutoff = new Date();
         cutoff.setMonth(cutoff.getMonth() - months);
         favs = favs.filter(p => {
@@ -1071,6 +1071,12 @@ function Gallery() {
                     className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === 'all' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
                   >
                     {lang === 'es' ? 'Todas' : lang === 'ca' ? 'Totes' : 'All'}
+                  </button>
+                  <button 
+                    onClick={() => setFavoritePeriodFilter('6m')}
+                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === '6m' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
+                  >
+                    {lang === 'es' ? 'Últimos 6 meses' : lang === 'ca' ? 'Últims 6 mesos' : 'Last 6 months'}
                   </button>
                   <button 
                     onClick={() => setFavoritePeriodFilter('12m')}

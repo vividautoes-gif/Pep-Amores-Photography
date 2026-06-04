@@ -98,14 +98,16 @@ export const UploadForm: React.FC = () => {
       if (tags['GPSLatitude'] && tags['GPSLongitude']) {
         const latitude = tags['GPSLatitude'].value as any;
         const longitude = tags['GPSLongitude'].value as any;
-        const latRef = tags['GPSLatitudeRef']?.value?.[0] || 'N';
-        const lonRef = tags['GPSLongitudeRef']?.value?.[0] || 'E';
+        const latRefStr = (tags['GPSLatitudeRef']?.description || tags['GPSLatitudeRef']?.value?.[0] || 'N').toString().toUpperCase();
+        const lonRefStr = (tags['GPSLongitudeRef']?.description || tags['GPSLongitudeRef']?.value?.[0] || 'E').toString().toUpperCase();
+        const latRefIsS = latRefStr.startsWith('S');
+        const lonRefIsW = lonRefStr.startsWith('W');
 
-        const convertToDecimal = (gpsArray: any[], ref: string) => {
+        const convertToDecimal = (gpsArray: any[], isNegative: boolean) => {
           if (!Array.isArray(gpsArray) || gpsArray.length < 3) return null;
           const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
           let decimal = toNum(gpsArray[0]) + toNum(gpsArray[1]) / 60 + toNum(gpsArray[2]) / 3600;
-          if (ref === 'S' || ref === 'W') decimal = -decimal;
+          if (isNegative) decimal = -decimal;
           return decimal;
         };
 
@@ -115,18 +117,18 @@ export const UploadForm: React.FC = () => {
         if (tags['GPSLatitude']?.description !== undefined) {
           latDec = Number(tags['GPSLatitude'].description);
         } else {
-          latDec = convertToDecimal(latitude, latRef);
+          latDec = convertToDecimal(latitude, latRefIsS);
         }
 
         if (tags['GPSLongitude']?.description !== undefined) {
           lonDec = Number(tags['GPSLongitude'].description);
         } else {
-          lonDec = convertToDecimal(longitude, lonRef);
+          lonDec = convertToDecimal(longitude, lonRefIsW);
         }
 
         // Ensure negative signs for S and W if using description directly
-        if (tags['GPSLatitude']?.description !== undefined && latRef === 'S' && latDec !== null && latDec > 0) latDec = -latDec;
-        if (tags['GPSLongitude']?.description !== undefined && lonRef === 'W' && lonDec !== null && lonDec > 0) lonDec = -lonDec;
+        if (tags['GPSLatitude']?.description !== undefined && latRefIsS && latDec !== null && latDec > 0) latDec = -latDec;
+        if (tags['GPSLongitude']?.description !== undefined && lonRefIsW && lonDec !== null && lonDec > 0) lonDec = -lonDec;
 
         if (latDec !== null && lonDec !== null && !isNaN(latDec) && !isNaN(lonDec)) {
           console.log(`Geocoding coordinates: ${latDec}, ${lonDec}`);
