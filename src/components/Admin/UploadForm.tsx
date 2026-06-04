@@ -110,9 +110,12 @@ export const UploadForm: React.FC = () => {
         const parseCoordinate = (mainTag: any, refTag: any, isLat: boolean) => {
           if (!mainTag) return null;
           let dec: number | null = null;
+          let isNegative = false;
           
           if (mainTag.description !== undefined) {
              let descStr = String(mainTag.description).trim();
+             if (descStr.startsWith('-')) isNegative = true;
+             
              // Some cameras use format 3° 35' 54.96" W directly in description
              const hasDegree = descStr.includes('°');
              if (hasDegree) {
@@ -120,40 +123,54 @@ export const UploadForm: React.FC = () => {
                  if (match) {
                      dec = parseFloat(match[1]) + parseFloat(match[2])/60 + parseFloat(match[3])/3600;
                  }
+                 const upperDesc = descStr.toUpperCase();
+                 if (isLat && (upperDesc.endsWith('S') || upperDesc.includes('SOUTH') || upperDesc.includes('SUR'))) isNegative = true;
+                 if (!isLat && (upperDesc.endsWith('W') || upperDesc.endsWith('O') || upperDesc.includes('WEST') || upperDesc.includes('OESTE') || upperDesc.match(/\bW\b/) || upperDesc.match(/\bO\b/))) isNegative = true;
              } else {
                  const num = parseFloat(descStr);
-                 if (!isNaN(num)) dec = Math.abs(num);
+                 if (!isNaN(num)) {
+                     dec = Math.abs(num);
+                     if (num < 0) isNegative = true;
+                 }
              }
           }
           
-          if (dec === null && Array.isArray(mainTag.value)) {
-             const v = mainTag.value;
-             const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
-             if (v.length >= 3) {
-                dec = toNum(v[0]) + toNum(v[1]) / 60 + toNum(v[2]) / 3600;
-             } else if (v.length === 1 && typeof v[0] === 'number') {
-                dec = v[0];
-             } else if (v.length === 1 && Array.isArray(v[0])) {
-                dec = toNum(v[0]);
+          if (dec === null && mainTag.value !== undefined) {
+             if (Array.isArray(mainTag.value)) {
+                 const v = mainTag.value;
+                 const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
+                 if (v.length >= 3) {
+                    const d = toNum(v[0]);
+                    const m = toNum(v[1]);
+                    const s = toNum(v[2]);
+                    dec = Math.abs(d) + Math.abs(m) / 60 + Math.abs(s) / 3600;
+                    if (d < 0) isNegative = true;
+                 } else if (v.length === 1 && typeof v[0] === 'number') {
+                    dec = Math.abs(v[0]);
+                    if (v[0] < 0) isNegative = true;
+                 } else if (v.length === 1 && Array.isArray(v[0])) {
+                    const num = toNum(v[0]);
+                    dec = Math.abs(num);
+                    if (num < 0) isNegative = true;
+                 } else if (v.length === 1 && typeof v[0] === 'string') {
+                    const num = parseFloat(v[0]);
+                    if (!isNaN(num)) {
+                        dec = Math.abs(num);
+                        if (num < 0 || v[0].trim().startsWith('-')) isNegative = true;
+                    }
+                 }
+             } else {
+                 const num = parseFloat(String(mainTag.value));
+                 if (!isNaN(num)) {
+                     dec = Math.abs(num);
+                     if (num < 0 || String(mainTag.value).trim().startsWith('-')) isNegative = true;
+                 }
              }
           }
           
           if (dec !== null && !isNaN(dec)) {
-              let isNegative = false;
-              
-              if (mainTag.description !== undefined) {
-                  const descStr = String(mainTag.description).trim().toUpperCase();
-                  if (descStr.startsWith('-')) {
-                      isNegative = true;
-                  } else if (isLat && (descStr.endsWith('S') || descStr.endsWith('SOUTH') || descStr.endsWith('SUR'))) {
-                      isNegative = true;
-                  } else if (!isLat && (descStr.endsWith('W') || descStr.endsWith('O') || descStr.endsWith('WEST') || descStr.endsWith('OESTE') || descStr.match(/\bW\b/) || descStr.match(/\bO\b/))) {
-                      isNegative = true;
-                  }
-              }
-              
               if (refTag) {
-                 const refStr = (refTag.description || refTag.value?.[0] || '').toString().toUpperCase();
+                 const refStr = (refTag.description || (Array.isArray(refTag.value) ? refTag.value[0] : refTag.value) || '').toString().toUpperCase().trim();
                  if (isLat) {
                      if (refStr.startsWith('S') || refStr.includes('SOUTH') || refStr.includes('SUR')) {
                          isNegative = true;
