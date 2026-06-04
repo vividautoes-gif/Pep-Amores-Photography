@@ -4,7 +4,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { motion } from 'motion/react';
 import { Upload, X, Check, Loader2, Globe, Image as ImageIcon, Send, Award, Star, MapPin } from 'lucide-react';
-import { translateMetadata, translateObject } from '../../services/geminiService';
+import { translateMetadata, translateObject, translateText } from '../../services/geminiService';
 import { useJourneys, Journey } from '../../hooks/usePhotos';
 import ExifReader from 'exifreader';
 
@@ -103,32 +103,38 @@ export const UploadForm: React.FC = () => {
         const latRefIsS = latRefStr.startsWith('S');
         const lonRefIsW = lonRefStr.startsWith('W');
 
-        const convertToDecimal = (gpsArray: any[], isNegative: boolean) => {
-          if (!Array.isArray(gpsArray) || gpsArray.length < 3) return null;
-          const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
-          let decimal = toNum(gpsArray[0]) + toNum(gpsArray[1]) / 60 + toNum(gpsArray[2]) / 3600;
-          if (isNegative) decimal = -decimal;
-          return decimal;
+        const parseCoordinate = (tag: any, refIsNegative: boolean) => {
+          if (!tag) return null;
+          let dec: number | null = null;
+          
+          if (tag.description !== undefined) {
+            const maybeNum = Number(tag.description);
+            if (!isNaN(maybeNum)) {
+              dec = Math.abs(maybeNum);
+            }
+          }
+          
+          // Fallback to manually calculating from array values if description wasn't a valid number
+          if (dec === null && Array.isArray(tag.value)) {
+            const v = tag.value;
+            const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
+            if (v.length >= 3) {
+              dec = toNum(v[0]) + toNum(v[1]) / 60 + toNum(v[2]) / 3600;
+            } else if (v.length === 1 && typeof v[0] === 'number') {
+              dec = v[0];
+            } else if (v.length === 1 && Array.isArray(v[0])) {
+              dec = toNum(v[0]);
+            }
+          }
+          
+          if (dec !== null && refIsNegative) {
+            return -dec;
+          }
+          return dec;
         };
 
-        let latDec: number | null = null;
-        let lonDec: number | null = null;
-
-        if (tags['GPSLatitude']?.description !== undefined) {
-          latDec = Number(tags['GPSLatitude'].description);
-        } else {
-          latDec = convertToDecimal(latitude, latRefIsS);
-        }
-
-        if (tags['GPSLongitude']?.description !== undefined) {
-          lonDec = Number(tags['GPSLongitude'].description);
-        } else {
-          lonDec = convertToDecimal(longitude, lonRefIsW);
-        }
-
-        // Ensure negative signs for S and W if using description directly
-        if (tags['GPSLatitude']?.description !== undefined && latRefIsS && latDec !== null && latDec > 0) latDec = -latDec;
-        if (tags['GPSLongitude']?.description !== undefined && lonRefIsW && lonDec !== null && lonDec > 0) lonDec = -lonDec;
+        const latDec = parseCoordinate(tags['GPSLatitude'], latRefIsS);
+        const lonDec = parseCoordinate(tags['GPSLongitude'], lonRefIsW);
 
         if (latDec !== null && lonDec !== null && !isNaN(latDec) && !isNaN(lonDec)) {
           console.log(`Geocoding coordinates: ${latDec}, ${lonDec}`);
@@ -140,9 +146,22 @@ export const UploadForm: React.FC = () => {
             const data = await response.json();
             console.log("Geocoding response:", data);
             if (data.address) {
-              extractedCity = data.address.city || data.address.town || data.address.village || data.address.county || '';
-              extractedNeighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential || data.address.city_district || '';
-              extractedCountry = data.address.country || '';
+              let rawCity = data.address.city || data.address.town || data.address.village || data.address.county || '';
+              let rawNeighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential || data.address.city_district || '';
+              let rawCountry = data.address.country || '';
+              
+              // We'll run them through translateText to ensure they are in Spanish (e.g. from Chinese/Arabic/etc)
+              // If they are already Spanish, auto->es will likely leave them intact
+              try {
+                if (rawCity) extractedCity = await translateText(rawCity, 'auto', 'es');
+                if (rawNeighborhood) extractedNeighborhood = await translateText(rawNeighborhood, 'auto', 'es');
+                if (rawCountry) extractedCountry = await translateText(rawCountry, 'auto', 'es');
+              } catch (translationErr) {
+                console.warn('Geocoding translation fallback failed', translationErr);
+                extractedCity = rawCity;
+                extractedNeighborhood = rawNeighborhood;
+                extractedCountry = rawCountry;
+              }
             }
           } catch (geoError) {
             console.error('Error en geocodificación inversa:', geoError);

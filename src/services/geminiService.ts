@@ -1,7 +1,7 @@
 // Free translation service using Google Translate's unofficial API
 // No API key required.
 
-const translateText = async (text: string, sourceLang: string, targetLang: string): Promise<string> => {
+export const translateText = async (text: string, sourceLang: string, targetLang: string): Promise<string> => {
   if (!text) return '';
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
