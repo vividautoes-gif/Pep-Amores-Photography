@@ -106,11 +106,13 @@ export const UploadForm: React.FC = () => {
         const parseCoordinate = (tag: any, refIsNegative: boolean) => {
           if (!tag) return null;
           let dec: number | null = null;
+          let descriptionIsNegative = false;
           
           if (tag.description !== undefined) {
             const maybeNum = Number(tag.description);
             if (!isNaN(maybeNum)) {
               dec = Math.abs(maybeNum);
+              if (maybeNum < 0) descriptionIsNegative = true;
             }
           }
           
@@ -124,9 +126,13 @@ export const UploadForm: React.FC = () => {
             } else if (v.length === 1 && Array.isArray(v[0])) {
               dec = toNum(v[0]);
             }
+            if (dec !== null && dec < 0) {
+              descriptionIsNegative = true;
+              dec = Math.abs(dec);
+            }
           }
           
-          if (dec !== null && refIsNegative) {
+          if (dec !== null && (refIsNegative || descriptionIsNegative)) {
             return -dec;
           }
           return dec;
@@ -163,14 +169,14 @@ export const UploadForm: React.FC = () => {
               const bdcData = await bdcResponse.json();
               console.log("BDC response:", bdcData);
               if (bdcData) {
-                rawCity = rawCity || bdcData.city || bdcData.locality || '';
-                rawCountry = rawCountry || bdcData.countryName || '';
+                rawCity = rawCity || bdcData.city || bdcData.locality || bdcData.principalSubdivision || '';
+                rawCountry = rawCountry || bdcData.countryName || bdcData.countryCode || '';
                 // Try to find neighborhood in admin levels
                 if (!rawNeighborhood && bdcData.localityInfo?.administrative) {
                   const admins = bdcData.localityInfo.administrative;
                   // The last couple of admin levels are usually neighborhood/districts
                   for (let i = admins.length - 1; i >= 0; i--) {
-                    if (admins[i].adminLevel >= 9) {
+                    if (admins[i].adminLevel >= 9 || admins[i].adminLevel === 8) {
                       rawNeighborhood = admins[i].name;
                       break;
                     }
@@ -196,8 +202,17 @@ export const UploadForm: React.FC = () => {
             try {
               const bdcResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latDec}&longitude=${lonDec}&localityLanguage=es`);
               const bdcData = await bdcResponse.json();
-              extractedCity = bdcData.city || bdcData.locality || '';
-              extractedCountry = bdcData.countryName || '';
+              extractedCity = bdcData.city || bdcData.locality || bdcData.principalSubdivision || '';
+              extractedCountry = bdcData.countryName || bdcData.countryCode || '';
+              if (bdcData.localityInfo?.administrative) {
+                const admins = bdcData.localityInfo.administrative;
+                for (let i = admins.length - 1; i >= 0; i--) {
+                  if (admins[i].adminLevel >= 9 || admins[i].adminLevel === 8) {
+                    extractedNeighborhood = admins[i].name;
+                    break;
+                  }
+                }
+              }
             } catch (bdcError) {
               console.error('BDC Fallback failed:', bdcError);
             }
@@ -232,9 +247,9 @@ export const UploadForm: React.FC = () => {
         year: extractedYear !== undefined ? extractedYear : prev.year,
         photoDate: extractedDate !== undefined ? extractedDate : prev.photoDate,
         caption: imageDescription || prev.caption,
-        city: extractedCity || prev.city,
-        country: extractedCountry || prev.country,
-        neighborhood: extractedNeighborhood || prev.neighborhood
+        city: extractedCity || '',
+        country: extractedCountry || '',
+        neighborhood: extractedNeighborhood || ''
       }));
     } catch (error) {
       console.error('Error leyendo EXIF:', error);
