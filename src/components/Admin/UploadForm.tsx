@@ -112,8 +112,18 @@ export const UploadForm: React.FC = () => {
           let dec: number | null = null;
           
           if (mainTag.description !== undefined) {
-             const num = parseFloat(mainTag.description);
-             if (!isNaN(num)) dec = Math.abs(num);
+             let descStr = String(mainTag.description).trim();
+             // Some cameras use format 3° 35' 54.96" W directly in description
+             const hasDegree = descStr.includes('°');
+             if (hasDegree) {
+                 const match = descStr.match(/(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)/);
+                 if (match) {
+                     dec = parseFloat(match[1]) + parseFloat(match[2])/60 + parseFloat(match[3])/3600;
+                 }
+             } else {
+                 const num = parseFloat(descStr);
+                 if (!isNaN(num)) dec = Math.abs(num);
+             }
           }
           
           if (dec === null && Array.isArray(mainTag.value)) {
@@ -131,8 +141,15 @@ export const UploadForm: React.FC = () => {
           if (dec !== null && !isNaN(dec)) {
               let isNegative = false;
               
-              if (mainTag.description !== undefined && String(mainTag.description).trim().startsWith('-')) {
-                  isNegative = true;
+              if (mainTag.description !== undefined) {
+                  const descStr = String(mainTag.description).trim().toUpperCase();
+                  if (descStr.startsWith('-')) {
+                      isNegative = true;
+                  } else if (isLat && (descStr.endsWith('S') || descStr.endsWith('SOUTH') || descStr.endsWith('SUR'))) {
+                      isNegative = true;
+                  } else if (!isLat && (descStr.endsWith('W') || descStr.endsWith('O') || descStr.endsWith('WEST') || descStr.endsWith('OESTE') || descStr.match(/\bW\b/) || descStr.match(/\bO\b/))) {
+                      isNegative = true;
+                  }
               }
               
               if (refTag) {
@@ -162,12 +179,10 @@ export const UploadForm: React.FC = () => {
 
         // Fallback to XMP Apple tags if EXIF is missing or malformed
         if (latDec === null && tags['Latitude']) {
-            const num = parseFloat(tags['Latitude'].description || tags['Latitude'].value);
-            if (!isNaN(num)) latDec = num;
+            latDec = parseCoordinate(tags['Latitude'], null, true);
         }
         if (lonDec === null && tags['Longitude']) {
-            const num = parseFloat(tags['Longitude'].description || tags['Longitude'].value);
-            if (!isNaN(num)) lonDec = num;
+            lonDec = parseCoordinate(tags['Longitude'], null, false);
         }
 
         if (latDec !== null && lonDec !== null && !isNaN(latDec) && !isNaN(lonDec)) {
@@ -181,7 +196,11 @@ export const UploadForm: React.FC = () => {
             // Try Nominatim
             try {
               const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&accept-language=es&email=eduard.kun115@gmail.com`, {
-                headers: { 'Accept-Language': 'es-ES,es;q=0.9' }
+                headers: { 
+                  'Accept-Language': 'es-ES,es;q=0.9',
+                  'Accept': 'application/json',
+                  'User-Agent': 'EduardKunPhotoPortfolio/1.0 (eduard.kun115@gmail.com)'
+                }
               });
               const data = await response.json();
               if (data && data.address) {
