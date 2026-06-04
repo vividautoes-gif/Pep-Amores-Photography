@@ -22,6 +22,7 @@ import { MyMovies } from './components/MyMovies';
 import { CookieBanner } from './components/CookieBanner';
 
 // --- Components ---
+// Trigger redeploy
 
 
 // --- Main Gallery ---
