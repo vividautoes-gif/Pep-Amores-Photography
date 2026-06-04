@@ -114,7 +114,6 @@ export const UploadForm: React.FC = () => {
             }
           }
           
-          // Fallback to manually calculating from array values if description wasn't a valid number
           if (dec === null && Array.isArray(tag.value)) {
             const v = tag.value;
             const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
@@ -140,36 +139,73 @@ export const UploadForm: React.FC = () => {
           console.log(`Geocoding coordinates: ${latDec}, ${lonDec}`);
           setGeocoding(true);
           try {
+            // First try Nominatim
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&accept-language=es&email=eduard.kun115@gmail.com`, {
               headers: { 'Accept-Language': 'es-ES,es;q=0.9' }
             });
             const data = await response.json();
             console.log("Geocoding response:", data);
-            if (data.address) {
-              let rawCity = data.address.city || data.address.town || data.address.village || data.address.county || '';
-              let rawNeighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential || data.address.city_district || '';
-              let rawCountry = data.address.country || '';
-              
-              // We'll run them through translateText to ensure they are in Spanish (e.g. from Chinese/Arabic/etc)
-              // If they are already Spanish, auto->es will likely leave them intact
-              try {
-                if (rawCity) extractedCity = await translateText(rawCity, 'auto', 'es');
-                if (rawNeighborhood) extractedNeighborhood = await translateText(rawNeighborhood, 'auto', 'es');
-                if (rawCountry) extractedCountry = await translateText(rawCountry, 'auto', 'es');
-              } catch (translationErr) {
-                console.warn('Geocoding translation fallback failed', translationErr);
-                extractedCity = rawCity;
-                extractedNeighborhood = rawNeighborhood;
-                extractedCountry = rawCountry;
+            
+            let rawCity = '';
+            let rawNeighborhood = '';
+            let rawCountry = '';
+            
+            if (data && data.address) {
+              rawCity = data.address.city || data.address.town || data.address.village || data.address.municipality || data.address.county || '';
+              rawNeighborhood = data.address.neighbourhood || data.address.suburb || data.address.residential || data.address.city_district || data.address.quarter || '';
+              rawCountry = data.address.country || '';
+            }
+            
+            // Fallback to BigDataCloud if Nominatim didn't return city or country
+            if (!rawCity || !rawCountry) {
+              console.log("Nominatim failed or returned incomplete data. Trying BigDataCloud fallback...");
+              const bdcResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latDec}&longitude=${lonDec}&localityLanguage=es`);
+              const bdcData = await bdcResponse.json();
+              console.log("BDC response:", bdcData);
+              if (bdcData) {
+                rawCity = rawCity || bdcData.city || bdcData.locality || '';
+                rawCountry = rawCountry || bdcData.countryName || '';
+                // Try to find neighborhood in admin levels
+                if (!rawNeighborhood && bdcData.localityInfo?.administrative) {
+                  const admins = bdcData.localityInfo.administrative;
+                  // The last couple of admin levels are usually neighborhood/districts
+                  for (let i = admins.length - 1; i >= 0; i--) {
+                    if (admins[i].adminLevel >= 9) {
+                      rawNeighborhood = admins[i].name;
+                      break;
+                    }
+                  }
+                }
               }
             }
+
+            // We'll run them through translateText to ensure they are in Spanish (e.g. from Chinese/Arabic/etc)
+            try {
+              if (rawCity) extractedCity = await translateText(rawCity, 'auto', 'es');
+              if (rawNeighborhood) extractedNeighborhood = await translateText(rawNeighborhood, 'auto', 'es');
+              if (rawCountry) extractedCountry = await translateText(rawCountry, 'auto', 'es');
+            } catch (translationErr) {
+              console.warn('Geocoding translation fallback failed', translationErr);
+              extractedCity = rawCity;
+              extractedNeighborhood = rawNeighborhood;
+              extractedCountry = rawCountry;
+            }
           } catch (geoError) {
-            console.error('Error en geocodificación inversa:', geoError);
+            console.error('Error en geocodificación:', geoError);
+            // Fallback to BigDataCloud if Nominatim throws an error (e.g., blocked)
+            try {
+              const bdcResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latDec}&longitude=${lonDec}&localityLanguage=es`);
+              const bdcData = await bdcResponse.json();
+              extractedCity = bdcData.city || bdcData.locality || '';
+              extractedCountry = bdcData.countryName || '';
+            } catch (bdcError) {
+              console.error('BDC Fallback failed:', bdcError);
+            }
           } finally {
             setGeocoding(false);
           }
         } else {
-          console.warn("Could not parse valid GPS coordinates from EXIF", { latitude, longitude, latDec, lonDec });
+          console.warn("Could not parse valid GPS coordinates from EXIF", { latitude: tags['GPSLatitude'], longitude: tags['GPSLongitude'], latDec, lonDec });
         }
       }
 
