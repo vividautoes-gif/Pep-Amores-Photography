@@ -101,98 +101,120 @@ export const UploadForm: React.FC = () => {
         }
       }
 
-      // Extraer Ubicación (GPS)
       let extractedCity = '';
       let extractedCountry = '';
       let extractedNeighborhood = '';
 
-      if (tags['GPSLatitude'] && tags['GPSLongitude']) {
-        const latitude = tags['GPSLatitude'].value as any;
-        const longitude = tags['GPSLongitude'].value as any;
-        
-        const latRefVal = tags['GPSLatitudeRef']?.value?.[0]?.toString().toUpperCase();
-        const latRefDesc = tags['GPSLatitudeRef']?.description?.toString().toUpperCase();
-        const latRefIsS = latRefVal === 'S' || latRefDesc?.startsWith('S') || latRefDesc?.includes('SOUTH') || (latRefDesc && latRefDesc.indexOf('SUR') >= 0) || false;
-
-        const lonRefVal = tags['GPSLongitudeRef']?.value?.[0]?.toString().toUpperCase();
-        const lonRefDesc = tags['GPSLongitudeRef']?.description?.toString().toUpperCase();
-        const lonRefIsW = lonRefVal === 'W' || lonRefDesc?.startsWith('W') || lonRefDesc?.startsWith('O') || lonRefDesc?.includes('WEST') || (lonRefDesc && lonRefDesc.indexOf('OESTE') >= 0) || false;
-
-
-        const parseCoordinate = (tag: any, refIsNegative: boolean) => {
-          if (!tag) return null;
+      if (tags) {
+        // Robust coordinate parser
+        const parseCoordinate = (mainTag: any, refTag: any, isLat: boolean) => {
+          if (!mainTag) return null;
           let dec: number | null = null;
-          let descriptionIsNegative = false;
           
-          if (tag.description !== undefined) {
-            const maybeNum = Number(tag.description);
-            if (!isNaN(maybeNum)) {
-              dec = Math.abs(maybeNum);
-              if (maybeNum < 0) descriptionIsNegative = true;
-            }
+          if (mainTag.description !== undefined) {
+             const num = parseFloat(mainTag.description);
+             if (!isNaN(num)) dec = Math.abs(num);
           }
           
-          if (dec === null && Array.isArray(tag.value)) {
-            const v = tag.value;
-            const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
-            if (v.length >= 3) {
-              dec = toNum(v[0]) + toNum(v[1]) / 60 + toNum(v[2]) / 3600;
-            } else if (v.length === 1 && typeof v[0] === 'number') {
-              dec = v[0];
-            } else if (v.length === 1 && Array.isArray(v[0])) {
-              dec = toNum(v[0]);
-            }
-            if (dec !== null && dec < 0) {
-              descriptionIsNegative = true;
-              dec = Math.abs(dec);
-            }
+          if (dec === null && Array.isArray(mainTag.value)) {
+             const v = mainTag.value;
+             const toNum = (val: any) => Array.isArray(val) ? val[0] / val[1] : Number(val);
+             if (v.length >= 3) {
+                dec = toNum(v[0]) + toNum(v[1]) / 60 + toNum(v[2]) / 3600;
+             } else if (v.length === 1 && typeof v[0] === 'number') {
+                dec = v[0];
+             } else if (v.length === 1 && Array.isArray(v[0])) {
+                dec = toNum(v[0]);
+             }
           }
           
-          if (dec !== null && (refIsNegative || descriptionIsNegative)) {
-            return -dec;
+          if (dec !== null && !isNaN(dec)) {
+              let isNegative = false;
+              
+              if (mainTag.description !== undefined && String(mainTag.description).trim().startsWith('-')) {
+                  isNegative = true;
+              }
+              
+              if (refTag) {
+                 const refStr = (refTag.description || refTag.value?.[0] || '').toString().toUpperCase();
+                 if (isLat) {
+                     if (refStr.startsWith('S') || refStr.includes('SOUTH') || refStr.includes('SUR')) {
+                         isNegative = true;
+                     } else if (refStr.startsWith('N') || refStr.includes('NORTH')) {
+                         isNegative = false;
+                     }
+                 } else {
+                     if (refStr.startsWith('W') || refStr.startsWith('O') || refStr.includes('WEST') || refStr.includes('OESTE')) {
+                         isNegative = true;
+                     } else if (refStr.startsWith('E') || refStr.includes('EAST')) {
+                         isNegative = false;
+                     }
+                 }
+              }
+
+              return isNegative ? -Math.abs(dec) : Math.abs(dec);
           }
-          return dec;
+          return null;
         };
 
-        const latDec = parseCoordinate(tags['GPSLatitude'], latRefIsS);
-        const lonDec = parseCoordinate(tags['GPSLongitude'], lonRefIsW);
+        let latDec = parseCoordinate(tags['GPSLatitude'], tags['GPSLatitudeRef'], true);
+        let lonDec = parseCoordinate(tags['GPSLongitude'], tags['GPSLongitudeRef'], false);
+
+        // Fallback to XMP Apple tags if EXIF is missing or malformed
+        if (latDec === null && tags['Latitude']) {
+            const num = parseFloat(tags['Latitude'].description || tags['Latitude'].value);
+            if (!isNaN(num)) latDec = num;
+        }
+        if (lonDec === null && tags['Longitude']) {
+            const num = parseFloat(tags['Longitude'].description || tags['Longitude'].value);
+            if (!isNaN(num)) lonDec = num;
+        }
 
         if (latDec !== null && lonDec !== null && !isNaN(latDec) && !isNaN(lonDec)) {
           console.log(`Geocoding coordinates: ${latDec}, ${lonDec}`);
           setGeocoding(true);
           try {
-            // First try Nominatim
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&accept-language=es&email=eduard.kun115@gmail.com`, {
-              headers: { 'Accept-Language': 'es-ES,es;q=0.9' }
-            });
-            const data = await response.json();
-            console.log("Geocoding response:", data);
-            
             let rawCity = '';
             let rawNeighborhood = '';
             let rawCountry = '';
             
-            if (data && data.address) {
-              rawCity = data.address.city || data.address.town || data.address.village || data.address.municipality || data.address.county || '';
-              rawNeighborhood = data.address.neighbourhood || data.address.suburb || data.address.residential || data.address.city_district || data.address.quarter || '';
-              rawCountry = data.address.country || '';
+            // Try Nominatim
+            try {
+              const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latDec}&lon=${lonDec}&zoom=18&addressdetails=1&accept-language=es&email=eduard.kun115@gmail.com`, {
+                headers: { 'Accept-Language': 'es-ES,es;q=0.9' }
+              });
+              const data = await response.json();
+              if (data && data.address) {
+                rawCity = data.address.city || data.address.town || data.address.village || data.address.municipality || data.address.county || '';
+                rawNeighborhood = data.address.neighbourhood || data.address.suburb || data.address.residential || data.address.city_district || data.address.quarter || '';
+                rawCountry = data.address.country || '';
+              }
+            } catch (err) {
+              console.warn("Nominatim fetch failed, fallback to BigDataCloud", err);
             }
             
             // Fallback to BigDataCloud if Nominatim didn't return city or country
             if (!rawCity || !rawCountry) {
-              console.log("Nominatim failed or returned incomplete data. Trying BigDataCloud fallback...");
               const bdcResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latDec}&longitude=${lonDec}&localityLanguage=es`);
               const bdcData = await bdcResponse.json();
-              console.log("BDC response:", bdcData);
+              
               if (bdcData) {
-                rawCity = rawCity || bdcData.city || bdcData.locality || bdcData.principalSubdivision || '';
+                let fallbackCity = bdcData.city || bdcData.locality || '';
+                if (!fallbackCity && bdcData.localityInfo?.administrative) {
+                   const admins = bdcData.localityInfo.administrative;
+                   const cityAdmin = admins.find((a: any) => a.adminLevel === 8 || a.adminLevel === 7 || a.adminLevel === 6);
+                   if (cityAdmin) fallbackCity = cityAdmin.name;
+                   else fallbackCity = bdcData.principalSubdivision || '';
+                }
+
+                rawCity = rawCity || fallbackCity;
                 rawCountry = rawCountry || bdcData.countryName || bdcData.countryCode || '';
+                
                 // Try to find neighborhood in admin levels
                 if (!rawNeighborhood && bdcData.localityInfo?.administrative) {
                   const admins = bdcData.localityInfo.administrative;
-                  // The last couple of admin levels are usually neighborhood/districts
                   for (let i = admins.length - 1; i >= 0; i--) {
-                    if (admins[i].adminLevel >= 9 || admins[i].adminLevel === 8) {
+                    if (admins[i].adminLevel >= 9) {
                       rawNeighborhood = admins[i].name;
                       break;
                     }
@@ -201,7 +223,7 @@ export const UploadForm: React.FC = () => {
               }
             }
 
-            // We'll run them through translateText to ensure they are in Spanish (e.g. from Chinese/Arabic/etc)
+            // Translation fallback
             try {
               if (rawCity) extractedCity = await translateText(rawCity, 'auto', 'es');
               if (rawNeighborhood) extractedNeighborhood = await translateText(rawNeighborhood, 'auto', 'es');
@@ -212,31 +234,14 @@ export const UploadForm: React.FC = () => {
               extractedNeighborhood = rawNeighborhood;
               extractedCountry = rawCountry;
             }
+            
           } catch (geoError) {
-            console.error('Error en geocodificación:', geoError);
-            // Fallback to BigDataCloud if Nominatim throws an error (e.g., blocked)
-            try {
-              const bdcResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latDec}&longitude=${lonDec}&localityLanguage=es`);
-              const bdcData = await bdcResponse.json();
-              extractedCity = bdcData.city || bdcData.locality || bdcData.principalSubdivision || '';
-              extractedCountry = bdcData.countryName || bdcData.countryCode || '';
-              if (bdcData.localityInfo?.administrative) {
-                const admins = bdcData.localityInfo.administrative;
-                for (let i = admins.length - 1; i >= 0; i--) {
-                  if (admins[i].adminLevel >= 9 || admins[i].adminLevel === 8) {
-                    extractedNeighborhood = admins[i].name;
-                    break;
-                  }
-                }
-              }
-            } catch (bdcError) {
-              console.error('BDC Fallback failed:', bdcError);
-            }
+            console.error('Error en geocodificación fatal:', geoError);
           } finally {
             setGeocoding(false);
           }
         } else {
-          console.warn("Could not parse valid GPS coordinates from EXIF", { latitude: tags['GPSLatitude'], longitude: tags['GPSLongitude'], latDec, lonDec });
+          console.warn("Could not parse valid GPS coordinates from EXIF", { latDec, lonDec });
         }
       }
 
