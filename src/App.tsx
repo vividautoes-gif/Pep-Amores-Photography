@@ -1,29 +1,76 @@
-import React, { useState, useMemo, useEffect, Component, ErrorInfo, ReactNode } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Search, X, Send, MapPin, ChevronRight, ArrowLeft, Camera, AlertTriangle, Star, Award, Clock, User, MessageSquare, BarChart3, Lock, Image as ImageIcon, Aperture } from 'lucide-react';
-import { BrowserRouter, Routes, Route, Link, useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
-import { PhotoCard } from './components/PhotoCard';
-import { Lightbox } from './components/Lightbox';
-import { CommentSection } from './components/CommentSection';
-import { ReviewsSection } from './components/ReviewsSection';
-import { FlowButton } from './components/ui/flow-button';
-import { AdminPage } from './pages/AdminPage';
-import { usePhotos, useJourneys, Photo as PhotoType, Journey } from './hooks/usePhotos';
-import { Strings } from './data';
-import { cn, formatDate } from './lib/utils';
-import { db, auth, handleFirestoreError, OperationType } from './firebase';
-import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, doc } from 'firebase/firestore';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  Component,
+  ErrorInfo,
+  ReactNode,
+} from "react";
+import { motion, AnimatePresence } from "motion/react";
+import {
+  Search,
+  X,
+  Send,
+  MapPin,
+  ChevronRight,
+  ArrowLeft,
+  Camera,
+  AlertTriangle,
+  Star,
+  Award,
+  Clock,
+  User,
+  MessageSquare,
+  BarChart3,
+  Lock,
+  Image as ImageIcon,
+  Aperture,
+  Info,
+} from "lucide-react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router-dom";
+import { Navbar } from "./components/Navbar";
+import { PhotoCard } from "./components/PhotoCard";
+import { Lightbox } from "./components/Lightbox";
+import { CommentSection } from "./components/CommentSection";
+import { ReviewsSection } from "./components/ReviewsSection";
+import { FlowButton } from "./components/ui/flow-button";
+import { AdminPage } from "./pages/AdminPage";
+import {
+  usePhotos,
+  useJourneys,
+  Photo as PhotoType,
+  Journey,
+} from "./hooks/usePhotos";
+import { Strings } from "./data";
+import { cn, formatDate } from "./lib/utils";
+import { db, auth, handleFirestoreError, OperationType } from "./firebase";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  doc,
+} from "firebase/firestore";
 
-import InfiniteGallery from './components/ui/3d-gallery-photography';
-import { CardStack3D } from './components/ui/3d-flip-card';
-import { Footer } from './components/ui/footer-section';
-import { MyMovies } from './components/MyMovies';
-import { CookieBanner } from './components/CookieBanner';
+import InfiniteGallery from "./components/ui/3d-gallery-photography";
+import { CardStack3D } from "./components/ui/3d-flip-card";
+import { Footer } from "./components/ui/footer-section";
+import { MyMovies } from "./components/MyMovies";
+import { CookieBanner } from "./components/CookieBanner";
 
 // --- Components ---
 // Trigger redeploy
-
 
 // --- Main Gallery ---
 
@@ -34,179 +81,227 @@ interface GalleryItem {
     url: string;
     text: string;
     by: string;
-    orientation: 'landscape' | 'portrait' | 'square';
+    orientation: "landscape" | "portrait" | "square";
   };
 }
 
 const PREVIEW_ITEMS: GalleryItem[] = [
   {
-    common: 'Street Life',
-    binomial: 'Tokyo, Japan',
+    common: "Street Life",
+    binomial: "Tokyo, Japan",
     photo: {
-      url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80',
-      text: 'City lights at night',
-      by: 'Pep Amores',
-      orientation: 'landscape'
-    }
+      url: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80",
+      text: "City lights at night",
+      by: "Pep Amores",
+      orientation: "landscape",
+    },
   },
   {
-    common: 'The Look',
-    binomial: 'Portrait Series',
+    common: "The Look",
+    binomial: "Portrait Series",
     photo: {
-      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&q=80',
-      text: 'Close up portrait',
-      by: 'Pep Amores',
-      orientation: 'portrait'
-    }
+      url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&q=80",
+      text: "Close up portrait",
+      by: "Pep Amores",
+      orientation: "portrait",
+    },
   },
   {
-    common: 'High Peaks',
-    binomial: 'Alps, Switzerland',
+    common: "High Peaks",
+    binomial: "Alps, Switzerland",
     photo: {
-      url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-      text: 'Mountain range',
-      by: 'Pep Amores',
-      orientation: 'landscape'
-    }
+      url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
+      text: "Mountain range",
+      by: "Pep Amores",
+      orientation: "landscape",
+    },
   },
   {
-    common: 'Modern Lines',
-    binomial: 'Architecture',
+    common: "Modern Lines",
+    binomial: "Architecture",
     photo: {
-      url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80',
-      text: 'Skyscraper geometry',
-      by: 'Pep Amores',
-      orientation: 'portrait'
-    }
+      url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
+      text: "Skyscraper geometry",
+      by: "Pep Amores",
+      orientation: "portrait",
+    },
   },
   {
-    common: 'Deep Forest',
-    binomial: 'Nature Study',
+    common: "Deep Forest",
+    binomial: "Nature Study",
     photo: {
-      url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80',
-      text: 'Sunlight through trees',
-      by: 'Pep Amores',
-      orientation: 'landscape'
-    }
+      url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80",
+      text: "Sunlight through trees",
+      by: "Pep Amores",
+      orientation: "landscape",
+    },
   },
   {
-    common: 'Parisian Mornings',
-    binomial: 'Paris, France',
+    common: "Parisian Mornings",
+    binomial: "Paris, France",
     photo: {
-      url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80',
-      text: 'Eiffel tower view',
-      by: 'Pep Amores',
-      orientation: 'portrait'
-    }
+      url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80",
+      text: "Eiffel tower view",
+      by: "Pep Amores",
+      orientation: "portrait",
+    },
   },
   {
-    common: 'Minimal Space',
-    binomial: 'Interior Design',
+    common: "Minimal Space",
+    binomial: "Interior Design",
     photo: {
-      url: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=1200&q=80',
-      text: 'Clean room design',
-      by: 'Pep Amores',
-      orientation: 'landscape'
-    }
+      url: "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=1200&q=80",
+      text: "Clean room design",
+      by: "Pep Amores",
+      orientation: "landscape",
+    },
   },
   {
-    common: 'Timeless',
-    binomial: 'Black & White',
+    common: "Timeless",
+    binomial: "Black & White",
     photo: {
-      url: 'https://images.unsplash.com/photo-1501139083538-0139583c060f?w=1200&q=80',
-      text: 'Monochrome clock',
-      by: 'Pep Amores',
-      orientation: 'square'
-    }
+      url: "https://images.unsplash.com/photo-1501139083538-0139583c060f?w=1200&q=80",
+      text: "Monochrome clock",
+      by: "Pep Amores",
+      orientation: "square",
+    },
   },
   {
-    common: 'Neon Nights',
-    binomial: 'Hong Kong',
+    common: "Neon Nights",
+    binomial: "Hong Kong",
     photo: {
-      url: 'https://images.unsplash.com/photo-1470219556762-1771e7f9427d?w=1200&q=80',
-      text: 'Night city skyline',
-      by: 'Pep Amores',
-      orientation: 'landscape'
-    }
+      url: "https://images.unsplash.com/photo-1470219556762-1771e7f9427d?w=1200&q=80",
+      text: "Night city skyline",
+      by: "Pep Amores",
+      orientation: "landscape",
+    },
   },
   {
-    common: 'Abstract Flow',
-    binomial: 'Color Study',
+    common: "Abstract Flow",
+    binomial: "Color Study",
     photo: {
-      url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=60',
-      text: 'Fluid art colors',
-      by: 'Pep Amores',
-      orientation: 'portrait'
-    }
-  }
+      url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=60",
+      text: "Fluid art colors",
+      by: "Pep Amores",
+      orientation: "portrait",
+    },
+  },
 ];
 
-const EXTENDED_PREVIEW_ITEMS = [...PREVIEW_ITEMS, ...PREVIEW_ITEMS, ...PREVIEW_ITEMS, ...PREVIEW_ITEMS, ...PREVIEW_ITEMS];
+const EXTENDED_PREVIEW_ITEMS = [
+  ...PREVIEW_ITEMS,
+  ...PREVIEW_ITEMS,
+  ...PREVIEW_ITEMS,
+  ...PREVIEW_ITEMS,
+  ...PREVIEW_ITEMS,
+];
 
 const MOCK_DB: PhotoType[] = EXTENDED_PREVIEW_ITEMS.map((item, i) => {
-  const baseTags = ['mock', 'preview', item.common.toLowerCase().replace(' ', '-')];
-  
+  const baseTags = [
+    "mock",
+    "preview",
+    item.common.toLowerCase().replace(" ", "-"),
+  ];
+
   // Añadir tags de tipo de foto y localización para probar los filtros AND/OR
-  const photoTypes = ['portrait', 'landscape', 'street', 'macro', 'architecture', 'documentary', 'wildlife', 'abstract'];
-  const locations = ['china', 'peru', 'japan', 'spain', 'france', 'switzerland', 'usa', 'italy'];
-  
+  const photoTypes = [
+    "portrait",
+    "landscape",
+    "street",
+    "macro",
+    "architecture",
+    "documentary",
+    "wildlife",
+    "abstract",
+  ];
+  const locations = [
+    "china",
+    "peru",
+    "japan",
+    "spain",
+    "france",
+    "switzerland",
+    "usa",
+    "italy",
+  ];
+
   const typeTag = photoTypes[i % photoTypes.length];
   const locationTag = locations[(i * 3) % locations.length]; // Desfasado para que haya combinaciones
-  
+
   return {
     id: `mock-photo-${i}`,
     title: item.photo.text,
     url: item.photo.url,
-    orientation: item.photo.orientation || 'landscape',
-    country: item.binomial.split(', ')[1] || 'Unknown',
-    city: item.binomial.split(', ')[0] || 'Unknown',
+    orientation: item.photo.orientation || "landscape",
+    country: item.binomial.split(", ")[1] || "Unknown",
+    city: item.binomial.split(", ")[0] || "Unknown",
     year: 2024,
     tags: [...baseTags, typeTag, locationTag],
     isLFI: i % 3 === 0,
-    lfiType: i % 3 === 0 ? 'lfimastershot' : 'none',
+    lfiType: i % 3 === 0 ? "lfimastershot" : "none",
     isFavorite: i % 2 === 0,
     favoriteScore: i,
-    caption: 'Esta es una foto de prueba. Muestra cómo quedará el diseño una vez que subas tus propias fotos a la base de datos.',
-    caption_en: 'This is a preview photo. It shows how the design will look once you upload your own photos to the database.',
-    caption_ca: 'Aquesta és una foto de prova. Mostra com quedarà el disseny un cop pugis les teves pròpies fotos a la base de dades.',
-    createdAt: { toMillis: () => Date.now() - i * 10000, toDate: () => new Date() },
-    authorUid: 'mock-author',
-    journeyId: i % 2 === 0 ? 'mock-journey-1' : (i % 3 === 0 ? 'mock-special-1' : 'mock-journey-2'),
+    caption:
+      "Esta es una foto de prueba. Muestra cómo quedará el diseño una vez que subas tus propias fotos a la base de datos.",
+    caption_en:
+      "This is a preview photo. It shows how the design will look once you upload your own photos to the database.",
+    caption_ca:
+      "Aquesta és una foto de prova. Mostra com quedarà el disseny un cop pugis les teves pròpies fotos a la base de dades.",
+    createdAt: {
+      toMillis: () => Date.now() - i * 10000,
+      toDate: () => new Date(),
+    },
+    authorUid: "mock-author",
+    journeyId:
+      i % 2 === 0
+        ? "mock-journey-1"
+        : i % 3 === 0
+          ? "mock-special-1"
+          : "mock-journey-2",
   };
 });
 
 const MOCK_JDB: Journey[] = [
   {
-    id: 'mock-journey-1',
-    title: 'Japan Diaries',
-    country: 'Japan',
-    intro: 'Un viaje visual por las calles de neón de Tokio y los templos serenos de Kioto. (Viaje de prueba)',
-    coverUrl: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=60',
-    subthemes: ['Street', 'Night', 'Culture'],
-    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
+    id: "mock-journey-1",
+    title: "Japan Diaries",
+    country: "Japan",
+    intro:
+      "Un viaje visual por las calles de neón de Tokio y los templos serenos de Kioto. (Viaje de prueba)",
+    coverUrl:
+      "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=60",
+    subthemes: ["Street", "Night", "Culture"],
+    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() },
   },
   {
-    id: 'mock-journey-2',
-    title: 'Alpine Escapes',
-    country: 'Switzerland',
-    intro: 'Explorando los altos picos y los profundos valles de los Alpes suizos. (Viaje de prueba)',
-    coverUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=60',
-    subthemes: ['Nature', 'Mountains', 'Snow'],
-    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
+    id: "mock-journey-2",
+    title: "Alpine Escapes",
+    country: "Switzerland",
+    intro:
+      "Explorando los altos picos y los profundos valles de los Alpes suizos. (Viaje de prueba)",
+    coverUrl:
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=60",
+    subthemes: ["Nature", "Mountains", "Snow"],
+    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() },
   },
   {
-    id: 'mock-special-1',
-    title: 'Technovation Girls - Madrid',
-    country: 'España',
-    intro: 'Sesión especial documentando el evento Technovation Girls en Madrid. (Sesión de prueba)',
-    coverUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=60',
-    subthemes: ['Tech', 'Education', 'Madrid'],
+    id: "mock-special-1",
+    title: "Technovation Girls - Madrid",
+    country: "España",
+    intro:
+      "Sesión especial documentando el evento Technovation Girls en Madrid. (Sesión de prueba)",
+    coverUrl:
+      "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=60",
+    subthemes: ["Tech", "Education", "Madrid"],
     isSpecial: true,
-    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() }
-  }
+    createdAt: { toMillis: () => Date.now(), toDate: () => new Date() },
+  },
 ];
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean, error: Error | null }> {
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
   constructor(props: { children: ReactNode }) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -222,7 +317,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
   render() {
     if (this.state.hasError) {
-      let errorMessage = "Ha ocurrido un error inesperado al renderizar la página.";
+      let errorMessage =
+        "Ha ocurrido un error inesperado al renderizar la página.";
       try {
         const parsed = JSON.parse(this.state.error?.message || "");
         if (parsed.error && parsed.operationType) {
@@ -235,12 +331,12 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
           <AlertTriangle size={48} className="text-red-500 mb-4" />
-          <h1 className="text-2xl font-serif italic mb-2">Algo ha salido mal</h1>
-          <p className="text-brand-secondary mb-6 max-w-md">
-            {errorMessage}
-          </p>
-          <FlowButton 
-            onClick={() => window.location.reload()} 
+          <h1 className="text-2xl font-serif italic mb-2">
+            Algo ha salido mal
+          </h1>
+          <p className="text-brand-secondary mb-6 max-w-md">{errorMessage}</p>
+          <FlowButton
+            onClick={() => window.location.reload()}
             text="Recargar página"
           />
         </div>
@@ -255,63 +351,90 @@ function Gallery() {
   console.log("Rendering Gallery...");
   const location = useLocation();
 
-  const { photos: rawPhotos, loading: photosLoading, error: photosError } = usePhotos();
+  const {
+    photos: rawPhotos,
+    loading: photosLoading,
+    error: photosError,
+  } = usePhotos();
   const { journeys: rawJourneys, loading: journeysLoading } = useJourneys();
-  
-  const [homeCollections, setHomeCollections] = useState<Record<string, string[]>>({});
+
+  const [homeCollections, setHomeCollections] = useState<
+    Record<string, string[]>
+  >({});
   const [homeCollectionsLoading, setHomeCollectionsLoading] = useState(true);
 
   useEffect(() => {
-    const path = 'home_collections';
-    const unsub = onSnapshot(collection(db, path), { includeMetadataChanges: true }, (snap) => {
-      const data: Record<string, string[]> = {};
-      snap.docs.forEach(doc => {
-        data[doc.id] = doc.data().imageUrls || [];
-      });
-      setHomeCollections(data);
-      
-      // Only stop loading if we have data OR if it's not from cache
-      if (snap.docs.length > 0 || !snap.metadata.fromCache) {
+    const path = "home_collections";
+    const unsub = onSnapshot(
+      collection(db, path),
+      { includeMetadataChanges: true },
+      (snap) => {
+        const data: Record<string, string[]> = {};
+        snap.docs.forEach((doc) => {
+          data[doc.id] = doc.data().imageUrls || [];
+        });
+        setHomeCollections(data);
+
+        // Only stop loading if we have data OR if it's not from cache
+        if (snap.docs.length > 0 || !snap.metadata.fromCache) {
+          setHomeCollectionsLoading(false);
+        }
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.GET, path);
         setHomeCollectionsLoading(false);
-      }
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, path);
-      setHomeCollectionsLoading(false);
-    });
+      },
+    );
     return () => unsub();
   }, []);
 
-  const getCollectionImages = (id: string, defaultImages: { src: string, alt: string }[]) => {
+  const getCollectionImages = (
+    id: string,
+    defaultImages: { src: string; alt: string }[],
+  ) => {
     const custom = homeCollections[id];
     if (custom && custom.length === 4) {
-      return custom.map(url => ({ src: url, alt: id }));
+      return custom.map((url) => ({ src: url, alt: id }));
     }
     return defaultImages;
   };
 
   const loading = photosLoading || journeysLoading;
-  
+
   // Sanitización de datos: Asegurarse de que las fotos tengan URL y los campos necesarios
-  const realDB = useMemo(() => rawPhotos.filter(p => p && p.url && p.id), [rawPhotos]);
-  const realJDB = useMemo(() => rawJourneys.filter(j => j && j.id && j.title), [rawJourneys]);
+  const realDB = useMemo(
+    () => rawPhotos.filter((p) => p && p.url && p.id),
+    [rawPhotos],
+  );
+  const realJDB = useMemo(
+    () => rawJourneys.filter((j) => j && j.id && j.title),
+    [rawJourneys],
+  );
 
   const DB = realDB;
   const JDB = realJDB;
 
-  const journeysOnly = useMemo(() => JDB.filter(j => !j.isSpecial), [JDB]);
-  const specialSessionsOnly = useMemo(() => JDB.filter(j => j.isSpecial), [JDB]);
-  
-  const [lang, setLang] = useState<'es' | 'en' | 'ca'>('es');
+  const journeysOnly = useMemo(() => JDB.filter((j) => !j.isSpecial), [JDB]);
+  const specialSessionsOnly = useMemo(
+    () => JDB.filter((j) => j.isSpecial),
+    [JDB],
+  );
+
+  const [lang, setLang] = useState<"es" | "en" | "ca">("es");
   const [isMobile, setIsMobile] = useState(false);
 
   const heroImages = useMemo(() => {
-    let dbImages = DB.filter(p => p.isHero).length > 0 
-      ? DB.filter(p => p.isHero).map(p => ({ src: p.url, alt: p.title }))
-      : DB.map(p => ({ src: p.url, alt: p.title }));
-    
+    let dbImages =
+      DB.filter((p) => p.isHero).length > 0
+        ? DB.filter((p) => p.isHero).map((p) => ({ src: p.url, alt: p.title }))
+        : DB.map((p) => ({ src: p.url, alt: p.title }));
+
     if (dbImages.length === 0 && !photosLoading && realDB.length === 0) {
       // Only use preview items if we are sure there are no real photos at all
-      dbImages = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
+      dbImages = PREVIEW_ITEMS.map((p) => ({
+        src: p.photo.url,
+        alt: p.photo.text,
+      }));
     }
 
     let combined = [...dbImages];
@@ -327,20 +450,32 @@ function Gallery() {
 
   const { section } = useParams();
   const navigate = useNavigate();
-  
-  const validSections = ['home', 'journeys', 'special-sessions', 'explore', 'favorites', 'latest', 'lfi', 'my-movies', 'about', 'contact', 'reviews'];
-  const currentSection = (section && validSections.includes(section)) ? section : 'home';
+
+  const validSections = [
+    "journeys",
+    "special-sessions",
+    "explore",
+    "favorites",
+    "latest",
+    "lfi",
+    "my-movies",
+    "about",
+    "contact",
+    "reviews",
+  ];
+  const currentSection =
+    section && validSections.includes(section) ? section : "favorites";
 
   // Redirect to home if invalid section
   useEffect(() => {
     if (section && !validSections.includes(section)) {
-      navigate('/', { replace: true });
+      navigate("/", { replace: true });
     }
   }, [section, navigate]);
 
   const setCurrentSection = (newSection: string) => {
-    if (newSection === 'home') {
-      navigate('/');
+    if (newSection === "home") {
+      navigate("/");
     } else {
       navigate(`/${newSection}`);
     }
@@ -350,19 +485,19 @@ function Gallery() {
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'IMG' || target.tagName === 'CANVAS') {
+      if (target.tagName === "IMG" || target.tagName === "CANVAS") {
         e.preventDefault();
       }
     };
-    document.addEventListener('contextmenu', handleContextMenu);
-    return () => document.removeEventListener('contextmenu', handleContextMenu);
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => document.removeEventListener("contextmenu", handleContextMenu);
   }, []);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoType | null>(null);
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
@@ -371,13 +506,20 @@ function Gallery() {
     window.scrollTo(0, 0);
   }, [location.pathname, selectedJourney]);
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
-  const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
-  const [lfiFilter, setLfiFilter] = useState<'all' | 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week'>('all');
-  const [showLfiInfo, setShowLfiInfo] = useState(false);
-  const [favoritePeriodFilter, setFavoritePeriodFilter] = useState<'6m' | '12m' | '24m'>('24m');
-  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [filterLogic, setFilterLogic] = useState<"and" | "or">("and");
+  const [lfiFilter, setLfiFilter] = useState<
+    "all" | "lfimastershot" | "lfiexhibition" | "lfi-picture-of-the-week"
+  >("all");
+  const [favoritePeriodFilter, setFavoritePeriodFilter] = useState<
+    "all" | "6m" | "12m" | "24m"
+  >("all");
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
   const [isSending, setIsSending] = useState(false);
 
   const s = Strings[lang];
@@ -385,11 +527,16 @@ function Gallery() {
   const allTags = useMemo(() => {
     if (!DB) return [];
     const tagsSet = new Set<string>();
-    DB.forEach(p => {
-      const tags = lang === 'en' && p.tags_en ? p.tags_en : lang === 'ca' && p.tags_ca ? p.tags_ca : p.tags;
+    DB.forEach((p) => {
+      const tags =
+        lang === "en" && p.tags_en
+          ? p.tags_en
+          : lang === "ca" && p.tags_ca
+            ? p.tags_ca
+            : p.tags;
       if (Array.isArray(tags)) {
-        tags.forEach(t => {
-          if (typeof t === 'string') {
+        tags.forEach((t) => {
+          if (typeof t === "string") {
             tagsSet.add(t.toLowerCase());
           }
         });
@@ -400,28 +547,57 @@ function Gallery() {
 
   const filteredPhotos = useMemo(() => {
     if (!DB) return [];
-    return DB.filter(p => {
+    return DB.filter((p) => {
       const query = searchQuery.toLowerCase();
       const title = p.title;
-      const country = lang === 'en' && p.country_en ? p.country_en : lang === 'ca' && p.country_ca ? p.country_ca : p.country;
-      const city = lang === 'en' && p.city_en ? p.city_en : lang === 'ca' && p.city_ca ? p.city_ca : p.city;
-      const subtheme = lang === 'en' && p.subtheme_en ? p.subtheme_en : lang === 'ca' && p.subtheme_ca ? p.subtheme_ca : p.subtheme;
-      
-      const tagsArray = lang === 'en' && p.tags_en ? p.tags_en : lang === 'ca' && p.tags_ca ? p.tags_ca : p.tags;
-      const tags = Array.isArray(tagsArray) ? tagsArray.filter(t => typeof t === 'string').map(t => t.toLowerCase()) : [];
-      
-      const matchText = (title || '').toLowerCase().includes(query) || 
-                        (country || '').toLowerCase().includes(query) || 
-                        (city || '').toLowerCase().includes(query) ||
-                        (subtheme || '').toLowerCase().includes(query) ||
-                        tags.some(t => t.includes(query));
-      
-      const activeFiltersArray = Array.from(activeFilters).map(t => t.toLowerCase());
-      const matchTags = activeFiltersArray.length === 0 ? true :
-        filterLogic === 'and'
-          ? activeFiltersArray.every((t: string) => tags.includes(t))
-          : activeFiltersArray.some((t: string) => tags.includes(t));
-          
+      const country =
+        lang === "en" && p.country_en
+          ? p.country_en
+          : lang === "ca" && p.country_ca
+            ? p.country_ca
+            : p.country;
+      const city =
+        lang === "en" && p.city_en
+          ? p.city_en
+          : lang === "ca" && p.city_ca
+            ? p.city_ca
+            : p.city;
+      const subtheme =
+        lang === "en" && p.subtheme_en
+          ? p.subtheme_en
+          : lang === "ca" && p.subtheme_ca
+            ? p.subtheme_ca
+            : p.subtheme;
+
+      const tagsArray =
+        lang === "en" && p.tags_en
+          ? p.tags_en
+          : lang === "ca" && p.tags_ca
+            ? p.tags_ca
+            : p.tags;
+      const tags = Array.isArray(tagsArray)
+        ? tagsArray
+            .filter((t) => typeof t === "string")
+            .map((t) => t.toLowerCase())
+        : [];
+
+      const matchText =
+        (title || "").toLowerCase().includes(query) ||
+        (country || "").toLowerCase().includes(query) ||
+        (city || "").toLowerCase().includes(query) ||
+        (subtheme || "").toLowerCase().includes(query) ||
+        tags.some((t) => t.includes(query));
+
+      const activeFiltersArray = Array.from(activeFilters).map((t) =>
+        t.toLowerCase(),
+      );
+      const matchTags =
+        activeFiltersArray.length === 0
+          ? true
+          : filterLogic === "and"
+            ? activeFiltersArray.every((t: string) => tags.includes(t))
+            : activeFiltersArray.some((t: string) => tags.includes(t));
+
       return matchText && matchTags;
     });
   }, [DB, searchQuery, activeFilters, filterLogic, lang]);
@@ -439,37 +615,52 @@ function Gallery() {
 
   const clearFilters = () => {
     setActiveFilters(new Set());
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const currentPhotoList = useMemo(() => {
-    if (currentSection === 'home' || currentSection === 'explore') return filteredPhotos;
-    if (currentSection === 'favorites') {
-      let favs = DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0));
-      const months = favoritePeriodFilter === '6m' ? 6 : favoritePeriodFilter === '12m' ? 12 : 24;
-      const cutoff = new Date();
-      cutoff.setMonth(cutoff.getMonth() - months);
-      favs = favs.filter(p => {
-        let d;
-        if (p.photoDate) {
-          d = new Date(p.photoDate);
-        } else if (p.year) {
-          d = new Date(p.year, 0, 1);
-        } else {
-          return true;
-        }
-        if (isNaN(d.getTime())) return true;
-        return d >= cutoff;
-      });
+    if (currentSection === "home" || currentSection === "explore")
+      return filteredPhotos;
+    if (currentSection === "favorites") {
+      let favs = DB.filter((p) => p.isFavorite).sort(
+        (a, b) => (b.favoriteScore || 0) - (a.favoriteScore || 0),
+      );
+      if (favoritePeriodFilter !== "all") {
+        const months =
+          favoritePeriodFilter === "6m"
+            ? 6
+            : favoritePeriodFilter === "12m"
+              ? 12
+              : 24;
+        const cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth() - months);
+        favs = favs.filter((p) => {
+          let d;
+          if (p.photoDate) {
+            d = new Date(p.photoDate);
+          } else if (p.year) {
+            d = new Date(p.year, 0, 1);
+          } else {
+            return true;
+          }
+          if (isNaN(d.getTime())) return true;
+          return d >= cutoff;
+        });
+      }
       return favs;
     }
-    if (currentSection === 'latest') return DB.slice(0, 100);
-    if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter))
-      .sort((a, b) => {
+    if (currentSection === "latest") return DB.slice(0, 100);
+    if (currentSection === "lfi")
+      return DB.filter(
+        (p) => p.isLFI && (lfiFilter === "all" || p.lfiType === lfiFilter),
+      ).sort((a, b) => {
         const getTime = (dateInput: any) => {
           if (!dateInput) return 0;
           try {
-            const date = typeof dateInput.toDate === 'function' ? dateInput.toDate() : new Date(dateInput);
+            const date =
+              typeof dateInput.toDate === "function"
+                ? dateInput.toDate()
+                : new Date(dateInput);
             return isNaN(date.getTime()) ? 0 : date.getTime();
           } catch (e) {
             return 0;
@@ -477,9 +668,21 @@ function Gallery() {
         };
         return getTime(b.lfiDate) - getTime(a.lfiDate);
       });
-    if ((currentSection === 'journeys' || currentSection === 'special-sessions') && selectedJourney) return DB.filter(p => p.journeyId === selectedJourney.id);
+    if (
+      (currentSection === "journeys" ||
+        currentSection === "special-sessions") &&
+      selectedJourney
+    )
+      return DB.filter((p) => p.journeyId === selectedJourney.id);
     return DB;
-  }, [currentSection, filteredPhotos, DB, selectedJourney, lfiFilter, favoritePeriodFilter]);
+  }, [
+    currentSection,
+    filteredPhotos,
+    DB,
+    selectedJourney,
+    lfiFilter,
+    favoritePeriodFilter,
+  ]);
 
   if (photosLoading || journeysLoading || homeCollectionsLoading) {
     return (
@@ -506,12 +709,22 @@ function Gallery() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
         <AlertTriangle size={48} className="text-brand-accent mb-4" />
         <h1 className="text-2xl font-serif italic mb-2">
-          {lang === 'es' ? 'Error de conexión' : lang === 'ca' ? 'Error de connexió' : 'Connection Error'}
+          {lang === "es"
+            ? "Error de conexión"
+            : lang === "ca"
+              ? "Error de connexió"
+              : "Connection Error"}
         </h1>
         <p className="text-brand-secondary mb-6 max-w-md">{errorMessage}</p>
-        <FlowButton 
-          onClick={() => window.location.reload()} 
-          text={lang === 'es' ? 'Reintentar' : lang === 'ca' ? 'Reintentar' : 'Retry'}
+        <FlowButton
+          onClick={() => window.location.reload()}
+          text={
+            lang === "es"
+              ? "Reintentar"
+              : lang === "ca"
+                ? "Reintentar"
+                : "Retry"
+          }
         />
       </div>
     );
@@ -520,46 +733,86 @@ function Gallery() {
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactForm.name || !contactForm.email || !contactForm.message) {
-      alert(lang === 'es' ? 'Por favor, rellena todos los campos.' : lang === 'ca' ? 'Si us plau, omple tots els camps.' : 'Please fill in all fields.');
+      alert(
+        lang === "es"
+          ? "Por favor, rellena todos los campos."
+          : lang === "ca"
+            ? "Si us plau, omple tots els camps."
+            : "Please fill in all fields.",
+      );
       return;
     }
 
     setIsSending(true);
-    const path = 'messages';
+    const path = "messages";
     try {
       await addDoc(collection(db, path), {
         ...contactForm,
-        subject: 'Contacto desde la web',
+        subject: "Contacto desde la web",
         isRead: false,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
       });
-      setContactForm({ name: '', email: '', message: '' });
-      alert(lang === 'es' ? 'Mensaje enviado correctamente.' : lang === 'ca' ? 'Missatge enviat correctament.' : 'Message sent successfully.');
+      setContactForm({ name: "", email: "", message: "" });
+      alert(
+        lang === "es"
+          ? "Mensaje enviado correctamente."
+          : lang === "ca"
+            ? "Missatge enviat correctament."
+            : "Message sent successfully.",
+      );
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
-      alert(lang === 'es' ? 'Error al enviar el mensaje.' : lang === 'ca' ? 'Error en enviar el missatge.' : 'Error sending message.');
+      alert(
+        lang === "es"
+          ? "Error al enviar el mensaje."
+          : lang === "ca"
+            ? "Error en enviar el missatge."
+            : "Error sending message.",
+      );
     } finally {
       setIsSending(false);
     }
   };
 
-  const currentIndex = selectedPhoto ? currentPhotoList.findIndex(p => p.id === selectedPhoto.id) : -1;
-  const handleNext = currentIndex >= 0 && currentIndex < currentPhotoList.length - 1 ? () => setSelectedPhoto(currentPhotoList[currentIndex + 1]) : undefined;
-  const handlePrev = currentIndex > 0 ? () => setSelectedPhoto(currentPhotoList[currentIndex - 1]) : undefined;
+  const currentIndex = selectedPhoto
+    ? currentPhotoList.findIndex((p) => p.id === selectedPhoto.id)
+    : -1;
+  const handleNext =
+    currentIndex >= 0 && currentIndex < currentPhotoList.length - 1
+      ? () => setSelectedPhoto(currentPhotoList[currentIndex + 1])
+      : undefined;
+  const handlePrev =
+    currentIndex > 0
+      ? () => setSelectedPhoto(currentPhotoList[currentIndex - 1])
+      : undefined;
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar lang={lang} setLang={setLang} currentSection={currentSection} onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} />
+      <Navbar
+        lang={lang}
+        setLang={setLang}
+        currentSection={currentSection}
+        onNavigate={(id) => {
+          setCurrentSection(id);
+          setSelectedJourney(null);
+        }}
+      />
 
       <main className="pt-20">
         <AnimatePresence mode="wait">
-          {currentSection === 'home' && (
-            <motion.section key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center justify-center">
+          {currentSection === "home" && (
+            <motion.section
+              key="home"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full flex flex-col items-center justify-center"
+            >
               <div className="relative h-screen w-full overflow-hidden bg-white">
                 {/* CAPA 1: Canvas 3D de fondo (z-index más bajo) */}
                 <div className="absolute inset-0 z-0">
-                  <InfiniteGallery 
-                    images={heroImages} 
+                  <InfiniteGallery
+                    images={heroImages}
                     visibleCount={isMobile ? 10 : 12}
                     speed={1.2}
                     className="h-full w-full"
@@ -568,36 +821,42 @@ function Gallery() {
 
                 {/* CAPA 2: Texto Hero centrado (z-index intermedio, pointer-events-none para no bloquear hover de imágenes) */}
                 <div className="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center text-center px-6 mix-blend-exclusion text-white">
-                  <motion.h1 
-                    initial={{ y: 20, opacity: 0 }} 
-                    animate={{ y: 0, opacity: 1 }} 
+                  <motion.h1
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
                     className="font-serif text-6xl md:text-7xl lg:text-8xl tracking-tighter mb-6"
                   >
-                    <span className="italic block leading-none">{s.titles.home}</span>
+                    <span className="italic block leading-none">
+                      {s.titles.home}
+                    </span>
                   </motion.h1>
-                  <motion.p 
-                    initial={{ y: 20, opacity: 0 }} 
-                    animate={{ y: 0, opacity: 1 }} 
-                    transition={{ delay: 0.1 }} 
+                  <motion.p
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
                     className="text-base md:text-xl font-light tracking-[0.2em] uppercase mb-10 text-white/90 max-w-[280px] md:max-w-none mx-auto leading-relaxed"
                   >
                     {s.subtitles.home}
                   </motion.p>
-                  
+
                   <div className="pointer-events-auto flex flex-col gap-4 items-center">
-                    <button 
-                      onClick={() => setCurrentSection('explore')} 
+                    <button
+                      onClick={() => setCurrentSection("explore")}
                       className="group relative px-12 py-4 bg-transparent border-2 border-white text-white text-xs font-bold uppercase tracking-[0.3em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 shadow-2xl"
                     >
-                      <span className="relative z-10 group-hover:text-black transition-colors duration-300">{s.nav[3]}</span>
+                      <span className="relative z-10 group-hover:text-black transition-colors duration-300">
+                        {s.nav[3]}
+                      </span>
                       <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
 
-                    <button 
-                      onClick={() => setCurrentSection('reviews')} 
+                    <button
+                      onClick={() => setCurrentSection("reviews")}
                       className="group relative px-10 py-3 bg-transparent border-2 border-white/50 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em] overflow-hidden rounded-full transition-all hover:scale-105 active:scale-95 hover:border-white hover:text-white"
                     >
-                      <span className="relative z-10 group-hover:text-black transition-colors duration-300">{s.labels.leaveReview}</span>
+                      <span className="relative z-10 group-hover:text-black transition-colors duration-300">
+                        {s.labels.leaveReview}
+                      </span>
                       <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
                   </div>
@@ -605,97 +864,228 @@ function Gallery() {
               </div>
 
               {/* Navigation Folders (3D Flip Cards) */}
-              <section id="navigation-folders" className="w-full py-8 bg-neutral-50 border-b border-neutral-200 overflow-hidden">
+              <section
+                id="navigation-folders"
+                className="w-full py-8 bg-neutral-50 border-b border-neutral-200 overflow-hidden"
+              >
                 <div className="container mx-auto px-6">
                   <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
-                      {lang === 'es' ? 'Explorar Colecciones' : lang === 'en' ? 'Explore Collections' : 'Explorar Col·leccions'}
+                      {lang === "es"
+                        ? "Explorar Colecciones"
+                        : lang === "en"
+                          ? "Explore Collections"
+                          : "Explorar Col·leccions"}
                     </h2>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
                     {[
-                      { 
-                        id: 'journeys', 
-                        title: s.nav[1], 
-                        desc: lang === 'es' ? 'Viajes' : lang === 'en' ? 'Journeys' : 'Viatges',
-                        images: getCollectionImages('journeys', journeysOnly.slice(0, 4).map(j => ({ src: j.coverUrl || (DB.length > 0 ? DB[0].url : ''), alt: j.title }))),
-                        count: journeysOnly.length
+                      {
+                        id: "journeys",
+                        title: s.nav[1],
+                        desc:
+                          lang === "es"
+                            ? "Viajes"
+                            : lang === "en"
+                              ? "Journeys"
+                              : "Viatges",
+                        images: getCollectionImages(
+                          "journeys",
+                          journeysOnly
+                            .slice(0, 4)
+                            .map((j) => ({
+                              src:
+                                j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
+                              alt: j.title,
+                            })),
+                        ),
+                        count: journeysOnly.length,
                       },
-                      { 
-                        id: 'collections', 
-                        title: lang === 'es' ? 'COLECCIONES' : lang === 'en' ? 'COLLECTIONS' : 'COL·LECCIONS', 
-                        desc: lang === 'es' ? 'Colecciones' : lang === 'en' ? 'Collections' : 'Col·leccions',
-                        images: getCollectionImages('collections', journeysOnly.slice(0, 4).map(j => ({ src: j.coverUrl || (DB.length > 0 ? DB[0].url : ''), alt: j.title }))),
-                        count: journeysOnly.length
+                      {
+                        id: "collections",
+                        title:
+                          lang === "es"
+                            ? "COLECCIONES"
+                            : lang === "en"
+                              ? "COLLECTIONS"
+                              : "COL·LECCIONS",
+                        desc:
+                          lang === "es"
+                            ? "Colecciones"
+                            : lang === "en"
+                              ? "Collections"
+                              : "Col·leccions",
+                        images: getCollectionImages(
+                          "collections",
+                          journeysOnly
+                            .slice(0, 4)
+                            .map((j) => ({
+                              src:
+                                j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
+                              alt: j.title,
+                            })),
+                        ),
+                        count: journeysOnly.length,
                       },
-                      { 
-                        id: 'special-sessions', 
-                        title: s.nav[2], 
-                        desc: lang === 'es' ? 'Sesiones Especiales' : lang === 'ca' ? 'Sessions Especiales' : 'Special Sessions',
-                        images: getCollectionImages('special-sessions', specialSessionsOnly.slice(0, 4).map(j => ({ src: j.coverUrl || (DB.length > 0 ? DB[0].url : ''), alt: j.title }))),
-                        count: specialSessionsOnly.length
+                      {
+                        id: "special-sessions",
+                        title: s.nav[2],
+                        desc:
+                          lang === "es"
+                            ? "Sesiones Especiales"
+                            : lang === "ca"
+                              ? "Sessions Especiales"
+                              : "Special Sessions",
+                        images: getCollectionImages(
+                          "special-sessions",
+                          specialSessionsOnly
+                            .slice(0, 4)
+                            .map((j) => ({
+                              src:
+                                j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
+                              alt: j.title,
+                            })),
+                        ),
+                        count: specialSessionsOnly.length,
                       },
-                      { 
-                        id: 'explore', 
-                        title: s.nav[3], 
-                        desc: lang === 'es' ? 'Archivo completo' : lang === 'ca' ? 'Arxiu complet' : 'Full archive',
-                        images: getCollectionImages('explore', DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
-                        count: DB.length
+                      {
+                        id: "explore",
+                        title: s.nav[3],
+                        desc:
+                          lang === "es"
+                            ? "Archivo completo"
+                            : lang === "ca"
+                              ? "Arxiu complet"
+                              : "Full archive",
+                        images: getCollectionImages(
+                          "explore",
+                          DB.slice(0, 4).map((p) => ({
+                            src: p.url,
+                            alt: p.title,
+                          })),
+                        ),
+                        count: DB.length,
                       },
-                      { 
-                        id: 'favorites', 
-                        title: s.nav[4], 
-                        desc: lang === 'es' ? 'Selección' : lang === 'ca' ? 'Selecció' : 'Selection',
-                        images: getCollectionImages('favorites', DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
-                        count: DB.filter(p => p.isFavorite).length
+                      {
+                        id: "favorites",
+                        title: s.nav[4],
+                        desc:
+                          lang === "es"
+                            ? "Selección"
+                            : lang === "ca"
+                              ? "Selecció"
+                              : "Selection",
+                        images: getCollectionImages(
+                          "favorites",
+                          DB.filter((p) => p.isFavorite)
+                            .sort(
+                              (a, b) =>
+                                (b.favoriteScore || 0) - (a.favoriteScore || 0),
+                            )
+                            .slice(0, 4)
+                            .map((p) => ({ src: p.url, alt: p.title })),
+                        ),
+                        count: DB.filter((p) => p.isFavorite).length,
                       },
-                      { 
-                        id: 'latest', 
-                        title: lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest', 
-                        desc: lang === 'es' ? 'Recientes' : lang === 'ca' ? 'Recents' : 'Recent',
-                        images: getCollectionImages('latest', DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
-                        count: Math.min(DB.length, 100)
+                      {
+                        id: "latest",
+                        title:
+                          lang === "es"
+                            ? "Últimas"
+                            : lang === "ca"
+                              ? "Últimes"
+                              : "Latest",
+                        desc:
+                          lang === "es"
+                            ? "Recientes"
+                            : lang === "ca"
+                              ? "Recents"
+                              : "Recent",
+                        images: getCollectionImages(
+                          "latest",
+                          DB.slice(0, 4).map((p) => ({
+                            src: p.url,
+                            alt: p.title,
+                          })),
+                        ),
+                        count: Math.min(DB.length, 100),
                       },
-                      { 
-                        id: 'recent', 
-                        title: lang === 'es' ? 'RECIENTES' : lang === 'en' ? 'RECENT' : 'RECENTS', 
-                        desc: lang === 'es' ? 'Recientes' : lang === 'ca' ? 'Recents' : 'Recent',
-                        images: getCollectionImages('recent', DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
-                        count: DB.length
+                      {
+                        id: "recent",
+                        title:
+                          lang === "es"
+                            ? "RECIENTES"
+                            : lang === "en"
+                              ? "RECENT"
+                              : "RECENTS",
+                        desc:
+                          lang === "es"
+                            ? "Recientes"
+                            : lang === "ca"
+                              ? "Recents"
+                              : "Recent",
+                        images: getCollectionImages(
+                          "recent",
+                          DB.slice(0, 4).map((p) => ({
+                            src: p.url,
+                            alt: p.title,
+                          })),
+                        ),
+                        count: DB.length,
                       },
-                      { 
-                        id: 'lfi', 
-                        title: s.nav[5], 
-                        desc: 'Leica Gallery',
-                        images: getCollectionImages('lfi', DB.filter(p => p.isLFI).slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
-                        count: DB.filter(p => p.isLFI).length
+                      {
+                        id: "lfi",
+                        title: s.nav[5],
+                        desc: "Leica Gallery",
+                        images: getCollectionImages(
+                          "lfi",
+                          DB.filter((p) => p.isLFI)
+                            .slice(0, 4)
+                            .map((p) => ({ src: p.url, alt: p.title })),
+                        ),
+                        count: DB.filter((p) => p.isLFI).length,
                       },
-                      { 
-                        id: 'about', 
-                        title: lang === 'es' ? 'Sobre mí' : lang === 'ca' ? 'Sobre mi' : 'About me', 
-                        desc: 'Pep Amores',
-                        images: [{ src: 'https://i.imgur.com/diHGiy8.jpg', alt: 'Pep Amores' }],
+                      {
+                        id: "about",
+                        title:
+                          lang === "es"
+                            ? "Sobre mí"
+                            : lang === "ca"
+                              ? "Sobre mi"
+                              : "About me",
+                        desc: "Pep Amores",
+                        images: [
+                          {
+                            src: "https://i.imgur.com/diHGiy8.jpg",
+                            alt: "Pep Amores",
+                          },
+                        ],
                         count: 0,
-                        isSingle: true
-                      }
+                        isSingle: true,
+                      },
                     ].map((item, index) => {
                       if (item.isSingle) {
                         return (
-                          <div key={item.id} className="flex flex-col items-center">
+                          <div
+                            key={item.id}
+                            className="flex flex-col items-center"
+                          >
                             <div className="flex justify-center items-center py-8">
-                              <div 
+                              <div
                                 onClick={() => {
-                                  if (item.id === 'collections') setCurrentSection('journeys');
-                                  else if (item.id === 'recent') setCurrentSection('latest');
+                                  if (item.id === "collections")
+                                    setCurrentSection("journeys");
+                                  else if (item.id === "recent")
+                                    setCurrentSection("latest");
                                   else setCurrentSection(item.id);
                                 }}
                                 className="relative cursor-pointer group"
                                 style={{ width: 220, height: 280 }}
                               >
                                 <div className="absolute inset-0 bg-neutral-100 rounded-xl overflow-hidden shadow-lg transition-transform duration-500 group-hover:scale-[1.02] group-hover:-translate-y-2">
-                                  <img 
-                                    src={item.images[0].src} 
-                                    alt={item.images[0].alt} 
+                                  <img
+                                    src={item.images[0].src}
+                                    alt={item.images[0].alt}
                                     className="w-full h-full object-cover"
                                     referrerPolicy="no-referrer"
                                   />
@@ -704,15 +1094,27 @@ function Gallery() {
                               </div>
                             </div>
                             <div className="mt-6 text-center z-10">
-                              <h3 className="font-serif italic text-2xl mb-2">{item.title}</h3>
-                              <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{item.desc}</p>
-                              <FlowButton 
+                              <h3 className="font-serif italic text-2xl mb-2">
+                                {item.title}
+                              </h3>
+                              <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
+                                {item.desc}
+                              </p>
+                              <FlowButton
                                 onClick={() => {
-                                  if (item.id === 'collections') setCurrentSection('journeys');
-                                  else if (item.id === 'recent') setCurrentSection('latest');
+                                  if (item.id === "collections")
+                                    setCurrentSection("journeys");
+                                  else if (item.id === "recent")
+                                    setCurrentSection("latest");
                                   else setCurrentSection(item.id);
                                 }}
-                                text={lang === 'es' ? 'Ver sección' : lang === 'en' ? 'View section' : 'Veure secció'}
+                                text={
+                                  lang === "es"
+                                    ? "Ver sección"
+                                    : lang === "en"
+                                      ? "View section"
+                                      : "Veure secció"
+                                }
                               />
                             </div>
                           </div>
@@ -720,42 +1122,78 @@ function Gallery() {
                       }
 
                       // Aseguramos tener exactamente 4 imágenes para que el efecto se vea bien
-                      let stackImages = item.images.length >= 4 
-                        ? item.images.slice(0, 4) 
-                        : [...item.images, ...DB.slice(0, 4 - item.images.length).map(p => ({ src: p.url, alt: p.title }))];
-                      
+                      let stackImages =
+                        item.images.length >= 4
+                          ? item.images.slice(0, 4)
+                          : [
+                              ...item.images,
+                              ...DB.slice(0, 4 - item.images.length).map(
+                                (p) => ({ src: p.url, alt: p.title }),
+                              ),
+                            ];
+
                       // Si aún no hay 4 (porque la base de datos está vacía o tiene pocas fotos), usamos PREVIEW_ITEMS solo si realDB está vacío
-                      if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
-                        const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
+                      if (
+                        stackImages.length < 4 &&
+                        realDB.length === 0 &&
+                        !photosLoading
+                      ) {
+                        const fallback = PREVIEW_ITEMS.map((p) => ({
+                          src: p.photo.url,
+                          alt: p.photo.text,
+                        }));
                         // Rotamos el array de fallback según el índice para que cada carpeta muestre fotos distintas
-                        const rotatedFallback = [...fallback.slice(index % fallback.length), ...fallback.slice(0, index % fallback.length)];
-                        stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
+                        const rotatedFallback = [
+                          ...fallback.slice(index % fallback.length),
+                          ...fallback.slice(0, index % fallback.length),
+                        ];
+                        stackImages = [
+                          ...stackImages,
+                          ...rotatedFallback.slice(0, 4 - stackImages.length),
+                        ];
                       }
-                      
+
                       return (
-                        <div key={item.id} className="flex flex-col items-center">
-                          <CardStack3D 
-                            images={stackImages} 
+                        <div
+                          key={item.id}
+                          className="flex flex-col items-center"
+                        >
+                          <CardStack3D
+                            images={stackImages}
                             cardWidth={220}
                             cardHeight={280}
                             spacing={{ x: 30, y: 30 }}
                             onCardClick={() => {
-                              if (item.id === 'collections') setCurrentSection('journeys');
-                              else if (item.id === 'recent') setCurrentSection('latest');
+                              if (item.id === "collections")
+                                setCurrentSection("journeys");
+                              else if (item.id === "recent")
+                                setCurrentSection("latest");
                               else setCurrentSection(item.id);
                             }}
                             photoCount={item.count}
                           />
                           <div className="mt-6 text-center z-10">
-                            <h3 className="font-serif italic text-2xl mb-2">{item.title}</h3>
-                            <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">{item.desc}</p>
-                            <FlowButton 
+                            <h3 className="font-serif italic text-2xl mb-2">
+                              {item.title}
+                            </h3>
+                            <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
+                              {item.desc}
+                            </p>
+                            <FlowButton
                               onClick={() => {
-                                if (item.id === 'collections') setCurrentSection('journeys');
-                                else if (item.id === 'recent') setCurrentSection('latest');
+                                if (item.id === "collections")
+                                  setCurrentSection("journeys");
+                                else if (item.id === "recent")
+                                  setCurrentSection("latest");
                                 else setCurrentSection(item.id);
                               }}
-                              text={lang === 'es' ? 'Ver sección' : lang === 'en' ? 'View section' : 'Veure secció'}
+                              text={
+                                lang === "es"
+                                  ? "Ver sección"
+                                  : lang === "en"
+                                    ? "View section"
+                                    : "Veure secció"
+                              }
                             />
                           </div>
                         </div>
@@ -766,7 +1204,10 @@ function Gallery() {
               </section>
 
               <div className="container mx-auto px-6">
-                <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
+                <ReviewsSection
+                  lang={lang}
+                  onSeeMore={() => setCurrentSection("reviews")}
+                />
               </div>
 
               {/* Featured Journeys */}
@@ -774,47 +1215,107 @@ function Gallery() {
                 <div className="container mx-auto px-6">
                   <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div>
-                      <h2 className="text-4xl md:text-5xl font-serif italic mb-4">{s.titles.journeys}</h2>
+                      <h2 className="text-4xl md:text-5xl font-serif italic mb-4">
+                        {s.titles.journeys}
+                      </h2>
                       <p className="text-brand-secondary font-light max-w-xl">
-                        {lang === 'es' ? 'Explora el mundo a través de colecciones fotográficas únicas.' : lang === 'en' ? 'Explore the world through unique photographic collections.' : 'Explora el món a través de col·leccions fotogràfiques úniques.'}
+                        {lang === "es"
+                          ? "Explora el mundo a través de colecciones fotográficas únicas."
+                          : lang === "en"
+                            ? "Explore the world through unique photographic collections."
+                            : "Explora el món a través de col·leccions fotogràfiques úniques."}
                       </p>
                     </div>
-                    <button onClick={() => setCurrentSection('journeys')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-primary hover:text-brand-accent transition-colors">
-                      {lang === 'es' ? 'Ver todos los viajes' : lang === 'en' ? 'View all journeys' : 'Veure tots els viatges'} <ChevronRight size={16} />
+                    <button
+                      onClick={() => setCurrentSection("journeys")}
+                      className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-primary hover:text-brand-accent transition-colors"
+                    >
+                      {lang === "es"
+                        ? "Ver todos los viajes"
+                        : lang === "en"
+                          ? "View all journeys"
+                          : "Veure tots els viatges"}{" "}
+                      <ChevronRight size={16} />
                     </button>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
-                    {journeysOnly.slice(0, 3).map(journey => {
-                      const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
-                      let stackImages = journeyPhotos.map(p => ({ src: p.url, alt: p.title }));
-                      
-                      if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
-                        const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
-                        const rotatedFallback = [...fallback.slice(journeysOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, journeysOnly.indexOf(journey) % fallback.length)];
-                        stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
+                    {journeysOnly.slice(0, 3).map((journey) => {
+                      const journeyPhotos = DB.filter(
+                        (p) => p.journeyId === journey.id,
+                      );
+                      let stackImages = journeyPhotos.map((p) => ({
+                        src: p.url,
+                        alt: p.title,
+                      }));
+
+                      if (
+                        stackImages.length < 4 &&
+                        realDB.length === 0 &&
+                        !photosLoading
+                      ) {
+                        const fallback = PREVIEW_ITEMS.map((p) => ({
+                          src: p.photo.url,
+                          alt: p.photo.text,
+                        }));
+                        const rotatedFallback = [
+                          ...fallback.slice(
+                            journeysOnly.indexOf(journey) % fallback.length,
+                          ),
+                          ...fallback.slice(
+                            0,
+                            journeysOnly.indexOf(journey) % fallback.length,
+                          ),
+                        ];
+                        stackImages = [
+                          ...stackImages,
+                          ...rotatedFallback.slice(0, 4 - stackImages.length),
+                        ];
                       }
-                      
+
                       return (
-                        <div key={journey.id} className="flex flex-col items-center">
-                          <CardStack3D 
-                            images={stackImages.slice(0, 4)} 
+                        <div
+                          key={journey.id}
+                          className="flex flex-col items-center"
+                        >
+                          <CardStack3D
+                            images={stackImages.slice(0, 4)}
                             cardWidth={220}
                             cardHeight={280}
                             spacing={{ x: 30, y: 30 }}
-                            onCardClick={() => { setSelectedJourney(journey); setCurrentSection('journeys'); }}
+                            onCardClick={() => {
+                              setSelectedJourney(journey);
+                              setCurrentSection("journeys");
+                            }}
                             photoCount={journeyPhotos.length}
                           />
                           <div className="mt-6 text-center z-10">
                             <h3 className="font-serif italic text-2xl mb-2">
-                              {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
+                              {lang === "es"
+                                ? journey.title
+                                : lang === "en"
+                                  ? journey.title_en || journey.title
+                                  : journey.title_ca || journey.title}
                             </h3>
                             <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
-                              {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
+                              {lang === "es"
+                                ? journey.country
+                                : lang === "en"
+                                  ? journey.country_en || journey.country
+                                  : journey.country_ca || journey.country}
                             </p>
-                            <FlowButton 
-                              onClick={() => { setSelectedJourney(journey); setCurrentSection('journeys'); }}
-                              text={lang === 'es' ? 'Ver viaje' : lang === 'en' ? 'View journey' : 'Veure viatge'}
+                            <FlowButton
+                              onClick={() => {
+                                setSelectedJourney(journey);
+                                setCurrentSection("journeys");
+                              }}
+                              text={
+                                lang === "es"
+                                  ? "Ver viaje"
+                                  : lang === "en"
+                                    ? "View journey"
+                                    : "Veure viatge"
+                              }
                             />
                           </div>
                         </div>
@@ -826,184 +1327,415 @@ function Gallery() {
             </motion.section>
           )}
 
-          {currentSection === 'journeys' && !selectedJourney && (
-            <motion.section key="journeys" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "journeys" && !selectedJourney && (
+            <motion.section
+              key="journeys"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <div className="text-center mb-16">
-                <h1 className="text-5xl font-serif italic mb-4">{s.titles.journeys}</h1>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
-                {journeysOnly.map(journey => {
-                  const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
-                  let stackImages: { src: string, alt: string }[] = [];
-                  
-                  if (journey.coverUrl) {
-                    stackImages.push({ src: journey.coverUrl, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) });
-                    if (journey.hoverImages) {
-                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) })));
-                    }
-                  }
-
-                  if (stackImages.length < 4) {
-                    const additional = journeyPhotos
-                      .filter(p => p.url !== journey.coverUrl && !journey.hoverImages?.includes(p.url))
-                      .map(p => ({ src: p.url, alt: p.title }));
-                    stackImages = [...stackImages, ...additional].slice(0, 4);
-                  }
-                  
-                  if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
-                    const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
-                    const rotatedFallback = [...fallback.slice(journeysOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, journeysOnly.indexOf(journey) % fallback.length)];
-                    stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
-                  }
-                  
-                  return (
-                    <div key={journey.id} className="flex flex-col items-center">
-                      <CardStack3D 
-                        images={stackImages.slice(0, 4)} 
-                        cardWidth={220}
-                        cardHeight={280}
-                        spacing={{ x: 30, y: 30 }}
-                        onCardClick={() => setSelectedJourney(journey)}
-                        photoCount={journeyPhotos.length}
-                      />
-                      <div className="mt-6 text-center z-10">
-                        <h3 className="font-serif italic text-2xl mb-2">
-                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
-                        </h3>
-                        <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
-                          {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
-                        </p>
-                        <FlowButton 
-                          onClick={() => setSelectedJourney(journey)}
-                          text={lang === 'es' ? 'Ver viaje' : lang === 'en' ? 'View journey' : 'Veure viatge'}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.section>
-          )}
-
-          {currentSection === 'special-sessions' && !selectedJourney && (
-            <motion.section key="special-sessions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
-              <div className="text-center mb-16">
-                <h1 className="text-5xl font-serif italic mb-4">{s.titles.specialSessions}</h1>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
-                {specialSessionsOnly.map(journey => {
-                  const journeyPhotos = DB.filter(p => p.journeyId === journey.id);
-                  let stackImages: { src: string, alt: string }[] = [];
-                  
-                  if (journey.coverUrl) {
-                    stackImages.push({ src: journey.coverUrl, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) });
-                    if (journey.hoverImages) {
-                      stackImages.push(...journey.hoverImages.map(url => ({ src: url, alt: lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title) })));
-                    }
-                  }
-
-                  if (stackImages.length < 4) {
-                    const additional = journeyPhotos
-                      .filter(p => p.url !== journey.coverUrl && !journey.hoverImages?.includes(p.url))
-                      .map(p => ({ src: p.url, alt: p.title }));
-                    stackImages = [...stackImages, ...additional].slice(0, 4);
-                  }
-                  
-                  if (stackImages.length < 4 && realDB.length === 0 && !photosLoading) {
-                    const fallback = PREVIEW_ITEMS.map(p => ({ src: p.photo.url, alt: p.photo.text }));
-                    const rotatedFallback = [...fallback.slice(specialSessionsOnly.indexOf(journey) % fallback.length), ...fallback.slice(0, specialSessionsOnly.indexOf(journey) % fallback.length)];
-                    stackImages = [...stackImages, ...rotatedFallback.slice(0, 4 - stackImages.length)];
-                  }
-                  
-                  return (
-                    <div key={journey.id} className="flex flex-col items-center">
-                      <CardStack3D 
-                        images={stackImages.slice(0, 4)} 
-                        cardWidth={220}
-                        cardHeight={280}
-                        spacing={{ x: 30, y: 30 }}
-                        onCardClick={() => setSelectedJourney(journey)}
-                        photoCount={journeyPhotos.length}
-                      />
-                      <div className="mt-6 text-center z-10">
-                        <h3 className="font-serif italic text-2xl mb-2">
-                          {lang === 'es' ? journey.title : lang === 'en' ? (journey.title_en || journey.title) : (journey.title_ca || journey.title)}
-                        </h3>
-                        <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
-                          {lang === 'es' ? journey.country : lang === 'en' ? (journey.country_en || journey.country) : (journey.country_ca || journey.country)}
-                        </p>
-                        <FlowButton 
-                          onClick={() => setSelectedJourney(journey)}
-                          text={lang === 'es' ? 'Ver álbum' : lang === 'en' ? 'View album' : 'Veure àlbum'}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.section>
-          )}
-
-          {(currentSection === 'journeys' || currentSection === 'special-sessions') && selectedJourney && (
-            <motion.section key={`journey-${selectedJourney.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
-              <button onClick={() => setSelectedJourney(null)} className="mb-12 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors">
-                <ChevronRight size={12} className="rotate-180" />
-                {currentSection === 'special-sessions' 
-                  ? (lang === 'es' ? 'Volver a Sesiones Especiales' : lang === 'en' ? 'Back to Special Sessions' : 'Tornar a Sessions Especiales')
-                  : (lang === 'es' ? 'Volver a Viajes' : lang === 'en' ? 'Back to Journeys' : 'Tornar a Viatges')}
-              </button>
-              <div className="max-w-4xl mx-auto mb-16 text-center">
-                <h1 className="text-6xl font-serif italic mb-6">
-                  {lang === 'es' ? selectedJourney.title : lang === 'en' ? (selectedJourney.title_en || selectedJourney.title) : (selectedJourney.title_ca || selectedJourney.title)}
+                <h1 className="text-5xl font-serif italic mb-4">
+                  {s.titles.journeys}
                 </h1>
-                <p className="text-lg text-brand-secondary font-light leading-relaxed mb-8">
-                  {lang === 'es' ? selectedJourney.intro : lang === 'en' ? (selectedJourney.intro_en || selectedJourney.intro) : (selectedJourney.intro_ca || selectedJourney.intro)}
-                </p>
-                <div className="flex justify-center gap-4">
-                  {((lang === 'es' ? selectedJourney.subthemes : lang === 'en' ? (selectedJourney.subthemes_en || selectedJourney.subthemes) : (selectedJourney.subthemes_ca || selectedJourney.subthemes)) || []).map((st, i) => (
-                    <span key={i} className="px-4 py-2 bg-neutral-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-secondary">
-                      {st}
-                    </span>
-                  ))}
-                </div>
               </div>
-              <div className="justified-gallery">
-                {DB.filter(p => p.journeyId === selectedJourney.id).map(photo => (
-                  <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
+                {journeysOnly.map((journey) => {
+                  const journeyPhotos = DB.filter(
+                    (p) => p.journeyId === journey.id,
+                  );
+                  let stackImages: { src: string; alt: string }[] = [];
+
+                  if (journey.coverUrl) {
+                    stackImages.push({
+                      src: journey.coverUrl,
+                      alt:
+                        lang === "es"
+                          ? journey.title
+                          : lang === "en"
+                            ? journey.title_en || journey.title
+                            : journey.title_ca || journey.title,
+                    });
+                    if (journey.hoverImages) {
+                      stackImages.push(
+                        ...journey.hoverImages.map((url) => ({
+                          src: url,
+                          alt:
+                            lang === "es"
+                              ? journey.title
+                              : lang === "en"
+                                ? journey.title_en || journey.title
+                                : journey.title_ca || journey.title,
+                        })),
+                      );
+                    }
+                  }
+
+                  if (stackImages.length < 4) {
+                    const additional = journeyPhotos
+                      .filter(
+                        (p) =>
+                          p.url !== journey.coverUrl &&
+                          !journey.hoverImages?.includes(p.url),
+                      )
+                      .map((p) => ({ src: p.url, alt: p.title }));
+                    stackImages = [...stackImages, ...additional].slice(0, 4);
+                  }
+
+                  if (
+                    stackImages.length < 4 &&
+                    realDB.length === 0 &&
+                    !photosLoading
+                  ) {
+                    const fallback = PREVIEW_ITEMS.map((p) => ({
+                      src: p.photo.url,
+                      alt: p.photo.text,
+                    }));
+                    const rotatedFallback = [
+                      ...fallback.slice(
+                        journeysOnly.indexOf(journey) % fallback.length,
+                      ),
+                      ...fallback.slice(
+                        0,
+                        journeysOnly.indexOf(journey) % fallback.length,
+                      ),
+                    ];
+                    stackImages = [
+                      ...stackImages,
+                      ...rotatedFallback.slice(0, 4 - stackImages.length),
+                    ];
+                  }
+
+                  return (
+                    <div
+                      key={journey.id}
+                      className="flex flex-col items-center"
+                    >
+                      <CardStack3D
+                        images={stackImages.slice(0, 4)}
+                        cardWidth={220}
+                        cardHeight={280}
+                        spacing={{ x: 30, y: 30 }}
+                        onCardClick={() => setSelectedJourney(journey)}
+                        photoCount={journeyPhotos.length}
+                      />
+                      <div className="mt-6 text-center z-10">
+                        <h3 className="font-serif italic text-2xl mb-2">
+                          {lang === "es"
+                            ? journey.title
+                            : lang === "en"
+                              ? journey.title_en || journey.title
+                              : journey.title_ca || journey.title}
+                        </h3>
+                        <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
+                          {lang === "es"
+                            ? journey.country
+                            : lang === "en"
+                              ? journey.country_en || journey.country
+                              : journey.country_ca || journey.country}
+                        </p>
+                        <FlowButton
+                          onClick={() => setSelectedJourney(journey)}
+                          text={
+                            lang === "es"
+                              ? "Ver viaje"
+                              : lang === "en"
+                                ? "View journey"
+                                : "Veure viatge"
+                          }
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <CommentSection targetId={selectedJourney.id} targetType="journey" lang={lang} isDark={false} imageUrl={selectedJourney.coverUrl} />
             </motion.section>
           )}
 
-          {currentSection === 'explore' && (
-            <motion.section key="explore" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "special-sessions" && !selectedJourney && (
+            <motion.section
+              key="special-sessions"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
+              <div className="text-center mb-16">
+                <h1 className="text-5xl font-serif italic mb-4">
+                  {s.titles.specialSessions}
+                </h1>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20 max-w-6xl mx-auto">
+                {specialSessionsOnly.map((journey) => {
+                  const journeyPhotos = DB.filter(
+                    (p) => p.journeyId === journey.id,
+                  );
+                  let stackImages: { src: string; alt: string }[] = [];
+
+                  if (journey.coverUrl) {
+                    stackImages.push({
+                      src: journey.coverUrl,
+                      alt:
+                        lang === "es"
+                          ? journey.title
+                          : lang === "en"
+                            ? journey.title_en || journey.title
+                            : journey.title_ca || journey.title,
+                    });
+                    if (journey.hoverImages) {
+                      stackImages.push(
+                        ...journey.hoverImages.map((url) => ({
+                          src: url,
+                          alt:
+                            lang === "es"
+                              ? journey.title
+                              : lang === "en"
+                                ? journey.title_en || journey.title
+                                : journey.title_ca || journey.title,
+                        })),
+                      );
+                    }
+                  }
+
+                  if (stackImages.length < 4) {
+                    const additional = journeyPhotos
+                      .filter(
+                        (p) =>
+                          p.url !== journey.coverUrl &&
+                          !journey.hoverImages?.includes(p.url),
+                      )
+                      .map((p) => ({ src: p.url, alt: p.title }));
+                    stackImages = [...stackImages, ...additional].slice(0, 4);
+                  }
+
+                  if (
+                    stackImages.length < 4 &&
+                    realDB.length === 0 &&
+                    !photosLoading
+                  ) {
+                    const fallback = PREVIEW_ITEMS.map((p) => ({
+                      src: p.photo.url,
+                      alt: p.photo.text,
+                    }));
+                    const rotatedFallback = [
+                      ...fallback.slice(
+                        specialSessionsOnly.indexOf(journey) % fallback.length,
+                      ),
+                      ...fallback.slice(
+                        0,
+                        specialSessionsOnly.indexOf(journey) % fallback.length,
+                      ),
+                    ];
+                    stackImages = [
+                      ...stackImages,
+                      ...rotatedFallback.slice(0, 4 - stackImages.length),
+                    ];
+                  }
+
+                  return (
+                    <div
+                      key={journey.id}
+                      className="flex flex-col items-center"
+                    >
+                      <CardStack3D
+                        images={stackImages.slice(0, 4)}
+                        cardWidth={220}
+                        cardHeight={280}
+                        spacing={{ x: 30, y: 30 }}
+                        onCardClick={() => setSelectedJourney(journey)}
+                        photoCount={journeyPhotos.length}
+                      />
+                      <div className="mt-6 text-center z-10">
+                        <h3 className="font-serif italic text-2xl mb-2">
+                          {lang === "es"
+                            ? journey.title
+                            : lang === "en"
+                              ? journey.title_en || journey.title
+                              : journey.title_ca || journey.title}
+                        </h3>
+                        <p className="text-[10px] uppercase tracking-widest text-brand-secondary mb-4">
+                          {lang === "es"
+                            ? journey.country
+                            : lang === "en"
+                              ? journey.country_en || journey.country
+                              : journey.country_ca || journey.country}
+                        </p>
+                        <FlowButton
+                          onClick={() => setSelectedJourney(journey)}
+                          text={
+                            lang === "es"
+                              ? "Ver álbum"
+                              : lang === "en"
+                                ? "View album"
+                                : "Veure àlbum"
+                          }
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.section>
+          )}
+
+          {(currentSection === "journeys" ||
+            currentSection === "special-sessions") &&
+            selectedJourney && (
+              <motion.section
+                key={`journey-${selectedJourney.id}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="container mx-auto px-6 py-12"
+              >
+                <button
+                  onClick={() => setSelectedJourney(null)}
+                  className="mb-12 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary hover:text-brand-primary transition-colors"
+                >
+                  <ChevronRight size={12} className="rotate-180" />
+                  {currentSection === "special-sessions"
+                    ? lang === "es"
+                      ? "Volver a Sesiones Especiales"
+                      : lang === "en"
+                        ? "Back to Special Sessions"
+                        : "Tornar a Sessions Especiales"
+                    : lang === "es"
+                      ? "Volver a Viajes"
+                      : lang === "en"
+                        ? "Back to Journeys"
+                        : "Tornar a Viatges"}
+                </button>
+                <div className="max-w-4xl mx-auto mb-16 text-center">
+                  <h1 className="text-6xl font-serif italic mb-6">
+                    {lang === "es"
+                      ? selectedJourney.title
+                      : lang === "en"
+                        ? selectedJourney.title_en || selectedJourney.title
+                        : selectedJourney.title_ca || selectedJourney.title}
+                  </h1>
+                  <p className="text-lg text-brand-secondary font-light leading-relaxed mb-8">
+                    {lang === "es"
+                      ? selectedJourney.intro
+                      : lang === "en"
+                        ? selectedJourney.intro_en || selectedJourney.intro
+                        : selectedJourney.intro_ca || selectedJourney.intro}
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    {(
+                      (lang === "es"
+                        ? selectedJourney.subthemes
+                        : lang === "en"
+                          ? selectedJourney.subthemes_en ||
+                            selectedJourney.subthemes
+                          : selectedJourney.subthemes_ca ||
+                            selectedJourney.subthemes) || []
+                    ).map((st, i) => (
+                      <span
+                        key={i}
+                        className="px-4 py-2 bg-neutral-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-brand-secondary"
+                      >
+                        {st}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="justified-gallery">
+                  {DB.filter((p) => p.journeyId === selectedJourney.id).map(
+                    (photo) => (
+                      <PhotoCard
+                        lang={lang}
+                        key={photo.id}
+                        photo={photo}
+                        onClick={(id) =>
+                          setSelectedPhoto(DB.find((p) => p.id === id) || null)
+                        }
+                      />
+                    ),
+                  )}
+                </div>
+                <CommentSection
+                  targetId={selectedJourney.id}
+                  targetType="journey"
+                  lang={lang}
+                  isDark={false}
+                  imageUrl={selectedJourney.coverUrl}
+                />
+              </motion.section>
+            )}
+
+          {currentSection === "explore" && (
+            <motion.section
+              key="explore"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <div className="max-w-3xl mx-auto mb-16">
                 <div className="relative mb-8 group">
-                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-secondary group-focus-within:text-brand-primary transition-colors" size={20} />
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={s.labels.search} className="w-full pl-16 pr-6 py-6 bg-neutral-50 border-none rounded-2xl text-xl font-light focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none" />
+                  <Search
+                    className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-secondary group-focus-within:text-brand-primary transition-colors"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={s.labels.search}
+                    className="w-full pl-16 pr-6 py-6 bg-neutral-50 border-none rounded-2xl text-xl font-light focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none"
+                  />
                 </div>
-                
+
                 <div className="mb-10 bg-neutral-50 p-6 md:p-8 rounded-3xl border border-neutral-100">
                   <div className="flex flex-col items-center mb-8">
                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-brand-accent mb-4 text-center">
-                      {lang === 'es' ? 'Modo de combinación de Hashtags' : lang === 'en' ? 'Hashtag Combination Mode' : 'Mode de combinació de Hashtags'}
+                      {lang === "es"
+                        ? "Modo de combinación de Hashtags"
+                        : lang === "en"
+                          ? "Hashtag Combination Mode"
+                          : "Mode de combinació de Hashtags"}
                     </h3>
                     <div className="flex bg-gray-100/50 p-1.5 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50 w-full max-w-md mx-auto">
                       {[
-                        { id: 'and', label: lang === 'es' ? 'Todas (Y)' : lang === 'en' ? 'All (AND)' : 'Totes (I)' },
-                        { id: 'or', label: lang === 'es' ? 'Cualquiera (O)' : lang === 'en' ? 'Any (OR)' : 'Qualsevol (O)' }
-                      ].map(tab => (
-                        <button 
+                        {
+                          id: "and",
+                          label:
+                            lang === "es"
+                              ? "Todas (Y)"
+                              : lang === "en"
+                                ? "All (AND)"
+                                : "Totes (I)",
+                        },
+                        {
+                          id: "or",
+                          label:
+                            lang === "es"
+                              ? "Cualquiera (O)"
+                              : lang === "en"
+                                ? "Any (OR)"
+                                : "Qualsevol (O)",
+                        },
+                      ].map((tab) => (
+                        <button
                           key={tab.id}
                           onClick={() => setFilterLogic(tab.id as any)}
-                          className={cn("relative flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors z-10", filterLogic === tab.id ? "text-[#B45309]" : "text-gray-500 hover:text-[#B45309]")}
+                          className={cn(
+                            "relative flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors z-10",
+                            filterLogic === tab.id
+                              ? "text-[#B45309]"
+                              : "text-gray-500 hover:text-[#B45309]",
+                          )}
                         >
                           {filterLogic === tab.id && (
-                            <motion.div 
-                              layoutId="logicPill" 
+                            <motion.div
+                              layoutId="logicPill"
                               className="absolute inset-0 bg-[#B45309]/10 backdrop-blur-sm rounded-full -z-10 shadow-sm border border-[#B45309]/20"
-                              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 400,
+                                damping: 30,
+                              }}
                             />
                           )}
                           {tab.label}
@@ -1011,24 +1743,46 @@ function Gallery() {
                       ))}
                     </div>
                     <p className="mt-6 text-sm text-brand-secondary font-light text-center max-w-lg leading-relaxed">
-                      {filterLogic === 'and' 
-                        ? (lang === 'es' ? 'Se mostrarán las fotos que tengan TODOS los hashtags a la vez. Es decir, la foto debe tener el hashtag #1 Y el #2 Y el #3.' : lang === 'en' ? 'Showing photos that have ALL selected hashtags at once. The photo must have #1 AND #2 AND #3.' : 'Es mostraran les fotos que tinguin TOTS els hashtags alhora. És a dir, la foto ha de tenir el hashtag #1 I el #2 I el #3.')
-                        : (lang === 'es' ? 'Se mostrarán las fotos que tengan CUALQUIERA de los hashtags. Es decir, la foto puede tener el hashtag #1 O el #2 O el #3.' : lang === 'en' ? 'Showing photos that have ANY of the selected hashtags. The photo can have #1 OR #2 OR #3.' : 'Es mostraran les fotos que tinguin QUALSEVOL dels hashtags. És a dir, la foto pot tenir el hashtag #1 O el #2 O el #3.')}
+                      {filterLogic === "and"
+                        ? lang === "es"
+                          ? "Se mostrarán las fotos que tengan TODOS los hashtags a la vez. Es decir, la foto debe tener el hashtag #1 Y el #2 Y el #3."
+                          : lang === "en"
+                            ? "Showing photos that have ALL selected hashtags at once. The photo must have #1 AND #2 AND #3."
+                            : "Es mostraran les fotos que tinguin TOTS els hashtags alhora. És a dir, la foto ha de tenir el hashtag #1 I el #2 I el #3."
+                        : lang === "es"
+                          ? "Se mostrarán las fotos que tengan CUALQUIERA de los hashtags. Es decir, la foto puede tener el hashtag #1 O el #2 O el #3."
+                          : lang === "en"
+                            ? "Showing photos that have ANY of the selected hashtags. The photo can have #1 OR #2 OR #3."
+                            : "Es mostraran les fotos que tinguin QUALSEVOL dels hashtags. És a dir, la foto pot tenir el hashtag #1 O el #2 O el #3."}
                     </p>
                   </div>
 
                   {activeFilters.size > 0 && (
                     <div className="mb-8 p-6 bg-white rounded-2xl border border-neutral-200 text-center shadow-sm">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary block mb-4">
-                        {lang === 'es' ? 'Buscando fotos que contengan:' : lang === 'en' ? 'Searching photos containing:' : 'Buscant fotos que continguin:'}
+                        {lang === "es"
+                          ? "Buscando fotos que contengan:"
+                          : lang === "en"
+                            ? "Searching photos containing:"
+                            : "Buscant fotos que continguin:"}
                       </span>
                       <div className="text-brand-primary font-mono text-sm md:text-base font-bold flex flex-wrap justify-center items-center gap-2">
                         {Array.from(activeFilters).map((t, i, arr) => (
                           <React.Fragment key={t}>
-                            <span className="bg-brand-primary/10 px-3 py-1.5 rounded-lg">#{t}</span>
+                            <span className="bg-brand-primary/10 px-3 py-1.5 rounded-lg">
+                              #{t}
+                            </span>
                             {i < arr.length - 1 && (
                               <span className="text-brand-accent px-2 text-xs">
-                                {filterLogic === 'and' ? (lang === 'en' ? 'AND' : lang === 'ca' ? 'I' : 'Y') : (lang === 'en' ? 'OR' : 'O')}
+                                {filterLogic === "and"
+                                  ? lang === "en"
+                                    ? "AND"
+                                    : lang === "ca"
+                                      ? "I"
+                                      : "Y"
+                                  : lang === "en"
+                                    ? "OR"
+                                    : "O"}
                               </span>
                             )}
                           </React.Fragment>
@@ -1038,15 +1792,15 @@ function Gallery() {
                   )}
 
                   <div className="flex flex-wrap justify-center gap-2">
-                    {allTags.map(tag => (
-                      <button 
-                        key={tag} 
-                        onClick={() => toggleFilter(tag)} 
+                    {allTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => toggleFilter(tag)}
                         className={cn(
-                          "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", 
-                          activeFilters.has(tag) 
-                            ? "bg-[#B45309]/10 text-[#B45309] border-[#B45309]/20 shadow-sm backdrop-blur-sm" 
-                            : "bg-white text-gray-500 border-gray-200 hover:border-[#B45309]/30 hover:text-[#B45309]"
+                          "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border",
+                          activeFilters.has(tag)
+                            ? "bg-[#B45309]/10 text-[#B45309] border-[#B45309]/20 shadow-sm backdrop-blur-sm"
+                            : "bg-white text-gray-500 border-gray-200 hover:border-[#B45309]/30 hover:text-[#B45309]",
                         )}
                       >
                         #{tag}
@@ -1059,172 +1813,395 @@ function Gallery() {
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <motion.div
                     animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                     className="text-[#B45309]"
                   >
                     <Aperture size={32} strokeWidth={1.5} />
                   </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
-                    {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
+                    {lang === "es"
+                      ? "Cargando archivo..."
+                      : lang === "en"
+                        ? "Loading archive..."
+                        : "Carregant arxiu..."}
                   </p>
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {filteredPhotos.map(photo => (
-                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                  {filteredPhotos.map((photo) => (
+                    <PhotoCard
+                      lang={lang}
+                      key={photo.id}
+                      photo={photo}
+                      onClick={(id) =>
+                        setSelectedPhoto(DB.find((p) => p.id === id) || null)
+                      }
+                    />
                   ))}
                 </div>
               )}
             </motion.section>
           )}
 
-          {currentSection === 'favorites' && (
-            <motion.section key="favorites" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "favorites" && (
+            <motion.section
+              key="favorites"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <div className="text-center mb-16">
-                <h1 className="text-5xl font-serif italic mb-6">{s.titles.fav}</h1>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#B45309]">
-                    {lang === 'es' ? 'Últimos' : lang === 'ca' ? 'Últims' : 'Last'}
-                  </span>
-                  <div className="flex bg-gray-100/50 p-1.5 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50">
-                    {[
-                      { id: '6m', label: '6' },
-                      { id: '12m', label: '12' },
-                      { id: '24m', label: '24' }
-                    ].map(tab => (
-                      <button 
-                        key={tab.id}
-                        onClick={() => setFavoritePeriodFilter(tab.id as any)}
-                        className={`relative px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors z-10 ${
-                          favoritePeriodFilter === tab.id ? 'text-[#B45309]' : 'text-gray-500 hover:text-[#B45309]'
-                        }`}
-                      >
-                        {favoritePeriodFilter === tab.id && (
-                          <motion.div 
-                            layoutId="favPill" 
-                            className="absolute inset-0 bg-[#B45309]/10 backdrop-blur-sm rounded-full -z-10 shadow-sm border border-[#B45309]/20"
-                            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                          />
-                        )}
-                        {tab.label}
-                      </button>
-                    ))}
+                <h1 className="text-5xl font-serif italic mb-6">
+                  {s.titles.fav}
+                </h1>
+
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 mt-12 w-full max-w-6xl mx-auto px-4">
+                  {/* Line 1 (Mobile) / Left (Desktop) : "Todas" */}
+                  <div className="flex items-center justify-center w-full lg:w-auto">
+                    <button
+                      onClick={() => setFavoritePeriodFilter("all")}
+                      className={`relative px-8 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
+                        favoritePeriodFilter === "all"
+                          ? "text-[#B45309] bg-[#B45309]/10 border border-[#B45309]/20 shadow-sm backdrop-blur-sm"
+                          : "text-gray-500 hover:text-[#B45309] bg-gray-100/50 border border-gray-200/50 hover:bg-[#B45309]/5"
+                      }`}
+                    >
+                      {lang === "es"
+                        ? "Todas"
+                        : lang === "ca"
+                          ? "Totes"
+                          : "All"}
+                    </button>
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#B45309]">
-                    {lang === 'es' ? 'Meses' : lang === 'ca' ? 'Mesos' : 'Months'}
-                  </span>
+
+                  <div className="hidden lg:block w-px h-8 bg-gray-200" />
+
+                  {/* Line 2 (Mobile) / Middle (Desktop) : "Últimos 6 12 24 Meses" */}
+                  <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full lg:w-auto">
+                    <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#B45309]">
+                      {lang === "es"
+                        ? "Últimos"
+                        : lang === "ca"
+                          ? "Últims"
+                          : "Last"}
+                    </span>
+                    <div className="flex bg-gray-100/50 p-1 sm:p-1.5 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50">
+                      {[
+                        { id: "6m", label: "6" },
+                        { id: "12m", label: "12" },
+                        { id: "24m", label: "24" },
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setFavoritePeriodFilter(tab.id as any)}
+                          className={`relative px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors z-10 ${
+                            favoritePeriodFilter === tab.id
+                              ? "text-[#B45309]"
+                              : "text-gray-500 hover:text-[#B45309]"
+                          }`}
+                        >
+                          {favoritePeriodFilter === tab.id && (
+                            <motion.div
+                              layoutId="favPill"
+                              className="absolute inset-0 bg-[#B45309]/10 backdrop-blur-sm rounded-full -z-10 shadow-sm border border-[#B45309]/20"
+                              transition={{
+                                type: "spring",
+                                stiffness: 400,
+                                damping: 30,
+                              }}
+                            />
+                          )}
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#B45309]">
+                      {lang === "es"
+                        ? "Meses"
+                        : lang === "ca"
+                          ? "Mesos"
+                          : "Months"}
+                    </span>
+                  </div>
+
+                  <div className="hidden lg:block w-px h-8 bg-gray-200" />
+
+                  {/* Line 3 (Mobile) / Right (Desktop) : "Explorar" & "Dejar una reseña" */}
+                  <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 w-full lg:w-auto mt-2 lg:mt-0">
+                    <button
+                      onClick={() => setCurrentSection("explore")}
+                      className="flex-1 lg:flex-none px-4 sm:px-6 py-3 lg:py-2.5 bg-black text-white rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/80 transition-colors shadow-md hover:shadow-lg"
+                    >
+                      {lang === "es"
+                        ? "Explorar"
+                        : lang === "ca"
+                          ? "Explorar"
+                          : "Explore"}
+                    </button>
+                    <button
+                      onClick={() => setCurrentSection("contact")}
+                      className="flex-1 lg:flex-none px-4 sm:px-6 py-3 lg:py-2.5 border border-black/10 text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/5 transition-colors"
+                    >
+                      {lang === "es"
+                        ? "Dejar una reseña"
+                        : lang === "ca"
+                          ? "Deixar una ressenya"
+                          : "Leave a review"}
+                    </button>
+                  </div>
                 </div>
               </div>
               {loading && DB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <motion.div
                     animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                     className="text-[#B45309]"
                   >
                     <Aperture size={32} strokeWidth={1.5} />
                   </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
-                    {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
+                    {lang === "es"
+                      ? "Cargando archivo..."
+                      : lang === "en"
+                        ? "Loading archive..."
+                        : "Carregant arxiu..."}
                   </p>
                 </div>
               ) : (
                 <div className="justified-gallery">
                   {currentPhotoList.map((photo: any) => (
-                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find((p: any) => p.id === id) || null)} />
+                    <PhotoCard
+                      lang={lang}
+                      key={photo.id}
+                      photo={photo}
+                      onClick={(id) =>
+                        setSelectedPhoto(
+                          DB.find((p: any) => p.id === id) || null,
+                        )
+                      }
+                    />
                   ))}
                 </div>
               )}
-
-              {/* Action Buttons for Favorites */}
-              <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 pb-8">
-                <div className="flex flex-col items-center gap-4">
-                  <span className="text-sm font-serif italic text-brand-secondary">
-                    {lang === 'es' ? '¿Quieres seguir viendo más fotos?' : lang === 'ca' ? 'Vols seguir veient més fotos?' : 'Want to see more photos?'}
-                  </span>
-                  <button
-                    onClick={() => setCurrentSection('explore')}
-                    className="px-8 py-3.5 bg-black text-white rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/80 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                  >
-                    {lang === 'es' ? 'Explorar' : lang === 'ca' ? 'Explorar' : 'Explore'}
-                  </button>
-                </div>
-                
-                <div className="hidden md:block w-px h-16 bg-neutral-200"></div>
-                <div className="md:hidden h-px w-32 bg-neutral-200"></div>
-
-                <div className="flex flex-col items-center gap-4">
-                  <span className="text-sm font-serif italic text-brand-secondary">
-                    {lang === 'es' ? '¿Quieres dejar una reseña?' : lang === 'ca' ? 'Vols deixar una ressenya?' : 'Do you want to leave a review?'}
-                  </span>
-                  <button
-                    onClick={() => setCurrentSection('contact')}
-                    className="px-8 py-3.5 border border-black/10 text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/5 transition-colors"
-                  >
-                    {lang === 'es' ? 'Dejar una reseña' : lang === 'ca' ? 'Deixar una ressenya' : 'Leave a review'}
-                  </button>
-                </div>
-              </div>
-
             </motion.section>
           )}
 
-          {currentSection === 'latest' && (
-            <motion.section key="latest" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "latest" && (
+            <motion.section
+              key="latest"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <div className="text-center mb-16">
-                <h1 className="text-5xl font-serif italic mb-4">{lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest'}</h1>
+                <h1 className="text-5xl font-serif italic mb-4">
+                  {lang === "es"
+                    ? "Últimas"
+                    : lang === "ca"
+                      ? "Últimes"
+                      : "Latest"}
+                </h1>
                 <p className="text-brand-secondary font-light">
-                  {lang === 'es' ? 'Las 100 últimas capturas publicadas' : lang === 'ca' ? 'Les 100 últimes captures publicades' : 'The 100 latest published captures'}
+                  {lang === "es"
+                    ? "Las 100 últimas capturas publicadas"
+                    : lang === "ca"
+                      ? "Les 100 últimes captures publicades"
+                      : "The 100 latest published captures"}
                 </p>
               </div>
               {loading && DB.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <motion.div
                     animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                     className="text-[#B45309]"
                   >
                     <Aperture size={32} strokeWidth={1.5} />
                   </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
-                    {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
+                    {lang === "es"
+                      ? "Cargando archivo..."
+                      : lang === "en"
+                        ? "Loading archive..."
+                        : "Carregant arxiu..."}
                   </p>
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {DB.slice(0, 100).map(photo => (
-                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                  {DB.slice(0, 100).map((photo) => (
+                    <PhotoCard
+                      lang={lang}
+                      key={photo.id}
+                      photo={photo}
+                      onClick={(id) =>
+                        setSelectedPhoto(DB.find((p) => p.id === id) || null)
+                      }
+                    />
                   ))}
                 </div>
               )}
             </motion.section>
           )}
 
-          {currentSection === 'lfi' && (
-            <motion.section key="lfi" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "lfi" && (
+            <motion.section
+              key="lfi"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <div className="text-center mb-16">
-                <p className="text-brand-secondary font-light mb-4 max-w-2xl mx-auto">{s.subtitles.lfi}</p>
+                <p className="text-brand-secondary font-light mb-4 max-w-2xl mx-auto">
+                  {s.subtitles.lfi}
+                </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-                  <button onClick={() => setShowLfiInfo(true)} className="flex items-center gap-2 text-brand-secondary hover:text-black transition-colors font-medium text-sm">
-                    ℹ️ {lang === 'es' ? '¿Qué es LFI?' : lang === 'ca' ? 'Què és LFI?' : 'What is LFI?'}
-                  </button>
+                  <div className="relative group flex items-center justify-center">
+                    <button
+                      className="flex items-center gap-2 text-brand-secondary group-hover:text-black transition-colors font-medium text-sm"
+                    >
+                      <Info size={16} />
+                      {lang === "es"
+                        ? "¿Qué es LFI?"
+                        : lang === "ca"
+                          ? "Què és LFI?"
+                          : "What is LFI?"}
+                    </button>
+                    
+                    {/* Hover Popover */}
+                    <div className="absolute top-full mt-4 w-[90vw] sm:w-[500px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 pointer-events-none">
+                      <div className="bg-white p-6 shadow-2xl border border-neutral-100 rounded-2xl text-left">
+                        <div className="mb-4">
+                          <h2 className="text-xl font-serif italic mb-2 tracking-tight text-black">
+                            Leica Fotografie International
+                          </h2>
+                          <div className="w-8 h-px bg-leica-red"></div>
+                        </div>
+                        <div className="space-y-4 text-brand-secondary leading-relaxed font-light text-xs sm:text-sm">
+                          {lang === "es" && (
+                            <>
+                              <p>
+                                <strong>Leica Fotografie International (LFI)</strong> es
+                                la revista oficial de Leica y una de las publicaciones de
+                                fotografía más reconocidas a nivel internacional. A través
+                                de iniciativas como Master Shot, Picture of the Week o las
+                                exposiciones de LFI Gallery, selecciona imágenes
+                                destacadas entre miles de fotografías enviadas por la
+                                comunidad Leica de todo el mundo.
+                              </p>
+                              <p>
+                                Las fotografías que aparecen en esta sección han sido
+                                publicadas o reconocidas por LFI. Para mí supone una gran
+                                satisfacción formar parte de este escaparate internacional
+                                y compartir aquí aquellas imágenes que han recibido la
+                                atención de una de las referencias más prestigiosas de la
+                                fotografía contemporánea.
+                              </p>
+                            </>
+                          )}
+                          {lang === "ca" && (
+                            <>
+                              <p>
+                                <strong>Leica Fotografie International (LFI)</strong> és
+                                la revista oficial de Leica i una de les publicacions de
+                                fotografia més reconegudes a nivell internacional. A través
+                                d'iniciatives com Master Shot, Picture of the Week o les
+                                exposicions de LFI Gallery, selecciona imatges
+                                destacades entre milers de fotografies enviades per la
+                                comunitat Leica de tot el món.
+                              </p>
+                              <p>
+                                Les fotografies que apareixen en aquesta secció han estat
+                                publicades o reconegudes per LFI. Per a mi suposa una gran
+                                satisfacció formar part d'aquest aparador internacional
+                                i compartir aquí aquelles imatges que han rebut
+                                l'atenció d'una de les referències més prestigioses de la
+                                fotografia contemporània.
+                              </p>
+                            </>
+                          )}
+                          {lang === "en" && (
+                            <>
+                              <p>
+                                <strong>Leica Fotografie International (LFI)</strong> is
+                                the official magazine of Leica and one of the most
+                                internationally recognized photography publications. Through
+                                initiatives such as Master Shot, Picture of the Week or the
+                                LFI Gallery exhibitions, it selects outstanding images
+                                from thousands of photographs submitted by the Leica
+                                community worldwide.
+                              </p>
+                              <p>
+                                The photographs that appear in this section have been
+                                published or recognized by LFI. For me it is a great
+                                satisfaction to be part of this international showcase
+                                and to share here those images that have received the
+                                attention of one of the most prestigious references in
+                                contemporary photography.
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <span className="hidden sm:inline text-neutral-300">|</span>
-                  <a 
-                    href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" 
-                    target="_blank" 
+                  <a
+                    href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block text-leica-red hover:underline font-medium"
                   >
-                    {lang === 'es' ? 'Ver perfil de Pep Amores en Leica' : lang === 'ca' ? 'Veure perfil de Pep Amores a Leica' : 'View Pep Amores profile on Leica'}
+                    {lang === "es"
+                      ? "Ver perfil de Pep Amores en Leica"
+                      : lang === "ca"
+                        ? "Veure perfil de Pep Amores a Leica"
+                        : "View Pep Amores profile on Leica"}
                   </a>
                 </div>
                 <div className="flex justify-center gap-4 mb-12">
-                  {['all', 'lfimastershot', 'lfiexhibition', 'lfi-picture-of-the-week'].map(type => (
-                    <button key={type} onClick={() => setLfiFilter(type as any)} className={cn("px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", lfiFilter === type ? "bg-leica-red text-white border-leica-red" : "bg-white text-brand-secondary border-neutral-200 hover:border-leica-red hover:text-leica-red")}>
-                      {type === 'all' ? (lang === 'es' ? 'Todo LFI' : lang === 'ca' ? 'Tot LFI' : 'All LFI') : 
-                       type === 'lfimastershot' ? 'Mastershot' : 
-                       type === 'lfiexhibition' ? 'Exhibition' : 
-                       'Picture of the Week'}
+                  {[
+                    "all",
+                    "lfimastershot",
+                    "lfiexhibition",
+                    "lfi-picture-of-the-week",
+                  ].map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setLfiFilter(type as any)}
+                      className={cn(
+                        "px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border",
+                        lfiFilter === type
+                          ? "bg-leica-red text-white border-leica-red"
+                          : "bg-white text-brand-secondary border-neutral-200 hover:border-leica-red hover:text-leica-red",
+                      )}
+                    >
+                      {type === "all"
+                        ? lang === "es"
+                          ? "Todo LFI"
+                          : lang === "ca"
+                            ? "Tot LFI"
+                            : "All LFI"
+                        : type === "lfimastershot"
+                          ? "Mastershot"
+                          : type === "lfiexhibition"
+                            ? "Exhibition"
+                            : "Picture of the Week"}
                     </button>
                   ))}
                 </div>
@@ -1233,280 +2210,361 @@ function Gallery() {
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
                   <motion.div
                     animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 180, 360] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                     className="text-[#B45309]"
                   >
                     <Aperture size={32} strokeWidth={1.5} />
                   </motion.div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary animate-pulse">
-                    {lang === 'es' ? 'Cargando archivo...' : lang === 'en' ? 'Loading archive...' : 'Carregant arxiu...'}
+                    {lang === "es"
+                      ? "Cargando archivo..."
+                      : lang === "en"
+                        ? "Loading archive..."
+                        : "Carregant arxiu..."}
                   </p>
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {currentPhotoList.map(photo => (
-                    <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
+                  {currentPhotoList.map((photo) => (
+                    <PhotoCard
+                      lang={lang}
+                      key={photo.id}
+                      photo={photo}
+                      onClick={(id) =>
+                        setSelectedPhoto(DB.find((p) => p.id === id) || null)
+                      }
+                    />
                   ))}
                 </div>
               )}
             </motion.section>
           )}
 
-          {currentSection === 'about' && (
-            <motion.section key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "about" && (
+            <motion.section
+              key="about"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-16 items-center">
                 {/* Mobile Header */}
                 <div className="md:hidden text-center space-y-4 w-full">
-                  <h1 className="text-5xl font-serif italic tracking-tighter">Pep Amores</h1>
+                  <h1 className="text-5xl font-serif italic tracking-tighter">
+                    Pep Amores
+                  </h1>
                   <p className="text-lg text-brand-primary font-serif italic">
-                    {lang === 'es' ? 'Emprendedor y Fotógrafo' : lang === 'ca' ? 'Emprenedor i Fotògraf' : 'Entrepreneur & Photographer'}
+                    {lang === "es"
+                      ? "Emprendedor y Fotógrafo"
+                      : lang === "ca"
+                        ? "Emprenedor i Fotògraf"
+                        : "Entrepreneur & Photographer"}
                   </p>
                 </div>
 
                 <div className="flex-1 aspect-[1198/1245] rounded-3xl overflow-hidden shadow-2xl w-full">
-                  <img src="https://i.imgur.com/diHGiy8.jpg" alt="Pep Amores" className="w-full h-full object-cover" />
+                  <img
+                    src="https://i.imgur.com/diHGiy8.jpg"
+                    alt="Pep Amores"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                
+
                 <div className="flex-1 space-y-8">
                   {/* Desktop Header */}
                   <div className="hidden md:block space-y-8">
-                    <h1 className="text-6xl font-serif italic tracking-tighter">Pep Amores</h1>
+                    <h1 className="text-6xl font-serif italic tracking-tighter">
+                      Pep Amores
+                    </h1>
                     <p className="text-xl text-brand-primary font-serif italic">
-                      {lang === 'es' ? 'Emprendedor y Fotógrafo' : lang === 'ca' ? 'Emprenedor i Fotògraf' : 'Entrepreneur & Photographer'}
+                      {lang === "es"
+                        ? "Emprendedor y Fotógrafo"
+                        : lang === "ca"
+                          ? "Emprenedor i Fotògraf"
+                          : "Entrepreneur & Photographer"}
                     </p>
                   </div>
-                  
+
                   <div className="space-y-4 text-brand-secondary font-light leading-relaxed text-sm">
                     <p>
-                      {lang === 'es' ? 'La vida es corta. Extrañamente corta. Y cuanto más lo pienso, más consciente soy de lo poco que sabemos sobre ella. No sé por qué existimos ni qué ocurre cuando dejamos de hacerlo. Esa incertidumbre, lejos de inquietarme, siempre me ha empujado a vivir con intensidad y a intentar estar presente en cada etapa del camino.' :
-                       lang === 'en' ? 'Life is short. Strangely short. And the more I think about it, the more aware I am of how little we know about it. I don\'t know why we exist or what happens when we cease to do so. That uncertainty, far from unsettling me, has always pushed me to live with intensity and try to be present at every stage of the journey.' :
-                       'La vida és curta. Estranyament curta. I com més hi penso, més conscient sóc del poc que en sabem. No sé per què existim ni què passa quan deixem de fer-ho. Aquesta incertesa, lluny d\'inquietar-me, sempre m\'ha empès a viure amb intensitat i a intentar estar present en cada etapa del camí.'}
+                      {lang === "es"
+                        ? "La vida es corta. Extrañamente corta. Y cuanto más lo pienso, más consciente soy de lo poco que sabemos sobre ella. No sé por qué existimos ni qué ocurre cuando dejamos de hacerlo. Esa incertidumbre, lejos de inquietarme, siempre me ha empujado a vivir con intensidad y a intentar estar presente en cada etapa del camino."
+                        : lang === "en"
+                          ? "Life is short. Strangely short. And the more I think about it, the more aware I am of how little we know about it. I don't know why we exist or what happens when we cease to do so. That uncertainty, far from unsettling me, has always pushed me to live with intensity and try to be present at every stage of the journey."
+                          : "La vida és curta. Estranyament curta. I com més hi penso, més conscient sóc del poc que en sabem. No sé per què existim ni què passa quan deixem de fer-ho. Aquesta incertesa, lluny d'inquietar-me, sempre m'ha empès a viure amb intensitat i a intentar estar present en cada etapa del camí."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'Quizá por eso he sido emprendedor toda mi vida. He creado empresas en el sector tecnológico y también produzco películas. Siempre he sentido la necesidad de construir, de explorar, de transformar ideas e inquietudes en algo real.' :
-                       lang === 'en' ? 'Perhaps that is why I have been an entrepreneur all my life. I have created companies in the technology sector and I also produce films. I have always felt the need to build, to explore, to transform ideas and concerns into something real.' :
-                       'Potser per això he estat emprenedor tota la meva vida. He creat empreses en el sector tecnològic i també produeixo pel·lícules. Sempre he sentit la necessitat de construir, d\'explorar, de transformar idees i inquietuds en alguna cosa real.'}
+                      {lang === "es"
+                        ? "Quizá por eso he sido emprendedor toda mi vida. He creado empresas en el sector tecnológico y también produzco películas. Siempre he sentido la necesidad de construir, de explorar, de transformar ideas e inquietudes en algo real."
+                        : lang === "en"
+                          ? "Perhaps that is why I have been an entrepreneur all my life. I have created companies in the technology sector and I also produce films. I have always felt the need to build, to explore, to transform ideas and concerns into something real."
+                          : "Potser per això he estat emprenedor tota la meva vida. He creat empreses en el sector tecnològic i també produeixo pel·lícules. Sempre he sentit la necessitat de construir, d'explorar, de transformar idees i inquietuds en alguna cosa real."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'Pero hay una parte más íntima de ese impulso creativo que encuentra su lugar en la fotografía.' :
-                       lang === 'en' ? 'But there is a more intimate part of that creative impulse that finds its place in photography.' :
-                       'Però hi ha una part més íntima d\'aquest impuls creatiu que troba el seu lloc en la fotografia.'}
+                      {lang === "es"
+                        ? "Pero hay una parte más íntima de ese impulso creativo que encuentra su lugar en la fotografía."
+                        : lang === "en"
+                          ? "But there is a more intimate part of that creative impulse that finds its place in photography."
+                          : "Però hi ha una part més íntima d'aquest impuls creatiu que troba el seu lloc en la fotografia."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'Fotografiar es, para mí, una forma de mirar el mundo con más atención. De detener el tiempo por un instante y de atrapar aquello que normalmente pasa desapercibido: una luz que aparece de forma inesperada, una mirada fugaz, una emoción que apenas dura unos segundos.' :
-                       lang === 'en' ? 'Photographing is, for me, a way of looking at the world with more attention. Of stopping time for an instant and catching what normally goes unnoticed: a light that appears unexpectedly, a fleeting glance, an emotion that barely lasts a few seconds.' :
-                       'Fotografiar és, per a mi, una manera de mirar el món amb més atenció. D\'aturar el temps per un instant i d\'atrapar allò que normalment passa desapercebut: una llum que apareix de manera inesperada, una mirada fugaç, una emoció que amb prou feines dura uns segons.'}
+                      {lang === "es"
+                        ? "Fotografiar es, para mí, una forma de mirar el mundo con más atención. De detener el tiempo por un instante y de atrapar aquello que normalmente pasa desapercibido: una luz que aparece de forma inesperada, una mirada fugaz, una emoción que apenas dura unos segundos."
+                        : lang === "en"
+                          ? "Photographing is, for me, a way of looking at the world with more attention. Of stopping time for an instant and catching what normally goes unnoticed: a light that appears unexpectedly, a fleeting glance, an emotion that barely lasts a few seconds."
+                          : "Fotografiar és, per a mi, una manera de mirar el món amb més atenció. D'aturar el temps per un instant i d'atrapar allò que normalment passa desapercebut: una llum que apareix de manera inesperada, una mirada fugaç, una emoció que amb prou feines dura uns segons."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'La cámara se convierte entonces en una forma de canalizar inquietudes artísticas y emocionales. Un espacio de libertad donde no hay estrategia ni objetivo más allá de observar, sentir y crear.' :
-                       lang === 'en' ? 'The camera then becomes a way to channel artistic and emotional concerns. A space of freedom where there is no strategy or objective beyond observing, feeling, and creating.' :
-                       'La càmera es converteix llavors en una manera de canalitzar inquietuds artístiques i emocionals. Un espai de llibertat on no hi ha estratègia ni objectiu més enllà d\'observar, sentir i crear.'}
+                      {lang === "es"
+                        ? "La cámara se convierte entonces en una forma de canalizar inquietudes artísticas y emocionales. Un espacio de libertad donde no hay estrategia ni objetivo más allá de observar, sentir y crear."
+                        : lang === "en"
+                          ? "The camera then becomes a way to channel artistic and emotional concerns. A space of freedom where there is no strategy or objective beyond observing, feeling, and creating."
+                          : "La càmera es converteix llavors en una manera de canalitzar inquietuds artístiques i emocionals. Un espai de llibertat on no hi ha estratègia ni objectiu més enllà d'observar, sentir i crear."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'También creo profundamente en el aprendizaje continuo. Me gusta aprender de quienes saben más que yo. La humildad es tan necesaria para crecer como la ambición. Por eso participo siempre que puedo en talleres con fotógrafos a los que admiro.' :
-                       lang === 'en' ? 'I also believe deeply in continuous learning. I like to learn from those who know more than I do. Humility is as necessary to grow as ambition. That is why I participate whenever I can in workshops with photographers I admire.' :
-                       'També crec profundament en l\'aprenentatge continu. M\'agrada aprendre dels que en saben més que jo. La humilitat és tan necessària per créixer com l\'ambició. Per això participo sempre que puc en tallers amb fotògrafs als quals admiro.'}
+                      {lang === "es"
+                        ? "También creo profundamente en el aprendizaje continuo. Me gusta aprender de quienes saben más que yo. La humildad es tan necesaria para crecer como la ambición. Por eso participo siempre que puedo en talleres con fotógrafos a los que admiro."
+                        : lang === "en"
+                          ? "I also believe deeply in continuous learning. I like to learn from those who know more than I do. Humility is as necessary to grow as ambition. That is why I participate whenever I can in workshops with photographers I admire."
+                          : "També crec profundament en l'aprenentatge continu. M'agrada aprendre dels que en saben més que jo. La humilitat és tan necessària per créixer com l'ambició. Per això participo sempre que puc en tallers amb fotògrafs als quals admiro."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'He tenido la suerte de compartir aprendizaje con Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu y Joan Boira. Y pronto tendré la oportunidad de hacerlo también con Steve McCurry.' :
-                       lang === 'en' ? 'I have been lucky enough to share learning with Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu, and Joan Boira. And soon I will have the opportunity to do so with Steve McCurry as well.' :
-                       'He tingut la sort de compartir aprenentatge amb Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu i Joan Boira. I aviat tindré l\'oportunitat de fer-ho també amb Steve McCurry.'}
+                      {lang === "es"
+                        ? "He tenido la suerte de compartir aprendizaje con Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu y Joan Boira. Y pronto tendré la oportunidad de hacerlo también con Steve McCurry."
+                        : lang === "en"
+                          ? "I have been lucky enough to share learning with Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu, and Joan Boira. And soon I will have the opportunity to do so with Steve McCurry as well."
+                          : "He tingut la sort de compartir aprenentatge amb Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu i Joan Boira. I aviat tindré l'oportunitat de fer-ho també amb Steve McCurry."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'Intento vivir de la forma más consciente posible. Disfrutar de mi familia, de mis amigos, de las personas que me rodean. De conversaciones largas a conversaciones que dejan huella, de los viajes, de los pequeños momentos que muchas veces pasan desapercibidos.' :
-                       lang === 'en' ? 'I try to live as consciously as possible. To enjoy my family, my friends, the people around me. From long conversations to conversations that leave a mark, trips, the small moments that often go unnoticed.' :
-                       'Intento viure de la manera més conscient possible. Gaudir de la meva família, dels meus amics, de les persones que m\'envolten. De converses llargues a converses que deixen petjada, dels viatges, dels petits moments que moltes vegades passen desapercebuts.'}
+                      {lang === "es"
+                        ? "Intento vivir de la forma más consciente posible. Disfrutar de mi familia, de mis amigos, de las personas que me rodean. De conversaciones largas a conversaciones que dejan huella, de los viajes, de los pequeños momentos que muchas veces pasan desapercibidos."
+                        : lang === "en"
+                          ? "I try to live as consciously as possible. To enjoy my family, my friends, the people around me. From long conversations to conversations that leave a mark, trips, the small moments that often go unnoticed."
+                          : "Intento viure de la manera més conscient possible. Gaudir de la meva família, dels meus amics, de les persones que m'envolten. De converses llargues a converses que deixen petjada, dels viatges, dels petits moments que moltes vegades passen desapercebuts."}
                     </p>
                     <p>
-                      {lang === 'es' ? 'Porque, al final, la vida está hecha precisamente de eso: de instantes breves y valiosos.' :
-                       lang === 'en' ? 'Because, in the end, life is made precisely of that: brief and valuable moments.' :
-                       'Perquè, al final, la vida està feta precisament d\'això: d\'instants breus i valuosos.'}
+                      {lang === "es"
+                        ? "Porque, al final, la vida está hecha precisamente de eso: de instantes breves y valiosos."
+                        : lang === "en"
+                          ? "Because, in the end, life is made precisely of that: brief and valuable moments."
+                          : "Perquè, al final, la vida està feta precisament d'això: d'instants breus i valuosos."}
                     </p>
                     <p className="font-medium italic">
-                      {lang === 'es' ? 'La fotografía es mi manera de prestarle atención.' :
-                       lang === 'en' ? 'Photography is my way of paying attention to it.' :
-                       'La fotografia és la meva manera de prestar-hi atenció.'}
+                      {lang === "es"
+                        ? "La fotografía es mi manera de prestarle atención."
+                        : lang === "en"
+                          ? "Photography is my way of paying attention to it."
+                          : "La fotografia és la meva manera de prestar-hi atenció."}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-8 pt-8 border-t border-neutral-100">
                     <div>
                       <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2">
-                        {lang === 'es' ? 'Equipo' : lang === 'ca' ? 'Equip' : 'Gear'}
+                        {lang === "es"
+                          ? "Equipo"
+                          : lang === "ca"
+                            ? "Equip"
+                            : "Gear"}
                       </h4>
-                      <p className="text-sm font-mono text-brand-secondary">Leica SL3<br />Leica Q3</p>
+                      <p className="text-sm font-mono text-brand-secondary">
+                        Leica SL3
+                        <br />
+                        Leica Q3
+                      </p>
                     </div>
                     <div>
                       <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2">
-                        {lang === 'es' ? 'Base' : lang === 'ca' ? 'Base' : 'Based in'}
+                        {lang === "es"
+                          ? "Base"
+                          : lang === "ca"
+                            ? "Base"
+                            : "Based in"}
                       </h4>
-                      <p className="text-sm font-mono text-brand-secondary">Barcelona, Spain</p>
+                      <p className="text-sm font-mono text-brand-secondary">
+                        Barcelona, Spain
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6">
-                <ReviewsSection lang={lang} onSeeMore={() => setCurrentSection('reviews')} />
+                <ReviewsSection
+                  lang={lang}
+                  onSeeMore={() => setCurrentSection("reviews")}
+                />
               </div>
             </motion.section>
           )}
 
-          {currentSection === 'reviews' && (
-            <motion.section key="all-reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "reviews" && (
+            <motion.section
+              key="all-reviews"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <ReviewsSection lang={lang} showSeeMore={false} />
-              
+
               <div className="flex justify-center mt-4 mb-12">
-                <button 
-                  onClick={() => setCurrentSection('home')}
+                <button
+                  onClick={() => setCurrentSection("home")}
                   className="group flex items-center gap-3 px-8 py-4 bg-white border border-neutral-200 text-brand-primary text-xs font-bold uppercase tracking-widest rounded-full hover:bg-neutral-50 transition-all shadow-sm hover:shadow-md"
                 >
                   <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                  {lang === 'es' ? 'Volver al inicio' : lang === 'en' ? 'Back to home' : 'Tornar a l\'inici'}
+                  {lang === "es"
+                    ? "Volver al inicio"
+                    : lang === "en"
+                      ? "Back to home"
+                      : "Tornar a l'inici"}
                 </button>
               </div>
             </motion.section>
           )}
 
-          {currentSection === 'my-movies' && (
-            <motion.section key="my-movies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          {currentSection === "my-movies" && (
+            <motion.section
+              key="my-movies"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               <MyMovies lang={lang} />
             </motion.section>
           )}
 
-          {currentSection === 'contact' && (
-            <motion.section key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
+          {currentSection === "contact" && (
+            <motion.section
+              key="contact"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="container mx-auto px-6 py-12"
+            >
               <div className="max-w-xl mx-auto">
                 <div className="text-center mb-12">
-                  <h1 className="text-5xl font-serif italic mb-4">{s.titles.contact}</h1>
+                  <h1 className="text-5xl font-serif italic mb-4">
+                    {s.titles.contact}
+                  </h1>
                 </div>
-                <form onSubmit={handleContactSubmit} className="glass p-8 md:p-12 rounded-3xl shadow-2xl space-y-8">
+                <form
+                  onSubmit={handleContactSubmit}
+                  className="glass p-8 md:p-12 rounded-3xl shadow-2xl space-y-8"
+                >
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">{s.labels.name}</label>
-                    <input 
-                      type="text" 
+                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">
+                      {s.labels.name}
+                    </label>
+                    <input
+                      type="text"
                       value={contactForm.name}
-                      onChange={e => setContactForm(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none" 
+                      onChange={(e) =>
+                        setContactForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Email</label>
-                    <input 
-                      type="email" 
+                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">
+                      Email
+                    </label>
+                    <input
+                      type="email"
                       value={contactForm.email}
-                      onChange={e => setContactForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none" 
+                      onChange={(e) =>
+                        setContactForm((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
+                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">{s.labels.msg}</label>
-                    <textarea 
-                      rows={5} 
+                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">
+                      {s.labels.msg}
+                    </label>
+                    <textarea
+                      rows={5}
                       value={contactForm.message}
-                      onChange={e => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none resize-none" 
+                      onChange={(e) =>
+                        setContactForm((prev) => ({
+                          ...prev,
+                          message: e.target.value,
+                        }))
+                      }
+                      className="w-full bg-neutral-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-brand-primary/10 transition-all outline-none resize-none"
                       required
                     />
                   </div>
                   <div className="flex justify-center">
-                    <FlowButton 
+                    <FlowButton
                       type="submit"
                       disabled={isSending}
-                      text={isSending ? (lang === 'es' ? 'Enviando...' : 'Sending...') : s.labels.send}
+                      text={
+                        isSending
+                          ? lang === "es"
+                            ? "Enviando..."
+                            : "Sending..."
+                          : s.labels.send
+                      }
                     />
                   </div>
                 </form>
-                <CommentSection targetId="guestbook" targetType="guestbook" lang={lang} isDark={false} />
+                <CommentSection
+                  targetId="guestbook"
+                  targetType="guestbook"
+                  lang={lang}
+                  isDark={false}
+                />
               </div>
             </motion.section>
           )}
         </AnimatePresence>
       </main>
 
-      <AnimatePresence>
-        {showLfiInfo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowLfiInfo(false)}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/95 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              onClick={e => e.stopPropagation()}
-              className="bg-white max-w-2xl w-full p-8 md:p-12 shadow-2xl relative"
-            >
-              <button 
-                onClick={() => setShowLfiInfo(false)}
-                className="absolute top-6 right-6 text-brand-tertiary hover:text-black transition-colors"
-              >
-                <X size={24} strokeWidth={1} />
-              </button>
-              <div className="mb-6">
-                <h2 className="text-3xl font-serif italic mb-2 tracking-tight">Leica Fotografie International</h2>
-                <div className="w-12 h-px bg-leica-red"></div>
-              </div>
-              <div className="space-y-6 text-brand-secondary leading-relaxed font-light text-sm md:text-base">
-                {lang === 'es' && (
-                  <>
-                    <p>
-                      <strong>Leica Fotografie International (LFI)</strong> es la revista oficial de Leica y una de las publicaciones de fotografía más reconocidas a nivel internacional. A través de iniciativas como Master Shot, Picture of the Week o las exposiciones de LFI Gallery, selecciona imágenes destacadas entre miles de fotografías enviadas por la comunidad Leica de todo el mundo.
-                    </p>
-                    <p>
-                      Las fotografías que aparecen en esta sección han sido publicadas o reconocidas por LFI. Para mí supone una gran satisfacción formar parte de este escaparate internacional y compartir aquí aquellas imágenes que han recibido la atención de una de las referencias más prestigiosas de la fotografía contemporánea.
-                    </p>
-                  </>
-                )}
-                {lang === 'en' && (
-                  <>
-                    <p>
-                      <strong>Leica Fotografie International (LFI)</strong> is the official Leica magazine and one of the most internationally recognized photography publications. Through initiatives like Master Shot, Picture of the Week, or LFI Gallery exhibitions, it selects standout images among thousands submitted by the Leica community worldwide.
-                    </p>
-                    <p>
-                      The photographs appearing in this section have been published or recognized by LFI. It brings me great satisfaction to be part of this international showcase and to share here those images that have captured the attention of one of the most prestigious references in contemporary photography.
-                    </p>
-                  </>
-                )}
-                {lang === 'ca' && (
-                  <>
-                    <p>
-                      <strong>Leica Fotografie International (LFI)</strong> és la revista oficial de Leica i una de les publicacions de fotografia més reconegudes a nivell internacional. A través d'iniciatives com Master Shot, Picture of the Week o les exposicions de LFI Gallery, selecciona imatges destacades entre milers de fotografies enviades per la comunitat Leica d'arreu del món.
-                    </p>
-                    <p>
-                      Les fotografies que apareixen en aquesta secció han estat publicades o reconegudes per LFI. Per a mi suposa una gran satisfacció formar part d'aquest aparador internacional i compartir aquí aquelles imatges que han rebut l'atenció d'una de les referències més prestigioses de la fotografia contemporània.
-                    </p>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      
 
-      <Lightbox 
-        lang={lang} 
-        photo={selectedPhoto} 
-        journey={selectedPhoto?.journeyId ? JDB.find(j => j.id === selectedPhoto.journeyId) : null}
+      <Lightbox
+        lang={lang}
+        photo={selectedPhoto}
+        journey={
+          selectedPhoto?.journeyId
+            ? JDB.find((j) => j.id === selectedPhoto.journeyId)
+            : null
+        }
         onNavigateToJourney={(journeyId) => {
-          const journey = JDB.find(j => j.id === journeyId);
+          const journey = JDB.find((j) => j.id === journeyId);
           if (journey) {
             setSelectedPhoto(null);
             setSelectedJourney(journey);
-            navigate(`/${journey.isSpecial ? 'special-sessions' : 'journeys'}`);
+            navigate(`/${journey.isSpecial ? "special-sessions" : "journeys"}`);
             window.scrollTo(0, 0);
           }
         }}
-        onClose={() => setSelectedPhoto(null)} 
-        onNext={handleNext} 
-        onPrev={handlePrev} 
+        onClose={() => setSelectedPhoto(null)}
+        onNext={handleNext}
+        onPrev={handlePrev}
       />
 
-      <Footer onNavigate={(id) => { setCurrentSection(id); setSelectedJourney(null); }} lang={lang} />
+      <Footer
+        onNavigate={(id) => {
+          setCurrentSection(id);
+          setSelectedJourney(null);
+        }}
+        lang={lang}
+      />
       <CookieBanner lang={lang} />
     </div>
   );
@@ -1519,13 +2577,13 @@ const PepPanel = () => {
   const { journeys } = useJourneys();
   const [comments, setComments] = useState<any[]>([]);
   const [editors, setEditors] = useState<any[]>([]);
-  const [newEditorEmail, setNewEditorEmail] = useState('');
+  const [newEditorEmail, setNewEditorEmail] = useState("");
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [visitorCount, setVisitorCount] = useState<number>(0);
 
   useEffect(() => {
     if (!isAuthorized) return;
-    const unsub = onSnapshot(doc(db, 'stats', 'visitors'), (docSnap: any) => {
+    const unsub = onSnapshot(doc(db, "stats", "visitors"), (docSnap: any) => {
       if (docSnap.exists()) {
         setVisitorCount(docSnap.data().count || 0);
       }
@@ -1539,16 +2597,22 @@ const PepPanel = () => {
         setIsAuthorized(false);
         return;
       }
-      
-      const hardcodedAdmins = ['eduard.kun115@gmail.com', 'pep.amores@gmail.com', 'pepamores@gmail.com'];
+
+      const hardcodedAdmins = [
+        "eduard.kun115@gmail.com",
+        "pep.amores@gmail.com",
+        "pepamores@gmail.com",
+      ];
       if (hardcodedAdmins.includes(auth.currentUser.email)) {
         setIsAuthorized(true);
         return;
       }
 
       try {
-        const { doc, getDoc } = await import('firebase/firestore');
-        const editorDoc = await getDoc(doc(db, 'editors', auth.currentUser.email));
+        const { doc, getDoc } = await import("firebase/firestore");
+        const editorDoc = await getDoc(
+          doc(db, "editors", auth.currentUser.email),
+        );
         setIsAuthorized(editorDoc.exists());
       } catch (error) {
         console.error("Error checking editor status:", error);
@@ -1561,14 +2625,18 @@ const PepPanel = () => {
 
   useEffect(() => {
     if (!isAuthorized) return;
-    const q = query(collection(db, 'comments'), orderBy('createdAt', 'desc'));
-    return onSnapshot(q, (snap) => setComments(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+    const q = query(collection(db, "comments"), orderBy("createdAt", "desc"));
+    return onSnapshot(q, (snap) =>
+      setComments(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }))),
+    );
   }, [isAuthorized]);
 
   useEffect(() => {
     if (!isAuthorized) return;
-    const q = query(collection(db, 'editors'));
-    return onSnapshot(q, (snap) => setEditors(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))));
+    const q = query(collection(db, "editors"));
+    return onSnapshot(q, (snap) =>
+      setEditors(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }))),
+    );
   }, [isAuthorized]);
 
   const handleAddEditor = async (e: React.FormEvent) => {
@@ -1576,25 +2644,25 @@ const PepPanel = () => {
     if (!newEditorEmail) return;
     try {
       // We use the email as the document ID for the editors collection
-      const { doc, setDoc } = await import('firebase/firestore');
-      await setDoc(doc(db, 'editors', newEditorEmail.toLowerCase()), {
+      const { doc, setDoc } = await import("firebase/firestore");
+      await setDoc(doc(db, "editors", newEditorEmail.toLowerCase()), {
         addedAt: serverTimestamp(),
-        addedBy: auth.currentUser?.email
+        addedBy: auth.currentUser?.email,
       });
-      setNewEditorEmail('');
-      alert('Editor añadido correctamente.');
+      setNewEditorEmail("");
+      alert("Editor añadido correctamente.");
     } catch (error: any) {
-      alert('Error al añadir editor: ' + error.message);
+      alert("Error al añadir editor: " + error.message);
     }
   };
 
   const handleRemoveEditor = async (email: string) => {
     if (confirm(`¿Seguro que quieres eliminar a ${email} como editor?`)) {
       try {
-        const { doc, deleteDoc } = await import('firebase/firestore');
-        await deleteDoc(doc(db, 'editors', email));
+        const { doc, deleteDoc } = await import("firebase/firestore");
+        await deleteDoc(doc(db, "editors", email));
       } catch (error: any) {
-        alert('Error al eliminar editor: ' + error.message);
+        alert("Error al eliminar editor: " + error.message);
       }
     }
   };
@@ -1607,8 +2675,13 @@ const PepPanel = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-4 text-center">
         <h1 className="text-3xl font-serif italic mb-2">Acceso Denegado</h1>
-        <p className="text-gray-500 mb-8 max-w-md">Tu cuenta no tiene permisos para acceder a este panel.</p>
-        <Link to="/" className="px-8 py-4 bg-black text-white rounded-2xl font-medium hover:bg-zinc-800 transition-all">
+        <p className="text-gray-500 mb-8 max-w-md">
+          Tu cuenta no tiene permisos para acceder a este panel.
+        </p>
+        <Link
+          to="/"
+          className="px-8 py-4 bg-black text-white rounded-2xl font-medium hover:bg-zinc-800 transition-all"
+        >
           Volver al Inicio
         </Link>
       </div>
@@ -1620,19 +2693,33 @@ const PepPanel = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-12">
           <h1 className="text-4xl font-serif italic">Panel Privado de Pep</h1>
-          <Link to="/admin" className="px-6 py-2 bg-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all">Gestionar Fotos</Link>
+          <Link
+            to="/admin"
+            className="px-6 py-2 bg-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all"
+          >
+            Gestionar Fotos
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
-            { label: 'Total Fotos', value: photos.length, icon: ImageIcon },
-            { label: 'Viajes', value: journeys.length, icon: MapPin },
-            { label: 'Comentarios', value: comments.length, icon: MessageSquare },
-            { label: 'Visitas', value: visitorCount, icon: User },
-          ].map(stat => (
-            <div key={stat.label} className="bg-white p-8 rounded-3xl shadow-sm">
+            { label: "Total Fotos", value: photos.length, icon: ImageIcon },
+            { label: "Viajes", value: journeys.length, icon: MapPin },
+            {
+              label: "Comentarios",
+              value: comments.length,
+              icon: MessageSquare,
+            },
+            { label: "Visitas", value: visitorCount, icon: User },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-white p-8 rounded-3xl shadow-sm"
+            >
               <stat.icon className="text-brand-accent mb-4" size={24} />
-              <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary mb-1">{stat.label}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary mb-1">
+                {stat.label}
+              </p>
               <p className="text-3xl font-serif italic">{stat.value}</p>
             </div>
           ))}
@@ -1640,45 +2727,77 @@ const PepPanel = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="bg-white p-8 rounded-3xl shadow-sm lg:col-span-2">
-            <h3 className="text-xl font-serif italic mb-6">Moderación de Comentarios</h3>
+            <h3 className="text-xl font-serif italic mb-6">
+              Moderación de Comentarios
+            </h3>
             <div className="space-y-4">
-              {comments.filter(c => !c.isApproved).map(c => (
-                <div key={c.id} className="p-4 bg-neutral-50 rounded-2xl flex justify-between items-start">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest mb-1">{c.userName} <span className="text-brand-secondary font-normal">en {c.targetType}</span></p>
-                    <p className="text-sm text-brand-secondary">{c.text}</p>
-                  </div>
-                  <button 
-                    onClick={async () => {
-                      try {
-                        const { doc, updateDoc } = await import('firebase/firestore');
-                        await updateDoc(doc(db, 'comments', c.id), { isApproved: true });
-                      } catch (error: any) {
-                        alert('Error al aprobar comentario: ' + error.message);
-                      }
-                    }}
-                    className="text-brand-accent hover:underline text-[10px] font-bold uppercase tracking-widest"
+              {comments
+                .filter((c) => !c.isApproved)
+                .map((c) => (
+                  <div
+                    key={c.id}
+                    className="p-4 bg-neutral-50 rounded-2xl flex justify-between items-start"
                   >
-                    Aprobar
-                  </button>
-                </div>
-              ))}
-              {comments.filter(c => !c.isApproved).length === 0 && <p className="text-sm text-brand-secondary italic">No hay comentarios pendientes.</p>}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest mb-1">
+                        {c.userName}{" "}
+                        <span className="text-brand-secondary font-normal">
+                          en {c.targetType}
+                        </span>
+                      </p>
+                      <p className="text-sm text-brand-secondary">{c.text}</p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const { doc, updateDoc } =
+                            await import("firebase/firestore");
+                          await updateDoc(doc(db, "comments", c.id), {
+                            isApproved: true,
+                          });
+                        } catch (error: any) {
+                          alert(
+                            "Error al aprobar comentario: " + error.message,
+                          );
+                        }
+                      }}
+                      className="text-brand-accent hover:underline text-[10px] font-bold uppercase tracking-widest"
+                    >
+                      Aprobar
+                    </button>
+                  </div>
+                ))}
+              {comments.filter((c) => !c.isApproved).length === 0 && (
+                <p className="text-sm text-brand-secondary italic">
+                  No hay comentarios pendientes.
+                </p>
+              )}
             </div>
           </div>
 
           <div className="space-y-8">
             <div className="bg-white p-8 rounded-3xl shadow-sm">
-              <h3 className="text-xl font-serif italic mb-6">Top Fotos (Favoritas)</h3>
+              <h3 className="text-xl font-serif italic mb-6">
+                Top Fotos (Favoritas)
+              </h3>
               <div className="space-y-4">
-                {photos.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0)).slice(0, 5).map(p => (
-                  <div key={p.id} className="flex items-center gap-4">
-                    <img src={p.url} className="w-12 h-12 rounded-lg object-cover" />
-                    <div className="flex-1">
-                      <p className="text-sm font-bold truncate">{p.title}</p>
+                {photos
+                  .filter((p) => p.isFavorite)
+                  .sort(
+                    (a, b) => (b.favoriteScore || 0) - (a.favoriteScore || 0),
+                  )
+                  .slice(0, 5)
+                  .map((p) => (
+                    <div key={p.id} className="flex items-center gap-4">
+                      <img
+                        src={p.url}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-bold truncate">{p.title}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
 
@@ -1687,34 +2806,51 @@ const PepPanel = () => {
                 <User size={20} />
                 Editores
               </h3>
-              <p className="text-xs text-brand-secondary mb-4">Añade el email de Google de las personas que quieras que puedan subir fotos.</p>
-              
+              <p className="text-xs text-brand-secondary mb-4">
+                Añade el email de Google de las personas que quieras que puedan
+                subir fotos.
+              </p>
+
               <form onSubmit={handleAddEditor} className="flex gap-2 mb-6">
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   value={newEditorEmail}
                   onChange={(e) => setNewEditorEmail(e.target.value)}
                   placeholder="email@gmail.com"
                   className="flex-1 bg-neutral-50 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-brand-primary/10 outline-none"
                 />
-                <button type="submit" className="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-800">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-800"
+                >
                   Añadir
                 </button>
               </form>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl">
-                  <span className="text-sm font-medium">eduard.kun115@gmail.com</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">Propietario</span>
+                  <span className="text-sm font-medium">
+                    eduard.kun115@gmail.com
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">
+                    Propietario
+                  </span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl">
-                  <span className="text-sm font-medium">pep.amores@gmail.com</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">Propietario</span>
+                  <span className="text-sm font-medium">
+                    pep.amores@gmail.com
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent">
+                    Propietario
+                  </span>
                 </div>
-                {editors.map(editor => (
-                  <div key={editor.id} className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl">
+                {editors.map((editor) => (
+                  <div
+                    key={editor.id}
+                    className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl"
+                  >
                     <span className="text-sm">{editor.id}</span>
-                    <button 
+                    <button
                       onClick={() => handleRemoveEditor(editor.id)}
                       className="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:underline"
                     >
