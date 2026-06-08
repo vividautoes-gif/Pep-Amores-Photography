@@ -213,7 +213,7 @@ export const AdminPage: React.FC = () => {
                 className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all", activeTab === 'manage-recent' ? "bg-black text-white" : "text-gray-500 hover:bg-white")}
               >
                 <Clock size={18} />
-                Últimas 50
+                Últimas
               </button>
               <button 
                 onClick={() => setActiveTab('manage-lfi')}
@@ -279,7 +279,7 @@ export const AdminPage: React.FC = () => {
                   {activeTab === 'manage-albums' && 'Gestionar Álbumes'}
                   {activeTab === 'manage-tags' && 'Gestionar Hashtags'}
                   {activeTab === 'manage-favorites' && 'Gestionar Favoritas'}
-                  {activeTab === 'manage-recent' && 'Últimas 50'}
+                  {activeTab === 'manage-recent' && 'Últimas'}
                   {activeTab === 'manage-lfi' && 'Gestionar LFI'}
                   {activeTab === 'manage-about' && 'Sobre Mí'}
                   {activeTab === 'manage-home-collections' && 'Home Colecciones'}

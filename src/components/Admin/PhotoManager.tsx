@@ -349,14 +349,25 @@ export const PhotoManager: React.FC = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Año</label>
-                        <input 
-                          type="number"
-                          value={editData.year || ''} 
-                          onChange={e => setEditData({...editData, year: parseInt(e.target.value)})} 
-                          className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
-                        />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Año</label>
+                          <input 
+                            type="number"
+                            value={editData.year || ''} 
+                            onChange={e => setEditData({...editData, year: parseInt(e.target.value)})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-gray-400 mb-1 block">Fecha completa de la foto</label>
+                          <input 
+                            type="date"
+                            value={editData.photoDate || ''} 
+                            onChange={e => setEditData({...editData, photoDate: e.target.value})} 
+                            className="w-full p-3 bg-neutral-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-black outline-none" 
+                          />
+                        </div>
                       </div>
 
                       <div>

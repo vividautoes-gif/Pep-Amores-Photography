@@ -47,7 +47,7 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
         {
             label: t.collections[lang],
             links: [
-                { title: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', onClick: () => onNavigate('latest') },
+                { title: lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest', onClick: () => onNavigate('latest') },
                 { title: 'LFI Gallery', onClick: () => onNavigate('lfi') },
             ],
         },

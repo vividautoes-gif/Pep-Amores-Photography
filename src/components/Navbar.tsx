@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
     },
     { label: s.nav[3], id: 'explore' },
     { label: s.nav[4], id: 'favorites' },
-    { label: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', id: 'latest' },
+    { label: lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest', id: 'latest' },
     { label: s.nav[5], id: 'lfi' },
     { label: s.nav[6], id: 'my-movies' },
     { label: lang === 'es' ? 'Sobre mí' : lang === 'ca' ? 'Sobre mi' : 'About', id: 'about' },
@@ -275,7 +275,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
                       handleCloseMenu();
                     }}
                     className={cn(
-                      "text-left py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all",
+                      "text-left py-3.5 px-4 rounded-full text-sm font-bold uppercase tracking-widest transition-all",
                       currentSection === link.id 
                         ? "bg-[#B45309]/10 text-[#B45309]" 
                         : "text-neutral-600 hover:bg-[#B45309]/10 hover:text-[#B45309]"
@@ -288,15 +288,15 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
                 <div className="my-6 h-px bg-black/5 w-full" />
                 
                 <div className="flex flex-col gap-1">
-                  <a href="https://www.instagram.com/pepamores?igsh=dGp3ODZxaWdqcnd0" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-[#B45309]/5 transition-all">
+                  <a href="https://www.instagram.com/pepamores?igsh=dGp3ODZxaWdqcnd0" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-full text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-[#B45309]/5 transition-all">
                     <Instagram size={18} className="group-hover:text-[#E1306C] transition-colors" />
                     <span className="group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-tr group-hover:from-[#f09433] group-hover:via-[#dc2743] group-hover:to-[#bc1888] transition-all">Instagram</span>
                   </a>
-                  <a href="https://www.linkedin.com/in/josepamores?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-[#B45309]/5 transition-all">
+                  <a href="https://www.linkedin.com/in/josepamores?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-full text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-[#B45309]/5 transition-all">
                     <Linkedin size={18} className="group-hover:text-[#0A66C2] transition-colors" />
                     <span className="group-hover:text-[#0A66C2] transition-colors">LinkedIn</span>
                   </a>
-                  <a href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-xl text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-[#B45309]/5 transition-all">
+                  <a href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 py-3.5 px-4 rounded-full text-sm font-bold uppercase tracking-widest text-neutral-600 hover:bg-[#B45309]/5 transition-all">
                     <ExternalLink size={18} className="group-hover:text-red-600 transition-colors" />
                     <span className="group-hover:text-red-600 transition-colors">LFI Online</span>
                   </a>

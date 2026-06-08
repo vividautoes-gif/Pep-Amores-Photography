@@ -23,7 +23,7 @@ const COLLECTIONS = [
   { id: 'special-sessions', label: 'SESIONES ESPECIALES' },
   { id: 'explore', label: 'ARCHIVO COMPLETO' },
   { id: 'favorites', label: 'Favoritas' },
-  { id: 'latest', label: 'Últimas 50' },
+  { id: 'latest', label: 'Últimas' },
   { id: 'recent', label: 'RECIENTES' },
   { id: 'lfi', label: 'LFI' },
 ];

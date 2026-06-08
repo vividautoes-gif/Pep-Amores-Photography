@@ -375,7 +375,8 @@ function Gallery() {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [filterLogic, setFilterLogic] = useState<'and' | 'or'>('and');
   const [lfiFilter, setLfiFilter] = useState<'all' | 'lfimastershot' | 'lfiexhibition' | 'lfi-picture-of-the-week'>('all');
-  const [favoritePeriodFilter, setFavoritePeriodFilter] = useState<'all' | '6m' | '12m' | '24m'>('all');
+  const [showLfiInfo, setShowLfiInfo] = useState(false);
+  const [favoritePeriodFilter, setFavoritePeriodFilter] = useState<'6m' | '12m' | '24m'>('24m');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [isSending, setIsSending] = useState(false);
 
@@ -445,26 +446,24 @@ function Gallery() {
     if (currentSection === 'home' || currentSection === 'explore') return filteredPhotos;
     if (currentSection === 'favorites') {
       let favs = DB.filter(p => p.isFavorite).sort((a,b) => (b.favoriteScore || 0) - (a.favoriteScore || 0));
-      if (favoritePeriodFilter !== 'all') {
-        const months = favoritePeriodFilter === '6m' ? 6 : favoritePeriodFilter === '12m' ? 12 : 24;
-        const cutoff = new Date();
-        cutoff.setMonth(cutoff.getMonth() - months);
-        favs = favs.filter(p => {
-          let d;
-          if (p.photoDate) {
-            d = new Date(p.photoDate);
-          } else if (p.year) {
-            d = new Date(p.year, 0, 1);
-          } else {
-            return true;
-          }
-          if (isNaN(d.getTime())) return true;
-          return d >= cutoff;
-        });
-      }
+      const months = favoritePeriodFilter === '6m' ? 6 : favoritePeriodFilter === '12m' ? 12 : 24;
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - months);
+      favs = favs.filter(p => {
+        let d;
+        if (p.photoDate) {
+          d = new Date(p.photoDate);
+        } else if (p.year) {
+          d = new Date(p.year, 0, 1);
+        } else {
+          return true;
+        }
+        if (isNaN(d.getTime())) return true;
+        return d >= cutoff;
+      });
       return favs;
     }
-    if (currentSection === 'latest') return DB.slice(0, 50);
+    if (currentSection === 'latest') return DB.slice(0, 100);
     if (currentSection === 'lfi') return DB.filter(p => p.isLFI && (lfiFilter === 'all' || p.lfiType === lfiFilter))
       .sort((a, b) => {
         const getTime = (dateInput: any) => {
@@ -652,10 +651,10 @@ function Gallery() {
                       },
                       { 
                         id: 'latest', 
-                        title: lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50', 
+                        title: lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest', 
                         desc: lang === 'es' ? 'Recientes' : lang === 'ca' ? 'Recents' : 'Recent',
                         images: getCollectionImages('latest', DB.slice(0, 4).map(p => ({ src: p.url, alt: p.title }))),
-                        count: Math.min(DB.length, 50)
+                        count: Math.min(DB.length, 100)
                       },
                       { 
                         id: 'recent', 
@@ -990,20 +989,26 @@ function Gallery() {
                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-brand-accent mb-4 text-center">
                       {lang === 'es' ? 'Modo de combinación de Hashtags' : lang === 'en' ? 'Hashtag Combination Mode' : 'Mode de combinació de Hashtags'}
                     </h3>
-                    <div className="bg-white p-1.5 rounded-full flex items-center shadow-sm border border-neutral-200 w-full max-w-md relative">
-                      <button 
-                        onClick={() => setFilterLogic('and')}
-                        className={cn("flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all z-10", filterLogic === 'and' ? "text-white" : "text-brand-secondary hover:text-brand-accent")}
-                      >
-                        {lang === 'es' ? 'Todas (Y)' : lang === 'en' ? 'All (AND)' : 'Totes (I)'}
-                      </button>
-                      <button 
-                        onClick={() => setFilterLogic('or')}
-                        className={cn("flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all z-10", filterLogic === 'or' ? "text-white" : "text-brand-secondary hover:text-brand-accent")}
-                      >
-                        {lang === 'es' ? 'Cualquiera (O)' : lang === 'en' ? 'Any (OR)' : 'Qualsevol (O)'}
-                      </button>
-                      <div className={cn("absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-brand-accent rounded-full transition-all duration-300 ease-in-out", filterLogic === 'and' ? "left-1.5" : "left-[calc(50%+3px)]")} />
+                    <div className="flex bg-gray-100/50 p-1.5 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50 w-full max-w-md mx-auto">
+                      {[
+                        { id: 'and', label: lang === 'es' ? 'Todas (Y)' : lang === 'en' ? 'All (AND)' : 'Totes (I)' },
+                        { id: 'or', label: lang === 'es' ? 'Cualquiera (O)' : lang === 'en' ? 'Any (OR)' : 'Qualsevol (O)' }
+                      ].map(tab => (
+                        <button 
+                          key={tab.id}
+                          onClick={() => setFilterLogic(tab.id as any)}
+                          className={cn("relative flex-1 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors z-10", filterLogic === tab.id ? "text-[#B45309]" : "text-gray-500 hover:text-[#B45309]")}
+                        >
+                          {filterLogic === tab.id && (
+                            <motion.div 
+                              layoutId="logicPill" 
+                              className="absolute inset-0 bg-[#B45309]/10 backdrop-blur-sm rounded-full -z-10 shadow-sm border border-[#B45309]/20"
+                              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                          {tab.label}
+                        </button>
+                      ))}
                     </div>
                     <p className="mt-6 text-sm text-brand-secondary font-light text-center max-w-lg leading-relaxed">
                       {filterLogic === 'and' 
@@ -1034,7 +1039,18 @@ function Gallery() {
 
                   <div className="flex flex-wrap justify-center gap-2">
                     {allTags.map(tag => (
-                      <button key={tag} onClick={() => toggleFilter(tag)} className={cn("px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", activeFilters.has(tag) ? "bg-brand-primary text-white border-brand-primary shadow-md" : "bg-white text-brand-secondary border-neutral-200 hover:border-brand-primary hover:text-brand-primary")}>#{tag}</button>
+                      <button 
+                        key={tag} 
+                        onClick={() => toggleFilter(tag)} 
+                        className={cn(
+                          "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", 
+                          activeFilters.has(tag) 
+                            ? "bg-[#B45309]/10 text-[#B45309] border-[#B45309]/20 shadow-sm backdrop-blur-sm" 
+                            : "bg-white text-gray-500 border-gray-200 hover:border-[#B45309]/30 hover:text-[#B45309]"
+                        )}
+                      >
+                        #{tag}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -1066,31 +1082,37 @@ function Gallery() {
             <motion.section key="favorites" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
                 <h1 className="text-5xl font-serif italic mb-6">{s.titles.fav}</h1>
-                <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-2">
-                  <button 
-                    onClick={() => setFavoritePeriodFilter('all')}
-                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === 'all' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
-                  >
-                    {lang === 'es' ? 'Todas' : lang === 'ca' ? 'Totes' : 'All'}
-                  </button>
-                  <button 
-                    onClick={() => setFavoritePeriodFilter('6m')}
-                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === '6m' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
-                  >
-                    {lang === 'es' ? 'Últimos 6 meses' : lang === 'ca' ? 'Últims 6 mesos' : 'Last 6 months'}
-                  </button>
-                  <button 
-                    onClick={() => setFavoritePeriodFilter('12m')}
-                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === '12m' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
-                  >
-                    {lang === 'es' ? 'Últimos 12 meses' : lang === 'ca' ? 'Últims 12 mesos' : 'Last 12 months'}
-                  </button>
-                  <button 
-                    onClick={() => setFavoritePeriodFilter('24m')}
-                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${favoritePeriodFilter === '24m' ? 'bg-black text-white' : 'bg-transparent border border-gray-200 text-gray-500 hover:border-black hover:text-black'}`}
-                  >
-                    {lang === 'es' ? 'Últimos 24 meses' : lang === 'ca' ? 'Últims 24 mesos' : 'Last 24 months'}
-                  </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#B45309]">
+                    {lang === 'es' ? 'Últimos' : lang === 'ca' ? 'Últims' : 'Last'}
+                  </span>
+                  <div className="flex bg-gray-100/50 p-1.5 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50">
+                    {[
+                      { id: '6m', label: '6' },
+                      { id: '12m', label: '12' },
+                      { id: '24m', label: '24' }
+                    ].map(tab => (
+                      <button 
+                        key={tab.id}
+                        onClick={() => setFavoritePeriodFilter(tab.id as any)}
+                        className={`relative px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors z-10 ${
+                          favoritePeriodFilter === tab.id ? 'text-[#B45309]' : 'text-gray-500 hover:text-[#B45309]'
+                        }`}
+                      >
+                        {favoritePeriodFilter === tab.id && (
+                          <motion.div 
+                            layoutId="favPill" 
+                            className="absolute inset-0 bg-[#B45309]/10 backdrop-blur-sm rounded-full -z-10 shadow-sm border border-[#B45309]/20"
+                            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                          />
+                        )}
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#B45309]">
+                    {lang === 'es' ? 'Meses' : lang === 'ca' ? 'Mesos' : 'Months'}
+                  </span>
                 </div>
               </div>
               {loading && DB.length === 0 ? (
@@ -1113,15 +1135,46 @@ function Gallery() {
                   ))}
                 </div>
               )}
+
+              {/* Action Buttons for Favorites */}
+              <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 pb-8">
+                <div className="flex flex-col items-center gap-4">
+                  <span className="text-sm font-serif italic text-brand-secondary">
+                    {lang === 'es' ? '¿Quieres seguir viendo más fotos?' : lang === 'ca' ? 'Vols seguir veient més fotos?' : 'Want to see more photos?'}
+                  </span>
+                  <button
+                    onClick={() => setCurrentSection('explore')}
+                    className="px-8 py-3.5 bg-black text-white rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/80 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  >
+                    {lang === 'es' ? 'Explorar' : lang === 'ca' ? 'Explorar' : 'Explore'}
+                  </button>
+                </div>
+                
+                <div className="hidden md:block w-px h-16 bg-neutral-200"></div>
+                <div className="md:hidden h-px w-32 bg-neutral-200"></div>
+
+                <div className="flex flex-col items-center gap-4">
+                  <span className="text-sm font-serif italic text-brand-secondary">
+                    {lang === 'es' ? '¿Quieres dejar una reseña?' : lang === 'ca' ? 'Vols deixar una ressenya?' : 'Do you want to leave a review?'}
+                  </span>
+                  <button
+                    onClick={() => setCurrentSection('contact')}
+                    className="px-8 py-3.5 border border-black/10 text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/5 transition-colors"
+                  >
+                    {lang === 'es' ? 'Dejar una reseña' : lang === 'ca' ? 'Deixar una ressenya' : 'Leave a review'}
+                  </button>
+                </div>
+              </div>
+
             </motion.section>
           )}
 
           {currentSection === 'latest' && (
             <motion.section key="latest" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
-                <h1 className="text-5xl font-serif italic mb-4">{lang === 'es' ? 'Últimas 50' : lang === 'ca' ? 'Últimes 50' : 'Latest 50'}</h1>
+                <h1 className="text-5xl font-serif italic mb-4">{lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest'}</h1>
                 <p className="text-brand-secondary font-light">
-                  {lang === 'es' ? 'Las últimas capturas publicadas' : lang === 'ca' ? 'Les últimes captures publicades' : 'The latest published captures'}
+                  {lang === 'es' ? 'Las 100 últimas capturas publicadas' : lang === 'ca' ? 'Les 100 últimes captures publicades' : 'The 100 latest published captures'}
                 </p>
               </div>
               {loading && DB.length === 0 ? (
@@ -1139,7 +1192,7 @@ function Gallery() {
                 </div>
               ) : (
                 <div className="justified-gallery">
-                  {DB.slice(0, 50).map(photo => (
+                  {DB.slice(0, 100).map(photo => (
                     <PhotoCard lang={lang} key={photo.id} photo={photo} onClick={(id) => setSelectedPhoto(DB.find(p => p.id === id) || null)} />
                   ))}
                 </div>
@@ -1150,16 +1203,21 @@ function Gallery() {
           {currentSection === 'lfi' && (
             <motion.section key="lfi" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
               <div className="text-center mb-16">
-                <h1 className="text-6xl font-serif italic mb-4 tracking-tighter">{s.titles.lfi}</h1>
-                <p className="text-brand-secondary font-light mb-4">{s.subtitles.lfi}</p>
-                <a 
-                  href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-block text-leica-red hover:underline font-medium mb-12"
-                >
-                  {lang === 'es' ? 'Ver perfil de Pep Amores en Leica' : lang === 'ca' ? 'Veure perfil de Pep Amores a Leica' : 'View Pep Amores profile on Leica'}
-                </a>
+                <p className="text-brand-secondary font-light mb-4 max-w-2xl mx-auto">{s.subtitles.lfi}</p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                  <button onClick={() => setShowLfiInfo(true)} className="flex items-center gap-2 text-brand-secondary hover:text-black transition-colors font-medium text-sm">
+                    ℹ️ {lang === 'es' ? '¿Qué es LFI?' : lang === 'ca' ? 'Què és LFI?' : 'What is LFI?'}
+                  </button>
+                  <span className="hidden sm:inline text-neutral-300">|</span>
+                  <a 
+                    href="https://lfi-online.de/en/gallery/Pep-Amores-874174.html" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-block text-leica-red hover:underline font-medium"
+                  >
+                    {lang === 'es' ? 'Ver perfil de Pep Amores en Leica' : lang === 'ca' ? 'Veure perfil de Pep Amores a Leica' : 'View Pep Amores profile on Leica'}
+                  </a>
+                </div>
                 <div className="flex justify-center gap-4 mb-12">
                   {['all', 'lfimastershot', 'lfiexhibition', 'lfi-picture-of-the-week'].map(type => (
                     <button key={type} onClick={() => setLfiFilter(type as any)} className={cn("px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border", lfiFilter === type ? "bg-leica-red text-white border-leica-red" : "bg-white text-brand-secondary border-neutral-200 hover:border-leica-red hover:text-leica-red")}>
@@ -1366,6 +1424,69 @@ function Gallery() {
           )}
         </AnimatePresence>
       </main>
+
+      <AnimatePresence>
+        {showLfiInfo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowLfiInfo(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/95 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white max-w-2xl w-full p-8 md:p-12 shadow-2xl relative"
+            >
+              <button 
+                onClick={() => setShowLfiInfo(false)}
+                className="absolute top-6 right-6 text-brand-tertiary hover:text-black transition-colors"
+              >
+                <X size={24} strokeWidth={1} />
+              </button>
+              <div className="mb-6">
+                <h2 className="text-3xl font-serif italic mb-2 tracking-tight">Leica Fotografie International</h2>
+                <div className="w-12 h-px bg-leica-red"></div>
+              </div>
+              <div className="space-y-6 text-brand-secondary leading-relaxed font-light text-sm md:text-base">
+                {lang === 'es' && (
+                  <>
+                    <p>
+                      <strong>Leica Fotografie International (LFI)</strong> es la revista oficial de Leica y una de las publicaciones de fotografía más reconocidas a nivel internacional. A través de iniciativas como Master Shot, Picture of the Week o las exposiciones de LFI Gallery, selecciona imágenes destacadas entre miles de fotografías enviadas por la comunidad Leica de todo el mundo.
+                    </p>
+                    <p>
+                      Las fotografías que aparecen en esta sección han sido publicadas o reconocidas por LFI. Para mí supone una gran satisfacción formar parte de este escaparate internacional y compartir aquí aquellas imágenes que han recibido la atención de una de las referencias más prestigiosas de la fotografía contemporánea.
+                    </p>
+                  </>
+                )}
+                {lang === 'en' && (
+                  <>
+                    <p>
+                      <strong>Leica Fotografie International (LFI)</strong> is the official Leica magazine and one of the most internationally recognized photography publications. Through initiatives like Master Shot, Picture of the Week, or LFI Gallery exhibitions, it selects standout images among thousands submitted by the Leica community worldwide.
+                    </p>
+                    <p>
+                      The photographs appearing in this section have been published or recognized by LFI. It brings me great satisfaction to be part of this international showcase and to share here those images that have captured the attention of one of the most prestigious references in contemporary photography.
+                    </p>
+                  </>
+                )}
+                {lang === 'ca' && (
+                  <>
+                    <p>
+                      <strong>Leica Fotografie International (LFI)</strong> és la revista oficial de Leica i una de les publicacions de fotografia més reconegudes a nivell internacional. A través d'iniciatives com Master Shot, Picture of the Week o les exposicions de LFI Gallery, selecciona imatges destacades entre milers de fotografies enviades per la comunitat Leica d'arreu del món.
+                    </p>
+                    <p>
+                      Les fotografies que apareixen en aquesta secció han estat publicades o reconegudes per LFI. Per a mi suposa una gran satisfacció formar part d'aquest aparador internacional i compartir aquí aquelles imatges que han rebut l'atenció d'una de les referències més prestigioses de la fotografia contemporània.
+                    </p>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Lightbox 
         lang={lang} 

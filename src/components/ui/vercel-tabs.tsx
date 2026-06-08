@@ -108,7 +108,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
                   tabRefs.current[index] = el;
                 }}
                 className={cn(
-                  "px-1 md:px-1 lg:px-2 xl:px-4 py-2 cursor-pointer transition-colors duration-300 h-[34px] flex items-center rounded-[8px] shrink-0",
+                  "px-1 md:px-1 lg:px-2 xl:px-4 py-2 cursor-pointer transition-colors duration-300 h-[34px] flex items-center rounded-full shrink-0",
                   index === activeIndex 
                     ? "text-[#B45309]" 
                     : "text-neutral-600 hover:text-[#B45309] hover:bg-[#B45309]/10"

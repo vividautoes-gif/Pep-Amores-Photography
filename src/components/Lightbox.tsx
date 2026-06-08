@@ -184,7 +184,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, journey, onNavigateTo
                           <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
                             {lang === 'es' ? 'Fecha' : lang === 'en' ? 'Date' : 'Data'}
                           </span>
-                          <span className="text-sm font-medium text-white/90">{photo.photoDate ? formatDate(photo.photoDate) : (formatDate(photo.createdAt) || photo.year)}</span>
+                          <span className="text-sm font-medium text-white/90">{photo.photoDate ? formatDate(photo.photoDate) : photo.year}</span>
                         </motion.div>
                       </div>
 

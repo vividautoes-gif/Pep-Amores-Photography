@@ -53,12 +53,12 @@ export const Strings = {
       specialSessions: "Sesiones Especiales",
       contact: "Contacto",
       about: "Sobre mí",
-      latest: "Últimas 50",
+      latest: "Últimas",
       exploreCollections: "Explorar Colecciones"
     },
     subtitles: { 
       home: "La fotografía como una forma de mirar, sentir y detener lo que importa.", 
-      lfi: "Fotos premiadas por Leica Fotografía Internacional",
+      lfi: "Fotografías publicadas por Leica Fotografie International (LFI), la plataforma fotográfica internacional de Leica.",
       journeys: "Explora el mundo a través de colecciones fotográficas únicas."
     },
     labels: { 
@@ -104,12 +104,12 @@ export const Strings = {
       specialSessions: "Special Sessions",
       contact: "Contact",
       about: "About me",
-      latest: "Latest 50",
+      latest: "Latest",
       exploreCollections: "Explore Collections"
     },
     subtitles: { 
       home: "Photography as a way of looking, feeling and stopping what matters.", 
-      lfi: "Award-winning photos by Leica Photography International",
+      lfi: "Photographs published by Leica Fotografie International (LFI), the international Leica photography platform.",
       journeys: "Explore the world through unique photographic collections."
     },
     labels: { 
@@ -155,12 +155,12 @@ export const Strings = {
       specialSessions: "Sessions Especials",
       contact: "Contacte",
       about: "Sobre mi",
-      latest: "Últimes 50",
+      latest: "Últimes",
       exploreCollections: "Explorar Col·leccions"
     },
     subtitles: { 
       home: "La fotografia com una forma de mirar, sentir i aturar el que importa.", 
-      lfi: "Fotos premiades per Leica Fotografia Internacional",
+      lfi: "Fotografies publicades per Leica Fotografie International (LFI), la plataforma fotogràfica internacional de Leica.",
       journeys: "Explora el món a través de col·leccions fotogràfiques úniques."
     },
     labels: { 

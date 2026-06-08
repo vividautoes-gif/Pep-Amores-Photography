@@ -48,7 +48,11 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onClick, priority, 
             {photo.title}
           </h3>
           <div className="flex items-center justify-between gap-2 text-[10px] opacity-80 font-medium uppercase tracking-widest">
-            <span>Pep Amores</span>
+            <div className="flex items-center gap-2">
+              <span>Pep Amores</span>
+              <span>•</span>
+              <span>{photo.photoDate ? formatDate(photo.photoDate) : photo.year}</span>
+            </div>
             {photo.isLFI && photo.lfiDate && (
               <span className="text-leica-red font-bold">
                 {formatDate(photo.lfiDate)}

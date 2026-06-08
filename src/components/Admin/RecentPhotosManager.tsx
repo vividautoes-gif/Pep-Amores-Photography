@@ -41,7 +41,7 @@ export const RecentPhotosManager: React.FC = () => {
       <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 mb-8">
         <h3 className="text-emerald-900 font-medium mb-2 flex items-center gap-2">
           <Clock size={18} />
-          Sobre esta sección: Últimas 50 Fotografías
+          Sobre esta sección: Últimas Fotografías
         </h3>
         <p className="text-emerald-800/80 text-sm leading-relaxed">
           Aquí puedes ver y editar rápidamente los títulos de las últimas 50 fotografías que has subido. 
