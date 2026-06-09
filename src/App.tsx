@@ -891,13 +891,10 @@ function Gallery() {
                               : "Viatges",
                         images: getCollectionImages(
                           "journeys",
-                          journeysOnly
-                            .slice(0, 4)
-                            .map((j) => ({
-                              src:
-                                j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
-                              alt: j.title,
-                            })),
+                          journeysOnly.slice(0, 4).map((j) => ({
+                            src: j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
+                            alt: j.title,
+                          })),
                         ),
                         count: journeysOnly.length,
                       },
@@ -917,13 +914,10 @@ function Gallery() {
                               : "Col·leccions",
                         images: getCollectionImages(
                           "collections",
-                          journeysOnly
-                            .slice(0, 4)
-                            .map((j) => ({
-                              src:
-                                j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
-                              alt: j.title,
-                            })),
+                          journeysOnly.slice(0, 4).map((j) => ({
+                            src: j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
+                            alt: j.title,
+                          })),
                         ),
                         count: journeysOnly.length,
                       },
@@ -938,13 +932,10 @@ function Gallery() {
                               : "Special Sessions",
                         images: getCollectionImages(
                           "special-sessions",
-                          specialSessionsOnly
-                            .slice(0, 4)
-                            .map((j) => ({
-                              src:
-                                j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
-                              alt: j.title,
-                            })),
+                          specialSessionsOnly.slice(0, 4).map((j) => ({
+                            src: j.coverUrl || (DB.length > 0 ? DB[0].url : ""),
+                            alt: j.title,
+                          })),
                         ),
                         count: specialSessionsOnly.length,
                       },
@@ -1860,12 +1851,13 @@ function Gallery() {
                   {s.titles.fav}
                 </h1>
 
-                <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 mt-12 w-full max-w-6xl mx-auto px-4">
-                  {/* Line 1 (Mobile) / Left (Desktop) : "Todas" */}
-                  <div className="flex items-center justify-center w-full lg:w-auto">
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-4 lg:gap-8 mt-12 w-full max-w-6xl mx-auto px-2 sm:px-4">
+                  {/* Line 1 (Mobile) / Left & Middle (Desktop) : "Todas" + "Últimos 6 12 24 Meses" */}
+                  <div className="flex flex-row flex-wrap sm:flex-nowrap items-center justify-center gap-[4px] sm:gap-2 w-full lg:w-auto">
+                    {/* "Todas" */}
                     <button
                       onClick={() => setFavoritePeriodFilter("all")}
-                      className={`relative px-8 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
+                      className={`relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all ${
                         favoritePeriodFilter === "all"
                           ? "text-[#B45309] bg-[#B45309]/10 border border-[#B45309]/20 shadow-sm backdrop-blur-sm"
                           : "text-gray-500 hover:text-[#B45309] bg-gray-100/50 border border-gray-200/50 hover:bg-[#B45309]/5"
@@ -1877,20 +1869,20 @@ function Gallery() {
                           ? "Totes"
                           : "All"}
                     </button>
-                  </div>
 
-                  <div className="hidden lg:block w-px h-8 bg-gray-200" />
+                    <div className="hidden sm:block w-px h-5 bg-gray-200 mx-1" />
 
-                  {/* Line 2 (Mobile) / Middle (Desktop) : "Últimos 6 12 24 Meses" */}
-                  <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 w-full lg:w-auto">
-                    <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#B45309]">
+                    {/* "Últimos" */}
+                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#B45309] ml-1 sm:ml-0">
                       {lang === "es"
                         ? "Últimos"
                         : lang === "ca"
                           ? "Últims"
                           : "Last"}
                     </span>
-                    <div className="flex bg-gray-100/50 p-1 sm:p-1.5 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50">
+
+                    {/* Months Pills */}
+                    <div className="flex bg-gray-100/50 p-[3px] sm:p-1 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50">
                       {[
                         { id: "6m", label: "6" },
                         { id: "12m", label: "12" },
@@ -1899,7 +1891,7 @@ function Gallery() {
                         <button
                           key={tab.id}
                           onClick={() => setFavoritePeriodFilter(tab.id as any)}
-                          className={`relative px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors z-10 ${
+                          className={`relative px-2.5 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors z-10 ${
                             favoritePeriodFilter === tab.id
                               ? "text-[#B45309]"
                               : "text-gray-500 hover:text-[#B45309]"
@@ -1920,7 +1912,9 @@ function Gallery() {
                         </button>
                       ))}
                     </div>
-                    <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#B45309]">
+
+                    {/* "Meses" */}
+                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#B45309] mr-1 sm:mr-0">
                       {lang === "es"
                         ? "Meses"
                         : lang === "ca"
@@ -1929,29 +1923,39 @@ function Gallery() {
                     </span>
                   </div>
 
-                  <div className="hidden lg:block w-px h-8 bg-gray-200" />
+                  <div className="hidden lg:block w-[1.5px] h-12 bg-gray-300 shadow-sm" />
 
-                  {/* Line 3 (Mobile) / Right (Desktop) : "Explorar" & "Dejar una reseña" */}
-                  <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 w-full lg:w-auto mt-2 lg:mt-0">
+                  {/* Line 2 (Mobile) / Right (Desktop) : "Explorar" & "Dejar una reseña" */}
+                  <div className="flex flex-row items-center justify-center gap-3 w-full lg:w-auto mt-4 lg:mt-0">
                     <button
                       onClick={() => setCurrentSection("explore")}
-                      className="flex-1 lg:flex-none px-4 sm:px-6 py-3 lg:py-2.5 bg-black text-white rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/80 transition-colors shadow-md hover:shadow-lg"
+                      className="group relative flex items-center justify-center overflow-hidden flex-1 lg:flex-none min-w-[140px] sm:min-w-[160px] h-[46px] sm:h-[50px] border-[1.5px] border-black text-black bg-transparent rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-transparent hover:text-white active:scale-[0.95]"
                     >
-                      {lang === "es"
-                        ? "Explorar"
-                        : lang === "ca"
-                          ? "Explorar"
-                          : "Explore"}
+                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full opacity-0 group-hover:w-[250px] group-hover:h-[250px] group-hover:opacity-100 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] z-0"></span>
+
+                      <span className="absolute left-4 sm:left-6 z-10 transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:left-[calc(100%-2rem)]">
+                        <Search size={14} className="stroke-black group-hover:stroke-white transition-colors duration-300" />
+                      </span>
+
+                      <span className="relative z-10 transition-all duration-[800ms] ease-out ml-6 sm:ml-8 group-hover:translate-x-[-15px] sm:group-hover:translate-x-[-20px] group-hover:ml-4 sm:group-hover:ml-6">
+                        {lang === "es" ? "Explorar" : lang === "ca" ? "Explorar" : "Explore"}
+                      </span>
                     </button>
+                    
                     <button
                       onClick={() => setCurrentSection("contact")}
-                      className="flex-1 lg:flex-none px-4 sm:px-6 py-3 lg:py-2.5 border border-black/10 text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/5 transition-colors"
+                      className="group relative flex flex-col items-center justify-center overflow-hidden flex-1 lg:flex-none min-w-[140px] sm:min-w-[160px] h-[46px] sm:h-[50px] bg-transparent border-[1.5px] border-[#B45309]/40 text-[#B45309] rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-transparent hover:text-white active:scale-[0.95]"
                     >
-                      {lang === "es"
-                        ? "Dejar una reseña"
-                        : lang === "ca"
-                          ? "Deixar una ressenya"
-                          : "Leave a review"}
+                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#B45309] rounded-full opacity-0 group-hover:w-[250px] group-hover:h-[250px] group-hover:opacity-100 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] z-0"></span>
+
+                      <span className="relative z-10 flex flex-col items-center leading-none transition-transform duration-[800ms] group-hover:scale-105">
+                        <span>
+                          {lang === "es" ? "Dejar una" : lang === "ca" ? "Deixar una" : "Leave a"}
+                        </span>
+                        <span className="mt-[3px]">
+                          {lang === "es" ? "reseña" : lang === "ca" ? "ressenya" : "review"}
+                        </span>
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -2072,9 +2076,7 @@ function Gallery() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                   <div className="relative group flex items-center justify-center">
-                    <button
-                      className="flex items-center gap-2 text-brand-secondary group-hover:text-black transition-colors font-medium text-sm"
-                    >
+                    <button className="relative z-50 flex items-center gap-2 text-brand-secondary group-hover:text-black transition-colors font-medium text-sm">
                       <Info size={16} />
                       {lang === "es"
                         ? "¿Qué es LFI?"
@@ -2082,12 +2084,15 @@ function Gallery() {
                           ? "Què és LFI?"
                           : "What is LFI?"}
                     </button>
-                    
+
+                    {/* Full-screen Hover Backdrop */}
+                    <div className="fixed inset-0 bg-white/40 backdrop-blur-md z-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 pointer-events-none"></div>
+
                     {/* Hover Popover */}
-                    <div className="absolute top-full mt-4 w-[90vw] sm:w-[500px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 pointer-events-none">
-                      <div className="bg-white p-6 shadow-2xl border border-neutral-100 rounded-2xl text-left">
+                    <div className="absolute top-10 sm:top-full mt-2 sm:mt-4 w-[90vw] sm:w-[500px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 pointer-events-none">
+                      <div className="bg-white/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl border border-neutral-200/50 rounded-2xl text-left">
                         <div className="mb-4">
-                          <h2 className="text-xl font-serif italic mb-2 tracking-tight text-black">
+                          <h2 className="text-xl sm:text-2xl font-serif italic mb-2 tracking-tight text-black">
                             Leica Fotografie International
                           </h2>
                           <div className="w-8 h-px bg-leica-red"></div>
@@ -2096,20 +2101,24 @@ function Gallery() {
                           {lang === "es" && (
                             <>
                               <p>
-                                <strong>Leica Fotografie International (LFI)</strong> es
-                                la revista oficial de Leica y una de las publicaciones de
-                                fotografía más reconocidas a nivel internacional. A través
-                                de iniciativas como Master Shot, Picture of the Week o las
+                                <strong>
+                                  Leica Fotografie International (LFI)
+                                </strong>{" "}
+                                es la revista oficial de Leica y una de las
+                                publicaciones de fotografía más reconocidas a
+                                nivel internacional. A través de iniciativas
+                                como Master Shot, Picture of the Week o las
                                 exposiciones de LFI Gallery, selecciona imágenes
-                                destacadas entre miles de fotografías enviadas por la
-                                comunidad Leica de todo el mundo.
+                                destacadas entre miles de fotografías enviadas
+                                por la comunidad Leica de todo el mundo.
                               </p>
                               <p>
-                                Las fotografías que aparecen en esta sección han sido
-                                publicadas o reconocidas por LFI. Para mí supone una gran
-                                satisfacción formar parte de este escaparate internacional
-                                y compartir aquí aquellas imágenes que han recibido la
-                                atención de una de las referencias más prestigiosas de la
+                                Las fotografías que aparecen en esta sección han
+                                sido publicadas o reconocidas por LFI. Para mí
+                                supone una gran satisfacción formar parte de
+                                este escaparate internacional y compartir aquí
+                                aquellas imágenes que han recibido la atención
+                                de una de las referencias más prestigiosas de la
                                 fotografía contemporánea.
                               </p>
                             </>
@@ -2117,20 +2126,24 @@ function Gallery() {
                           {lang === "ca" && (
                             <>
                               <p>
-                                <strong>Leica Fotografie International (LFI)</strong> és
-                                la revista oficial de Leica i una de les publicacions de
-                                fotografia més reconegudes a nivell internacional. A través
-                                d'iniciatives com Master Shot, Picture of the Week o les
+                                <strong>
+                                  Leica Fotografie International (LFI)
+                                </strong>{" "}
+                                és la revista oficial de Leica i una de les
+                                publicacions de fotografia més reconegudes a
+                                nivell internacional. A través d'iniciatives com
+                                Master Shot, Picture of the Week o les
                                 exposicions de LFI Gallery, selecciona imatges
-                                destacades entre milers de fotografies enviades per la
-                                comunitat Leica de tot el món.
+                                destacades entre milers de fotografies enviades
+                                per la comunitat Leica de tot el món.
                               </p>
                               <p>
-                                Les fotografies que apareixen en aquesta secció han estat
-                                publicades o reconegudes per LFI. Per a mi suposa una gran
-                                satisfacció formar part d'aquest aparador internacional
-                                i compartir aquí aquelles imatges que han rebut
-                                l'atenció d'una de les referències més prestigioses de la
+                                Les fotografies que apareixen en aquesta secció
+                                han estat publicades o reconegudes per LFI. Per
+                                a mi suposa una gran satisfacció formar part
+                                d'aquest aparador internacional i compartir aquí
+                                aquelles imatges que han rebut l'atenció d'una
+                                de les referències més prestigioses de la
                                 fotografia contemporània.
                               </p>
                             </>
@@ -2138,20 +2151,24 @@ function Gallery() {
                           {lang === "en" && (
                             <>
                               <p>
-                                <strong>Leica Fotografie International (LFI)</strong> is
-                                the official magazine of Leica and one of the most
-                                internationally recognized photography publications. Through
-                                initiatives such as Master Shot, Picture of the Week or the
-                                LFI Gallery exhibitions, it selects outstanding images
-                                from thousands of photographs submitted by the Leica
+                                <strong>
+                                  Leica Fotografie International (LFI)
+                                </strong>{" "}
+                                is the official magazine of Leica and one of the
+                                most internationally recognized photography
+                                publications. Through initiatives such as Master
+                                Shot, Picture of the Week or the LFI Gallery
+                                exhibitions, it selects outstanding images from
+                                thousands of photographs submitted by the Leica
                                 community worldwide.
                               </p>
                               <p>
-                                The photographs that appear in this section have been
-                                published or recognized by LFI. For me it is a great
-                                satisfaction to be part of this international showcase
-                                and to share here those images that have received the
-                                attention of one of the most prestigious references in
+                                The photographs that appear in this section have
+                                been published or recognized by LFI. For me it
+                                is a great satisfaction to be part of this
+                                international showcase and to share here those
+                                images that have received the attention of one
+                                of the most prestigious references in
                                 contemporary photography.
                               </p>
                             </>
@@ -2533,8 +2550,6 @@ function Gallery() {
           )}
         </AnimatePresence>
       </main>
-
-      
 
       <Lightbox
         lang={lang}
