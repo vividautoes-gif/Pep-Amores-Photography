@@ -14,6 +14,7 @@ import {
   MapPin,
   ChevronRight,
   ArrowLeft,
+  ArrowRight,
   Camera,
   AlertTriangle,
   Star,
@@ -1853,36 +1854,28 @@ function Gallery() {
 
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-4 lg:gap-8 mt-12 w-full max-w-6xl mx-auto px-2 sm:px-4">
                   {/* Line 1 (Mobile) / Left & Middle (Desktop) : "Todas" + "Últimos 6 12 24 Meses" */}
-                  <div className="flex flex-row flex-wrap sm:flex-nowrap items-center justify-center gap-[4px] sm:gap-2 w-full lg:w-auto">
+                  <div className="flex flex-row flex-nowrap items-center justify-center gap-[3px] sm:gap-2 w-full lg:w-auto">
                     {/* "Todas" */}
                     <button
                       onClick={() => setFavoritePeriodFilter("all")}
-                      className={`relative px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all ${
+                      className={`relative px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
                         favoritePeriodFilter === "all"
                           ? "text-[#B45309] bg-[#B45309]/10 border border-[#B45309]/20 shadow-sm backdrop-blur-sm"
                           : "text-gray-500 hover:text-[#B45309] bg-gray-100/50 border border-gray-200/50 hover:bg-[#B45309]/5"
                       }`}
                     >
-                      {lang === "es"
-                        ? "Todas"
-                        : lang === "ca"
-                          ? "Totes"
-                          : "All"}
+                      {lang === "es" ? "Todas" : lang === "ca" ? "Totes" : "All"}
                     </button>
 
                     <div className="hidden sm:block w-px h-5 bg-gray-200 mx-1" />
 
                     {/* "Últimos" */}
-                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#B45309] ml-1 sm:ml-0">
-                      {lang === "es"
-                        ? "Últimos"
-                        : lang === "ca"
-                          ? "Últims"
-                          : "Last"}
+                    <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-widest text-[#B45309] ml-0.5 sm:ml-0 whitespace-nowrap">
+                      {lang === "es" ? "Últimos" : lang === "ca" ? "Últims" : "Last"}
                     </span>
 
                     {/* Months Pills */}
-                    <div className="flex bg-gray-100/50 p-[3px] sm:p-1 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50">
+                    <div className="flex bg-gray-100/50 p-[2px] sm:p-1 rounded-full relative overflow-hidden backdrop-blur-sm shadow-inner border border-gray-200/50 flex-shrink-0">
                       {[
                         { id: "6m", label: "6" },
                         { id: "12m", label: "12" },
@@ -1891,7 +1884,7 @@ function Gallery() {
                         <button
                           key={tab.id}
                           onClick={() => setFavoritePeriodFilter(tab.id as any)}
-                          className={`relative px-2.5 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors z-10 ${
+                          className={`relative px-2 sm:px-4 py-1 sm:py-1.5 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider transition-colors z-10 ${
                             favoritePeriodFilter === tab.id
                               ? "text-[#B45309]"
                               : "text-gray-500 hover:text-[#B45309]"
@@ -1914,48 +1907,43 @@ function Gallery() {
                     </div>
 
                     {/* "Meses" */}
-                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#B45309] mr-1 sm:mr-0">
-                      {lang === "es"
-                        ? "Meses"
-                        : lang === "ca"
-                          ? "Mesos"
-                          : "Months"}
+                    <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-widest text-[#B45309] mr-0.5 sm:mr-0 whitespace-nowrap">
+                      {lang === "es" ? "Meses" : lang === "ca" ? "Mesos" : "Months"}
                     </span>
                   </div>
 
                   <div className="hidden lg:block w-[1.5px] h-12 bg-gray-300 shadow-sm" />
 
-                  {/* Line 2 (Mobile) / Right (Desktop) : "Explorar" & "Dejar una reseña" */}
-                  <div className="flex flex-row items-center justify-center gap-3 w-full lg:w-auto mt-4 lg:mt-0">
+                  {/* Line 2 (Mobile) / Right (Desktop) : "Explorar" & "Dejar reseña" */}
+                  <div className="flex flex-row items-center justify-center gap-3 w-full lg:w-auto mt-6 lg:mt-0">
                     <button
                       onClick={() => setCurrentSection("explore")}
-                      className="group relative flex items-center justify-center overflow-hidden flex-1 lg:flex-none min-w-[140px] sm:min-w-[160px] h-[46px] sm:h-[50px] border-[1.5px] border-black text-black bg-transparent rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-transparent hover:text-white active:scale-[0.95]"
+                      className="group relative flex items-center justify-center overflow-hidden flex-1 lg:flex-none min-w-[140px] sm:min-w-[170px] px-4 py-3 sm:py-0 h-[46px] sm:h-[50px] border-[1.5px] border-[#B45309]/40 bg-transparent rounded-[100px] hover:rounded-[12px] text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#B45309] cursor-pointer transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-transparent hover:text-white active:scale-[0.95]"
                     >
-                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full opacity-0 group-hover:w-[250px] group-hover:h-[250px] group-hover:opacity-100 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] z-0"></span>
+                      <Search className="absolute w-3.5 h-3.5 sm:w-4 sm:h-4 left-[-25%] stroke-[#B45309] fill-none z-[9] group-hover:left-4 sm:group-hover:left-5 group-hover:stroke-white transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
 
-                      <span className="absolute left-4 sm:left-6 z-10 transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:left-[calc(100%-2rem)]">
-                        <Search size={14} className="stroke-black group-hover:stroke-white transition-colors duration-300" />
-                      </span>
-
-                      <span className="relative z-10 transition-all duration-[800ms] ease-out ml-6 sm:ml-8 group-hover:translate-x-[-15px] sm:group-hover:translate-x-[-20px] group-hover:ml-4 sm:group-hover:ml-6">
+                      <span className="relative z-[1] -translate-x-3 sm:-translate-x-4 group-hover:translate-x-3 sm:group-hover:translate-x-4 transition-all duration-[800ms] ease-out whitespace-nowrap">
                         {lang === "es" ? "Explorar" : lang === "ca" ? "Explorar" : "Explore"}
                       </span>
+
+                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#B45309] rounded-full opacity-0 group-hover:w-[250px] group-hover:h-[250px] group-hover:opacity-100 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] z-0"></span>
+
+                      <Search className="absolute w-3.5 h-3.5 sm:w-4 sm:h-4 right-4 sm:right-5 stroke-[#B45309] fill-none z-[9] group-hover:right-[-25%] group-hover:stroke-white transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
                     </button>
                     
                     <button
                       onClick={() => setCurrentSection("contact")}
-                      className="group relative flex flex-col items-center justify-center overflow-hidden flex-1 lg:flex-none min-w-[140px] sm:min-w-[160px] h-[46px] sm:h-[50px] bg-transparent border-[1.5px] border-[#B45309]/40 text-[#B45309] rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-transparent hover:text-white active:scale-[0.95]"
+                      className="group relative flex items-center justify-center overflow-hidden flex-1 lg:flex-none min-w-[140px] sm:min-w-[170px] px-4 py-3 sm:py-0 h-[46px] sm:h-[50px] border-[1.5px] border-[#B45309]/40 bg-transparent rounded-[100px] hover:rounded-[12px] text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#B45309] cursor-pointer transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-transparent hover:text-white active:scale-[0.95]"
                     >
+                      <Camera className="absolute w-3.5 h-3.5 sm:w-4 sm:h-4 left-[-25%] stroke-[#B45309] fill-none z-[9] group-hover:left-4 sm:group-hover:left-5 group-hover:stroke-white transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
+
+                      <span className="relative z-[1] -translate-x-3 sm:-translate-x-4 group-hover:translate-x-3 sm:group-hover:translate-x-4 transition-all duration-[800ms] ease-out whitespace-nowrap">
+                        {lang === "es" ? "Dejar reseña" : lang === "ca" ? "Deixar ressenya" : "Leave Review"}
+                      </span>
+
                       <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#B45309] rounded-full opacity-0 group-hover:w-[250px] group-hover:h-[250px] group-hover:opacity-100 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] z-0"></span>
 
-                      <span className="relative z-10 flex flex-col items-center leading-none transition-transform duration-[800ms] group-hover:scale-105">
-                        <span>
-                          {lang === "es" ? "Dejar una" : lang === "ca" ? "Deixar una" : "Leave a"}
-                        </span>
-                        <span className="mt-[3px]">
-                          {lang === "es" ? "reseña" : lang === "ca" ? "ressenya" : "review"}
-                        </span>
-                      </span>
+                      <ArrowRight className="absolute w-3.5 h-3.5 sm:w-4 sm:h-4 right-4 sm:right-5 stroke-[#B45309] fill-none z-[9] group-hover:right-[-25%] group-hover:stroke-white transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
                     </button>
                   </div>
                 </div>

@@ -78,24 +78,34 @@ export const UploadForm: React.FC = () => {
     try {
       const tags = await ExifReader.load(selectedFile, { expanded: true });
       
-      const cameraModel = tags['Model']?.description || '';
-      const cameraMake = tags['Make']?.description || '';
-      const lens = tags['LensModel']?.description || tags['Lens']?.description || '';
-      const focalLength = tags['FocalLength']?.description || '';
-      const exposureTime = tags['ExposureTime']?.description || '';
-      const aperture = tags['FNumber']?.description || '';
-      const iso = tags['ISOSpeedRatings']?.description || '';
-      const imageDescription = tags['ImageDescription']?.description || '';
+      const getTag = (name: string) => {
+        return tags[name] || (tags.ifd0 && tags.ifd0[name]) || (tags.exif && tags.exif[name]) || (tags.image && tags.image[name]);
+      };
+
+      const cameraModel = getTag('Model')?.description || '';
+      const cameraMake = getTag('Make')?.description || '';
+      const lens = getTag('LensModel')?.description || getTag('Lens')?.description || '';
+      const focalLength = getTag('FocalLength')?.description || '';
+      const exposureTime = getTag('ExposureTime')?.description || '';
+      const aperture = getTag('FNumber')?.description || '';
+      const iso = getTag('ISOSpeedRatings')?.description || getTag('ISO')?.description || '';
+      const imageDescription = getTag('ImageDescription')?.description || '';
       
       let extractedYear = formData.year;
       let extractedDate = formData.photoDate;
-      const dateTimeOriginal = tags['DateTimeOriginal']?.description || tags['DateTime']?.description || '';
+      const dateTimeOriginal = getTag('DateTimeOriginal')?.description || getTag('DateTime')?.description || '';
       if (dateTimeOriginal) {
+        // dateTimeOriginal EXIF format can be "YYYY:MM:DD HH:MM:SS" or "YYYY-MM-DD ..."
         const yearMatch = dateTimeOriginal.match(/^(\d{4})/);
         if (yearMatch) {
           extractedYear = parseInt(yearMatch[1], 10);
         }
-        const dateParts = dateTimeOriginal.split(' ')[0].split(':');
+        
+        let datePart = dateTimeOriginal.split(' ')[0];
+        // Replce colons with dashes if necessary
+        datePart = datePart.replace(/:/g, '-');
+        
+        const dateParts = datePart.split('-');
         if (dateParts.length === 3) {
           extractedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
         }
@@ -191,15 +201,15 @@ export const UploadForm: React.FC = () => {
           return null;
         };
 
-        let latDec = tags.gps?.Latitude !== undefined ? tags.gps.Latitude : parseCoordinate(tags['GPSLatitude'], tags['GPSLatitudeRef'], true);
-        let lonDec = tags.gps?.Longitude !== undefined ? tags.gps.Longitude : parseCoordinate(tags['GPSLongitude'], tags['GPSLongitudeRef'], false);
+        let latDec = tags.gps?.Latitude !== undefined ? tags.gps.Latitude : parseCoordinate(getTag('GPSLatitude'), getTag('GPSLatitudeRef'), true);
+        let lonDec = tags.gps?.Longitude !== undefined ? tags.gps.Longitude : parseCoordinate(getTag('GPSLongitude'), getTag('GPSLongitudeRef'), false);
 
         // Fallback to XMP Apple tags if EXIF is missing or malformed
-        if (latDec === null && tags['Latitude']) {
-            latDec = parseCoordinate(tags['Latitude'], null, true);
+        if (latDec === null && getTag('Latitude')) {
+            latDec = parseCoordinate(getTag('Latitude'), null, true);
         }
-        if (lonDec === null && tags['Longitude']) {
-            lonDec = parseCoordinate(tags['Longitude'], null, false);
+        if (lonDec === null && getTag('Longitude')) {
+            lonDec = parseCoordinate(getTag('Longitude'), null, false);
         }
 
         if (latDec !== null && lonDec !== null && !isNaN(latDec) && !isNaN(lonDec)) {
