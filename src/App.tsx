@@ -2282,7 +2282,7 @@ function Gallery() {
                   </div>
                   <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl w-full">
                     <img
-                      src="https://i.imgur.com/3UDsFmR.jpg"
+                      src="https://i.imgur.com/7zcin07.jpg"
                       alt="Steve McCurry"
                       className="w-full h-full object-cover"
                     />
