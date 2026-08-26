@@ -2272,12 +2272,21 @@ function Gallery() {
                   </p>
                 </div>
 
-                <div className="flex-1 aspect-[1198/1245] rounded-3xl overflow-hidden shadow-2xl w-full">
-                  <img
-                    src="https://i.imgur.com/diHGiy8.jpg"
-                    alt="Pep Amores"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="flex-1 w-full flex flex-col gap-8">
+                  <div className="aspect-[1198/1245] rounded-3xl overflow-hidden shadow-2xl w-full">
+                    <img
+                      src="https://i.imgur.com/diHGiy8.jpg"
+                      alt="Pep Amores"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl w-full">
+                    <img
+                      src="https://i.imgur.com/3UDsFmR.jpg"
+                      alt="Steve McCurry"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex-1 space-y-8">
@@ -2340,10 +2349,10 @@ function Gallery() {
                     </p>
                     <p>
                       {lang === "es"
-                        ? "He tenido la suerte de compartir aprendizaje con Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu y Joan Boira. Y pronto tendré la oportunidad de hacerlo también con Steve McCurry."
+                        ? "He tenido la suerte de compartir aprendizaje con Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu y Joan Boira. Y en junio de 2026 he tenido el gran privilegio de hacer un taller con Steve McCurry, un sueño hecho realidad."
                         : lang === "en"
-                          ? "I have been lucky enough to share learning with Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu, and Joan Boira. And soon I will have the opportunity to do so with Steve McCurry as well."
-                          : "He tingut la sort de compartir aprenentatge amb Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu i Joan Boira. I aviat tindré l'oportunitat de fer-ho també amb Steve McCurry."}
+                          ? "I have been lucky enough to share learning with Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu, and Joan Boira. And in June 2026 I had the great privilege of doing a workshop with Steve McCurry, a dream come true."
+                          : "He tingut la sort de compartir aprenentatge amb Thorsten Overgaard, Todd Hido, Tino Soriano, Gabriel Brau, César Viera, Javier Alonso, Eugenia Hanganu i Joan Boira. I al juny de 2026 he tingut el gran privilegi de fer un taller amb Steve McCurry, un somni fet realitat."}
                     </p>
                     <p>
                       {lang === "es"
@@ -2380,6 +2389,8 @@ function Gallery() {
                         Leica SL3
                         <br />
                         Leica Q3
+                        <br />
+                        Leica M EV1
                       </p>
                     </div>
                     <div>

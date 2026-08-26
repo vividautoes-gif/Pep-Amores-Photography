@@ -1,26 +1,24 @@
-// Free translation service using Google Translate's unofficial API
-// No API key required.
+// Free translation service using Google Translate's unofficial API or Gemini via backend
 
 export const translateText = async (text: string, sourceLang: string, targetLang: string): Promise<string> => {
   if (!text) return '';
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
-    const response = await fetch(url);
+    const response = await fetch('/api/translate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text, sourceLang, targetLang })
+    });
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    
-    let translated = '';
-    if (data && data[0]) {
-      data[0].forEach((segment: any) => {
-        if (segment[0]) translated += segment[0];
-      });
-    }
-    return translated;
+    return data.translatedText || '';
   } catch (error) {
     console.error("Translation error:", error);
-    throw new Error("Error en el servicio de traducción gratuito.");
+    throw new Error("Error en el servicio de traducción.");
   }
 };
 
