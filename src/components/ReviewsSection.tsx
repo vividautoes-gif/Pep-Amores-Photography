@@ -57,26 +57,6 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
     }
   };
 
-  const getLanguageName = (code: string, displayLang: string) => {
-    const names: Record<string, Record<string, string>> = {
-      'es': { 'es': 'Español', 'en': 'Spanish', 'ca': 'Espanyol' },
-      'en': { 'es': 'Inglés', 'en': 'English', 'ca': 'Anglès' },
-      'ca': { 'es': 'Catalán', 'en': 'Catalan', 'ca': 'Català' },
-      'fr': { 'es': 'Francés', 'en': 'French', 'ca': 'Francès' },
-      'de': { 'es': 'Alemán', 'en': 'German', 'ca': 'Alemany' },
-      'it': { 'es': 'Italiano', 'en': 'Italian', 'ca': 'Italià' },
-      'zh': { 'es': 'Chino', 'en': 'Chinese', 'ca': 'Xinès' },
-      'ja': { 'es': 'Japonés', 'en': 'Japanese', 'ca': 'Japonès' },
-    };
-    return names[code]?.[displayLang] || code.toUpperCase();
-  };
-
-  const getTranslatedText = (displayLang: string) => {
-    if (displayLang === 'es') return 'Traducido del';
-    if (displayLang === 'ca') return 'Traduït del';
-    return 'Translated from';
-  };
-
   return (
     <section className="py-16 bg-white relative overflow-hidden" id="reviews">
       <div className="container mx-auto px-4 max-w-7xl">
@@ -101,8 +81,7 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
             <div className="relative">
               <div className="space-y-6 mb-12">
                 {displayedReviews.map((r, index) => {
-                  const reviewText = lang === 'en' && r.text_en ? r.text_en : lang === 'ca' && r.text_ca ? r.text_ca : r.text_es || r.text;
-                  const isTranslated = r.originalLang && r.originalLang !== lang;
+                  const reviewText = r.text;
                   const isLast = index === displayedReviews.length - 1 && showSeeMore && hasMore;
                   
                   return (
@@ -120,14 +99,6 @@ export function ReviewsSection({ lang, showSeeMore = true, onSeeMore }: ReviewsS
                         <p className="text-brand-secondary text-sm leading-relaxed font-light">
                           {reviewText}
                         </p>
-                        {isTranslated && (
-                          <div className="flex items-center gap-1.5 mt-2 opacity-40">
-                            <Globe size={12} />
-                            <span className="text-[10px] uppercase tracking-widest font-bold">
-                              {getTranslatedText(lang)} {getLanguageName(r.originalLang, lang)}
-                            </span>
-                          </div>
-                        )}
                       </div>
                       
                       {isLast && (

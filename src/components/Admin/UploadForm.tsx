@@ -14,7 +14,6 @@ export const UploadForm: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadStep, setUploadStep] = useState('');
   const [progress, setProgress] = useState(0);
-  const [translating, setTranslating] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   
@@ -356,65 +355,6 @@ export const UploadForm: React.FC = () => {
     }
   };
 
-  const handleAutoTranslate = async () => {
-    if (translating) return;
-    setTranslating(true);
-    try {
-      const updates: any = {};
-      const promises: Promise<void>[] = [];
-
-      if (formData.country) {
-        promises.push(translateMetadata(formData.country, ['en', 'ca']).then(res => {
-          updates.country_en = res.en || formData.country_en;
-          updates.country_ca = res.ca || formData.country_ca;
-        }));
-      }
-      if (formData.city) {
-        promises.push(translateMetadata(formData.city, ['en', 'ca']).then(res => {
-          updates.city_en = res.en || formData.city_en;
-          updates.city_ca = res.ca || formData.city_ca;
-        }));
-      }
-      if (formData.neighborhood) {
-        promises.push(translateMetadata(formData.neighborhood, ['en', 'ca']).then(res => {
-          updates.neighborhood_en = res.en || formData.neighborhood_en;
-          updates.neighborhood_ca = res.ca || formData.neighborhood_ca;
-        }));
-      }
-      if (formData.subtheme) {
-        promises.push(translateMetadata(formData.subtheme, ['en', 'ca']).then(res => {
-          updates.subtheme_en = res.en || formData.subtheme_en;
-          updates.subtheme_ca = res.ca || formData.subtheme_ca;
-        }));
-      }
-      if (formData.caption) {
-        promises.push(translateMetadata(formData.caption, ['en', 'ca']).then(res => {
-          updates.caption_en = res.en || formData.caption_en;
-          updates.caption_ca = res.ca || formData.caption_ca;
-        }));
-      }
-
-      if (promises.length === 0) {
-        alert("No hay campos nuevos para traducir. Asegúrate de haber rellenado los campos en español.");
-        setTranslating(false);
-        return;
-      }
-
-      await Promise.all(promises);
-      
-      setFormData(prev => ({
-        ...prev,
-        ...updates
-      }));
-      alert("¡Textos traducidos con éxito!");
-    } catch (error: any) {
-      console.error("Translation error:", error);
-      alert("Error al traducir automáticamente: " + (error.message || "Revisa la consola para más detalles."));
-    } finally {
-      setTranslating(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !auth.currentUser) {
@@ -423,25 +363,9 @@ export const UploadForm: React.FC = () => {
     }
 
     setUploading(true);
-    setUploadStep('Traduciendo textos (1/3)...');
     
     try {
-      setTranslating(true);
-      console.log("Translating metadata for new upload...", formData.title);
-      
-      const fieldsToTranslate: any = {};
-      if (!formData.country_en || !formData.country_ca) fieldsToTranslate.country = formData.country;
-      if (!formData.city_en || !formData.city_ca) fieldsToTranslate.city = formData.city;
-      if (!formData.neighborhood_en || !formData.neighborhood_ca) fieldsToTranslate.neighborhood = formData.neighborhood;
-      if (!formData.subtheme_en || !formData.subtheme_ca) fieldsToTranslate.subtheme = formData.subtheme;
-      if (formData.caption && (!formData.caption_en || !formData.caption_ca)) fieldsToTranslate.caption = formData.caption;
-      
-      const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
-      console.log("Translations received:", { objectTranslations });
-      
-      setTranslating(false);
-
-      setUploadStep('Subiendo imagen a Firebase Storage (2/3)...');
+      setUploadStep('Subiendo imagen a Firebase Storage (1/2)...');
       const storageRef = ref(storage, `photos/${Date.now()}_${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -458,7 +382,7 @@ export const UploadForm: React.FC = () => {
         },
         async () => {
           try {
-            setUploadStep('Guardando datos en la base de datos (3/3)...');
+            setUploadStep('Guardando datos en la base de datos (2/2)...');
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             
             const finalData = {
@@ -989,28 +913,6 @@ export const UploadForm: React.FC = () => {
                 </label>
               )}
             </div>
-
-            {/* Single Translation Button */}
-            <div className="pt-4">
-              <button
-                type="button"
-                onClick={handleAutoTranslate}
-                disabled={translating}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-neutral-100 text-black text-xs font-bold uppercase tracking-widest rounded-2xl hover:bg-neutral-200 transition-all disabled:opacity-50 border border-neutral-200"
-              >
-                {translating ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    Traduciendo todo con IA...
-                  </>
-                ) : (
-                  <>
-                    <Globe size={16} />
-                    Traducir todo automáticamente
-                  </>
-                )}
-              </button>
-            </div>
           </div>
 
           <button
@@ -1021,7 +923,7 @@ export const UploadForm: React.FC = () => {
             {uploading ? (
               <>
                 <Loader2 className="animate-spin" size={20} />
-                {translating ? 'Traduciendo con IA...' : 'Subiendo Fotografía...'}
+                Subiendo Fotografía...
               </>
             ) : (
               <>

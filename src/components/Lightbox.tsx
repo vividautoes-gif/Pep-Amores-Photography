@@ -17,16 +17,20 @@ interface LightboxProps {
 
 export const Lightbox: React.FC<LightboxProps> = ({ photo, journey, onNavigateToJourney, onClose, onNext, onPrev, lang }) => {
   const [activeTab, setActiveTab] = useState<'INFO' | 'TECH'>('INFO');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' && onNext) onNext();
       if (e.key === 'ArrowLeft' && onPrev) onPrev();
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        if (isFullscreen) setIsFullscreen(false);
+        else onClose();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onNext, onPrev, onClose]);
+  }, [onNext, onPrev, onClose, isFullscreen]);
 
   // Animation variants for staggered slide-in
   const containerVariants = {
@@ -51,7 +55,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, journey, onNavigateTo
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-0 md:p-8"
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-0 md:p-4 lg:p-8"
           onClick={onClose}
         >
           <motion.button
@@ -63,28 +67,57 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, journey, onNavigateTo
             <X size={24} strokeWidth={2} />
           </motion.button>
 
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="w-full h-full max-w-[1600px] flex flex-col xl:flex-row bg-zinc-950 xl:rounded-3xl overflow-hidden border border-white/5 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Left: Image Area */}
-            <div className="relative flex-1 flex flex-col bg-black min-h-0">
-              <div className="flex-1 flex items-center justify-center p-4 lg:p-8 overflow-hidden">
+          <AnimatePresence>
+            {isFullscreen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[120] bg-black flex flex-col items-center justify-center"
+                onClick={(e) => { e.stopPropagation(); setIsFullscreen(false); }}
+              >
+                <motion.button
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={(e) => { e.stopPropagation(); setIsFullscreen(false); }}
+                  className="absolute top-6 right-6 text-white/50 hover:text-white z-[130] bg-white/10 rounded-full p-2"
+                >
+                  <X size={24} strokeWidth={2} />
+                </motion.button>
                 <img
                   src={photo.url}
                   alt={photo.title}
                   referrerPolicy="no-referrer"
                   onContextMenu={(e) => e.preventDefault()}
                   onDragStart={(e) => e.preventDefault()}
-                  className="max-w-full max-h-full object-contain"
+                  className="w-full h-full object-contain cursor-zoom-out"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="w-full h-full max-w-[1800px] flex flex-col xl:flex-row bg-zinc-950 xl:rounded-3xl overflow-hidden border border-white/5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Left: Image Area */}
+            <div className="relative flex-1 flex flex-col bg-black min-h-0 group cursor-zoom-in" onClick={() => setIsFullscreen(true)}>
+              <div className="flex-1 flex items-center justify-center p-2 lg:p-6 overflow-hidden">
+                <img
+                  src={photo.url}
+                  alt={photo.title}
+                  referrerPolicy="no-referrer"
+                  onContextMenu={(e) => e.preventDefault()}
+                  onDragStart={(e) => e.preventDefault()}
+                  className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-[1.01]"
                 />
               </div>
 
               {/* Navigation Bar below image */}
-              <div className="flex items-center justify-center gap-12 py-4 bg-zinc-950/50 border-t border-white/5 flex-shrink-0">
+              <div className="flex items-center justify-center gap-12 py-3 bg-zinc-950/50 border-t border-white/5 flex-shrink-0">
                 {onPrev && (
                   <button 
                     onClick={(e) => { e.stopPropagation(); onPrev(); }}
@@ -106,7 +139,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ photo, journey, onNavigateTo
             </div>
 
             {/* Right/Bottom: Details Panel */}
-            <div className="w-full xl:w-[450px] flex-shrink-0 bg-zinc-900/80 p-6 xl:p-10 text-white font-sans border-t xl:border-t-0 xl:border-l border-white/5 overflow-y-auto flex flex-col h-[45%] xl:h-auto">
+            <div className="w-full xl:w-[380px] flex-shrink-0 bg-zinc-900/80 p-5 xl:p-8 text-white font-sans border-t xl:border-t-0 xl:border-l border-white/5 overflow-y-auto flex flex-col h-[35%] xl:h-auto">
               {/* Header */}
               <div className="mb-6 lg:mb-8">
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight uppercase leading-tight">

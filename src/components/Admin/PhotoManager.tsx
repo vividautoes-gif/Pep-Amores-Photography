@@ -3,7 +3,7 @@ import { db, storage } from '../../firebase';
 import { doc, updateDoc, deleteDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { usePhotos, useJourneys, Photo, Journey } from '../../hooks/usePhotos';
-import { translateMetadata, translateObject } from '../../services/geminiService';
+
 import { formatDate } from '../../lib/utils';
 import { Loader2, Trash2, Save, Edit2, X, MapPin, Tag, Camera, Calendar, Award, Star, Globe } from 'lucide-react';
 
@@ -14,46 +14,6 @@ export const PhotoManager: React.FC = () => {
   const [editData, setEditData] = useState<Partial<Photo>>({});
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
-
-  const handleAutoTranslate = async () => {
-    if (translating) return;
-    setTranslating(true);
-    try {
-      const fieldsToTranslate: any = {};
-      if (editData.country && (!editData.country_en || !editData.country_ca)) fieldsToTranslate.country = editData.country;
-      if (editData.city && (!editData.city_en || !editData.city_ca)) fieldsToTranslate.city = editData.city;
-      if (editData.neighborhood && (!editData.neighborhood_en || !editData.neighborhood_ca)) fieldsToTranslate.neighborhood = editData.neighborhood;
-      if (editData.subtheme && (!editData.subtheme_en || !editData.subtheme_ca)) fieldsToTranslate.subtheme = editData.subtheme;
-      if (editData.caption && (!editData.caption_en || !editData.caption_ca)) fieldsToTranslate.caption = editData.caption;
-
-      if (Object.keys(fieldsToTranslate).length === 0) {
-        alert("No hay campos nuevos para traducir.");
-        setTranslating(false);
-        return;
-      }
-
-      const objectTranslations = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
-      
-      setEditData(prev => ({
-        ...prev,
-        country_en: prev.country_en || objectTranslations.en?.country || prev.country_en,
-        country_ca: prev.country_ca || objectTranslations.ca?.country || prev.country_ca,
-        city_en: prev.city_en || objectTranslations.en?.city || prev.city_en,
-        city_ca: prev.city_ca || objectTranslations.ca?.city || prev.city_ca,
-        neighborhood_en: prev.neighborhood_en || objectTranslations.en?.neighborhood || prev.neighborhood_en,
-        neighborhood_ca: prev.neighborhood_ca || objectTranslations.ca?.neighborhood || prev.neighborhood_ca,
-        subtheme_en: prev.subtheme_en || objectTranslations.en?.subtheme || prev.subtheme_en,
-        subtheme_ca: prev.subtheme_ca || objectTranslations.ca?.subtheme || prev.subtheme_ca,
-        caption_en: prev.caption_en || objectTranslations.en?.caption || prev.caption_en,
-        caption_ca: prev.caption_ca || objectTranslations.ca?.caption || prev.caption_ca,
-      }));
-    } catch (error) {
-      console.error("Translation error:", error);
-      alert("Error al traducir automáticamente.");
-    } finally {
-      setTranslating(false);
-    }
-  };
 
   const handleEdit = (photo: Photo) => {
     setEditingId(photo.id);
@@ -82,47 +42,17 @@ export const PhotoManager: React.FC = () => {
         if (!captionCaChanged) finalData.caption_ca = '';
       }
 
-      // Translate fields
-      const fieldsToTranslate: any = {};
-      if (finalData.caption && captionChanged && (!captionEnChanged || !captionCaChanged)) fieldsToTranslate.caption = finalData.caption;
-      if (!finalData.country_en || !finalData.country_ca) fieldsToTranslate.country = finalData.country || '';
-      if (!finalData.city_en || !finalData.city_ca) fieldsToTranslate.city = finalData.city || '';
-      if (!finalData.neighborhood_en || !finalData.neighborhood_ca) fieldsToTranslate.neighborhood = finalData.neighborhood || '';
-      fieldsToTranslate.subtheme = finalData.subtheme || '';
-      
-      const objTrans = await translateObject(fieldsToTranslate, ['es', 'en', 'ca']);
-      
-      if (objTrans.es) {
-        if (objTrans.es.caption && captionChanged) finalData.caption = objTrans.es.caption;
-        if (objTrans.es.country) finalData.country = finalData.country || objTrans.es.country;
-        if (objTrans.es.city) finalData.city = finalData.city || objTrans.es.city;
-        if (objTrans.es.neighborhood) finalData.neighborhood = finalData.neighborhood || objTrans.es.neighborhood;
-        if (objTrans.es.subtheme) finalData.subtheme = finalData.subtheme || objTrans.es.subtheme;
-        if (objTrans.es.tags && !finalData.tags) finalData.tags = objTrans.es.tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
-      }
       if (typeof (finalData as any).tags === 'string') {
         finalData.tags = (finalData as any).tags.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
-      if (objTrans.en) {
-        if (objTrans.en.caption && captionChanged && !captionEnChanged) finalData.caption_en = objTrans.en.caption;
-        if (objTrans.en.country) finalData.country_en = finalData.country_en || objTrans.en.country;
-        if (objTrans.en.city) finalData.city_en = finalData.city_en || objTrans.en.city;
-        if (objTrans.en.neighborhood) finalData.neighborhood_en = finalData.neighborhood_en || objTrans.en.neighborhood;
-        if (objTrans.en.subtheme) finalData.subtheme_en = finalData.subtheme_en || objTrans.en.subtheme;
-      }
+      
       if (!finalData.tags_en) {
         finalData.tags_en = Array.isArray(finalData.tags) ? [...finalData.tags] : [];
       }
       if (typeof (finalData as any).tags_en === 'string') {
         finalData.tags_en = (finalData as any).tags_en.split(',').map((t: string) => t.trim().toLowerCase()).filter((t: string) => t);
       }
-      if (objTrans.ca) {
-        if (objTrans.ca.caption && captionChanged && !captionCaChanged) finalData.caption_ca = objTrans.ca.caption;
-        if (objTrans.ca.country) finalData.country_ca = finalData.country_ca || objTrans.ca.country;
-        if (objTrans.ca.city) finalData.city_ca = finalData.city_ca || objTrans.ca.city;
-        if (objTrans.ca.neighborhood) finalData.neighborhood_ca = finalData.neighborhood_ca || objTrans.ca.neighborhood;
-        if (objTrans.ca.subtheme) finalData.subtheme_ca = finalData.subtheme_ca || objTrans.ca.subtheme;
-      }
+      
       if (!finalData.tags_ca) {
         finalData.tags_ca = Array.isArray(finalData.tags) ? [...finalData.tags] : [];
       }
@@ -185,7 +115,6 @@ export const PhotoManager: React.FC = () => {
                       <h4 className="text-xs font-mono uppercase tracking-widest text-black border-b border-gray-200 pb-1">Metadatos y Descripción</h4>
                       <button
                         type="button"
-                        onClick={handleAutoTranslate}
                         disabled={translating}
                         className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 text-black text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-neutral-200 transition-all disabled:opacity-50"
                       >

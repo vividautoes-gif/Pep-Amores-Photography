@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import { FlowButton } from './ui/flow-button';
 import { formatDate } from '../lib/utils';
 import { Strings } from '../data';
-import { translateMetadata } from '../services/geminiService';
+
 
 interface CommentSectionProps {
   targetId: string;
@@ -41,17 +41,14 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ targetId, target
     
     setIsSubmitting(true);
     try {
-      // Translate comment to es, en, ca
-      const translations = await translateMetadata(newComment, ['es', 'en', 'ca']);
-      
       await addDoc(collection(db, 'comments'), {
         targetId,
         targetType,
         userName,
         text: newComment,
-        text_es: translations.es || newComment,
-        text_en: translations.en || newComment,
-        text_ca: translations.ca || newComment,
+        text_es: newComment,
+        text_en: newComment,
+        text_ca: newComment,
         isApproved: false,
         createdAt: serverTimestamp()
       });
