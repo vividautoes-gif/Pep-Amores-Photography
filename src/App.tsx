@@ -38,6 +38,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
+import { GpsPage } from "./components/GpsPage";
+import { GpsBanner } from "./components/GpsBanner";
 import { PhotoCard } from "./components/PhotoCard";
 import { Lightbox } from "./components/Lightbox";
 import { CommentSection } from "./components/CommentSection";
@@ -455,6 +457,7 @@ function Gallery() {
   const validSections = [
     "journeys",
     "special-sessions",
+    "gps",
     "explore",
     "favorites",
     "latest",
@@ -1656,6 +1659,18 @@ function Gallery() {
               </motion.section>
             )}
 
+          {currentSection === "gps" && (
+            <motion.section
+              key="gps"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full"
+            >
+              <GpsPage lang={lang} />
+            </motion.section>
+          )}
+
           {currentSection === "explore" && (
             <motion.section
               key="explore"
@@ -1845,9 +1860,14 @@ function Gallery() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="container mx-auto px-6 py-12"
+              className="container mx-auto px-4 sm:px-6 pt-0 pb-12"
             >
-              <div className="text-center mb-16">
+              <GpsBanner
+                lang={lang}
+                onNavigate={() => setCurrentSection("gps")}
+              />
+
+              <div className="text-center mt-8 md:mt-12 mb-16">
                 <h1 className="text-5xl font-serif italic mb-6">
                   {s.titles.fav}
                 </h1>

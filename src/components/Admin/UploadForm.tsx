@@ -75,7 +75,7 @@ export const UploadForm: React.FC = () => {
 
     // Extraer EXIF automáticamente
     try {
-      const tags = await ExifReader.load(selectedFile, { expanded: true });
+      const tags: any = await ExifReader.load(selectedFile, { expanded: true });
       
       const getTag = (name: string) => {
         return tags[name] || (tags.ifd0 && tags.ifd0[name]) || (tags.exif && tags.exif[name]) || (tags.image && tags.image[name]);

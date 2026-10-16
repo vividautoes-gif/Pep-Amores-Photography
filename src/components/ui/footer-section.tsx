@@ -49,6 +49,7 @@ export function Footer({ onNavigate, lang }: { onNavigate: (id: string) => void,
             links: [
                 { title: lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest', onClick: () => onNavigate('latest') },
                 { title: 'LFI Gallery', onClick: () => onNavigate('lfi') },
+                { title: 'Libro GPS', onClick: () => onNavigate('gps') },
             ],
         },
         {

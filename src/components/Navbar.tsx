@@ -75,6 +75,15 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang, currentSection, o
       ), 
       id: 'special-sessions' 
     },
+    { 
+      label: (
+        <span className="inline-flex items-center gap-1.5">
+          <span>{lang === 'ca' ? 'Llibre GPS' : lang === 'en' ? 'GPS Book' : 'Libro GPS'}</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#283583] inline-block" />
+        </span>
+      ), 
+      id: 'gps' 
+    },
     { label: s.nav[3], id: 'explore' },
     { label: lang === 'es' ? 'Últimas' : lang === 'ca' ? 'Últimes' : 'Latest', id: 'latest' },
     { label: s.nav[5], id: 'lfi' },
